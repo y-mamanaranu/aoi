@@ -11,10 +11,17 @@ Aoi needs environment variables below.
 
 ## Commands
 
-|     command      |        content         |
-| ---------------- | ---------------------- |
-| `;roles`         | List all roles         |
-| `;text_channels` | List all text channels |
+|           command           |                               content                               |
+| --------------------------- | ------------------------------------------------------------------- |
+| `;help`                     | Show help.                                                          |
+| `;status`                   | Show current config.                                                |
+| `;roles`                    | List name and id of roles.                                          |
+| `;text_channels`            | List name and id of text channels.                                  |
+| `;guild`                    | Return name and id of guild.                                        |
+| `;setprefix <prefix>`       | Change prefix to `prefix`. Default prefix is `;`.                   |
+| `;setchannel <channel_id>`  | Change ID of channel to monitor to `channel_id`. Default is `None`. |
+| `;setrole <role_id>`        | Change ID of role to assign to `role_id`. Default is `None`.        |
+| `;setadmin <admin_role_id>` | Change ID of admin role to `admin_role_id`. Default is `None`.      |
 
 
 ## Generate `requirements.txt`

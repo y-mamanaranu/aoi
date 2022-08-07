@@ -1,7 +1,17 @@
 import discord
 from logging import getLogger, INFO, DEBUG, StreamHandler
 from discord.utils import get
-from Aoi import get_token, get_database_url, init_db, get_ids
+from Aoi import (get_token,
+                 get_database_url,
+                 init_db,
+                 get_ids,
+                 get_prefix,
+                 update_channel_id,
+                 update_prefix,
+                 update_role_id,
+                 update_admin_role_id,
+                 get_status,
+                 get_admin_role_id)
 
 # Setup logging
 logger_level = INFO
@@ -32,36 +42,170 @@ async def on_ready():
 
     Notify to terminal when Aoi is activated.
     """
-    print('Aoi is started')
+    print("Aoi is started")
 
 
 @client.event
 async def on_message(message):
     """Run on message is sent.
 
-    Implement commands in Discord.
+    Excute commands in Discord.
     `;roles`: List name and id of roles.
     `;text_channels`: List name and id of text channels.
     `;guild`: Return name and id of guild.
+    `;setprefix <prefix>`: Change prefix to `prefix`. Default prefix is `;`.
+    `;setchannel <channel_id>`: Change ID of channel to monitor to `channel_id`. Default is `None`.
+    `;setrole <role_id>`: Change ID of role to assign to `role_id`. Default is `None`.
+    `;setadmin <admin_role_id>`: Change ID of admin role to `admin_role_id`. Default is `None`.
     """
     # メッセージ送信者がBotだった場合は無視する
     if message.author.bot:
         return
 
-    # 「;roles」と発言したらロールの名前とID一覧が返る
-    if message.content == ';roles':
+    GUILD_ID = message.guild.id
+    PREFIX = get_prefix(DATABASE_URL, GUILD_ID)
+
+    # ;help
+    if message.content == f"{PREFIX}help":
+        await message.channel.send("""`;help`: Show help.
+`;status`: Show current config.
+`;roles`: List name and id of roles.
+`;text_channels`: List name and id of text channels.
+`;guild`: Return name and id of guild.
+`;setprefix <prefix>`: Change prefix to `prefix`. Default prefix is `;`.
+`;setchannel <channel_id>`: Change ID of channel to monitor to `channel_id`. Default is `None`.
+`;setrole <role_id>`: Change ID of role to assign to `role_id`. Default is `None`.
+`;setadmin <admin_role_id>`: Change ID of admin role to `admin_role_id`. Default is `None`.""")
+        return
+
+    # ;status
+    if message.content == f"{PREFIX}status":
+        CHANNEL_ID, ROLE_ID, ADMIN_ROLE_ID, PREFIX = get_status(DATABASE_URL,
+                                                                GUILD_ID)
+        if CHANNEL_ID is not None:
+            CHANNEL_ID = get(message.guild.channels, id=CHANNEL_ID)
+        if ROLE_ID is not None:
+            ROLE_ID = get(message.guild.roles, id=ROLE_ID)
+        if ADMIN_ROLE_ID is not None:
+            ADMIN_ROLE_ID = get(message.guild.roles, id=ADMIN_ROLE_ID)
+        await message.channel.send(f"""Prefix is {PREFIX}.
+ID of channel to monitor is {CHANNEL_ID}.
+ID of role to assign is {ROLE_ID}.
+ID of admin role is {ADMIN_ROLE_ID}.""")
+        return
+
+    # Admin roleを持っていない場合も無視する
+    ADMIN_ROLE_ID = get_admin_role_id(DATABASE_URL, GUILD_ID)
+    if ADMIN_ROLE_ID is not None:
+        role = get(message.guild.roles, id=ADMIN_ROLE_ID)
+        if role is not None:
+            role = get(message.author.roles, id=ADMIN_ROLE_ID)
+            if role is None:
+                await message.channel.send("""You don't have privilege to excute this command.""")
+                return
+        else:
+            await message.channel.send(f"""ID of admin role of {ADMIN_ROLE_ID} is set but corresponding role is not found.
+Config command is allowed to all members.""")
+    else:
+        await message.channel.send(f"""ID of admin role is not set.
+Config command is allowed to all members.""")
+
+    # ;roles
+    if message.content == f"{PREFIX}roles":
         text = []
         for role in message.guild.roles:
             text.append(f"{role.name}: {role.id}")
         await message.channel.send("\n".join(text))
-    # 「;text_channels」と発言したらロールの名前とID一覧が返る
-    elif message.content == ';text_channels':
+        return
+
+    # ;text_channels
+    if message.content == f"{PREFIX}text_channels":
         text = []
         for chann in message.guild.text_channels:
             text.append(f"{chann.name}: {chann.id}")
         await message.channel.send("\n".join(text))
-    elif message.content == ";guild":
+        return
+
+    # ;guild
+    if message.content == f"{PREFIX}guild":
         await message.channel.send(f"{message.guild.name}: {message.guild.id}")
+        return
+
+    # ;setprefix <prefix>
+    if message.content.startswith(f"{PREFIX}setprefix "):
+        res = message.content.split(" ")
+        if len(res) == 1:
+            await message.channel.send(f"Need argument <prefix>.")
+        elif len(res) == 2:
+            PREFIX = res[1]
+            update_prefix(DATABASE_URL, GUILD_ID, PREFIX)
+            await message.channel.send(f"Prefix is changed to {PREFIX}.")
+        else:
+            await message.channel.send(f"Argument <prefix> contains extra spaces.")
+        return
+
+    # ;setchannel <channel_id>
+    if message.content.startswith(f"{PREFIX}setchannel "):
+        res = message.content.split(" ")
+        if len(res) == 1:
+            await message.channel.send(f"Need argument <channel_id>.")
+        elif len(res) == 2:
+            CHANNEL_ID = res[1]
+            if not CHANNEL_ID.isnumeric():
+                await message.channel.send(f"Argument <channel_id> must be interger.")
+            else:
+                CHANNEL_ID = int(CHANNEL_ID)
+                channel = get(message.guild.text_channels, id=CHANNEL_ID)
+                if channel is None:
+                    await message.channel.send(f"Channel with ID of {CHANNEL_ID} does not exist.")
+                else:
+                    update_channel_id(DATABASE_URL, GUILD_ID, CHANNEL_ID)
+                    await message.channel.send(f"Channel to monitor is changed to {channel}.")
+        else:
+            await message.channel.send(f"Argument <channel_id> contains extra spaces.")
+        return
+
+    # ;setrole <role_id>
+    if message.content.startswith(f"{PREFIX}setrole "):
+        res = message.content.split(" ")
+        if len(res) == 1:
+            await message.channel.send(f"Need argument <role_id>.")
+        elif len(res) == 2:
+            ROLE_ID = res[1]
+            if not ROLE_ID.isnumeric():
+                await message.channel.send(f"Argument <role_id> must be interger.")
+            else:
+                ROLE_ID = int(ROLE_ID)
+                role = get(message.author.roles, id=ROLE_ID)
+                if role is None:
+                    await message.channel.send(f"Argument <role_id> must be ID of role you have.")
+                else:
+                    update_role_id(DATABASE_URL, GUILD_ID, ROLE_ID)
+                    await message.channel.send(f"Role to assign is changed to {role}.")
+        else:
+            await message.channel.send(f"Argument <role_id> contains extra spaces.")
+        return
+
+    # ;setadmin <admin_role_id>
+    if message.content.startswith(f"{PREFIX}setadmin "):
+        res = message.content.split(" ")
+        if len(res) == 1:
+            await message.channel.send(f"Need argument <admin_role_id>.")
+        elif len(res) == 2:
+            ADMIN_ROLE_ID = res[1]
+            if not ADMIN_ROLE_ID.isnumeric():
+                await message.channel.send(f"Argument <admin_role_id> must be interger.")
+            else:
+                ADMIN_ROLE_ID = int(ADMIN_ROLE_ID)
+                admin_role = get(message.author.roles, id=ADMIN_ROLE_ID)
+                if admin_role is None:
+                    await message.channel.send(f"Argument <admin_role_id> must be ID of role you have.")
+                else:
+                    update_admin_role_id(DATABASE_URL, GUILD_ID, ADMIN_ROLE_ID)
+                    await message.channel.send(f"Admin role is changed to {admin_role}.")
+        else:
+            await message.channel.send(f"Argument <admin_role_id> contains extra spaces.")
+        return
 
 
 @client.event
