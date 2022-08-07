@@ -4,11 +4,10 @@ Aoi monitors a particular channel and when a member with a particular role react
 ## Config
 Aoi needs environment variables below.
 
-|     environ      |                  content                  |
-| ---------------- | ----------------------------------------- |
-| `AOI_TOKEN`      | Discord Bot Token                         |
-| `AOI_ROLE_ID`    | ID of role which Aoi grant                |
-| `AOI_CHANNEL_ID` | ID of channel which Aoi look for reaction |
+|    environ     |             content             |
+| -------------- | ------------------------------- |
+| `TOKEN`        | Discord Bot Token               |
+| `DATABASE_URL` | Database URL of Heroku Postgres |
 
 ## Commands
 
@@ -30,4 +29,3 @@ poetry export -f requirements.txt --output requirements.txt
 - [Discord Botアカウント初期設定ガイド for Developer \- Qiita](https://qiita.com/1ntegrale9/items/cb285053f2fa5d0cccdf)
 - [Pythonで実用Discord Bot\(discordpy解説\) \- Qiita](https://qiita.com/1ntegrale9/items/9d570ef8175cf178468f)
 - [discord\.pyでスラッシュコマンド \- discordpy\-japan](https://scrapbox.io/discordpy-japan/discord.py%E3%81%A7%E3%82%B9%E3%83%A9%E3%83%83%E3%82%B7%E3%83%A5%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89)
-- [Heroku Postgres を利用してみよう \- Qiita](https://qiita.com/shosho/items/5ebabf11efb1f3b604f7)
