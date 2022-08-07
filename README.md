@@ -4,11 +4,10 @@ Aoi monitors a particular channel and when a member with a particular role react
 ## Config
 Aoi needs environment variables below.
 
-|     environ      |                  content                  |
-| ---------------- | ----------------------------------------- |
-| `AOI_TOKEN`      | Discord Bot Token                         |
-| `AOI_ROLE_ID`    | ID of role which Aoi grant                |
-| `AOI_CHANNEL_ID` | ID of channel which Aoi look for reaction |
+|    environ     |             content             |
+| -------------- | ------------------------------- |
+| `TOKEN`        | Discord Bot Token               |
+| `DATABASE_URL` | Database URL of Heroku Postgres |
 
 ## Commands
 
