@@ -1,4 +1,5 @@
 import discord
+import asyncio
 from logging import getLogger, INFO, DEBUG, StreamHandler
 from discord.utils import get
 from Aoi import (get_token,
@@ -232,11 +233,33 @@ ID of admin role is {ADMIN_ROLE_ID}.""")
                 res = await m.guild.query_members(user_ids=[m.author.id])
                 if len(res) == 0:
                     member_cand.append(f"<@{m.author.id}>")
-                    message_cand.append(m.id)
+                    message_cand.append(m)
 
             if len(member_cand) > 1:
+                confirm_content = f"YES, eliminate in {message.guild}."
+                member_cand.append(
+                    f"If you want to excute elimination, plese type `{confirm_content}`.")
                 await message.channel.send("\n".join(member_cand))
-                return
+
+                def check(m):
+                    """Check if it's the same user and channel."""
+                    return m.author == message.author and m.channel == message.channel
+
+                try:
+                    response = await client.wait_for('message', check=check, timeout=30.0)
+                except asyncio.TimeoutError:
+                    await message.channel.send("Elimination is canceled with timeout.")
+                    return
+
+                if response.content == confirm_content:
+                    for m in message_cand:
+                        await m.delete()
+                    await message.channel.send("Elimination is excuted.")
+                    return
+                else:
+                    await message.channel.send("Elimination is canceled.")
+                    return
+
             else:
                 await message.channel.send("No message to eliminate is found.")
                 return
@@ -245,7 +268,7 @@ ID of admin role is {ADMIN_ROLE_ID}.""")
             return
 
 
-@client.event
+@ client.event
 async def on_raw_reaction_add(payload):
     """Run on reaction is made.
 
