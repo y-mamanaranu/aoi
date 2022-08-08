@@ -8,7 +8,7 @@ DEFAULT_ADMIN_ROLE_ID = None
 DEFAULT_PREFIX = ";"
 
 
-def check_privilage(DATABASE_URL, GUILD_ID, message):
+async def check_privilage(DATABASE_URL, GUILD_ID, message):
     """"Check user hold Admin role."""
     ADMIN_ROLE_ID = get_admin_role_id(DATABASE_URL, GUILD_ID)
     if ADMIN_ROLE_ID is not None:

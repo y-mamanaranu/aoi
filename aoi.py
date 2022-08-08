@@ -97,7 +97,7 @@ ID of admin role is {ADMIN_ROLE_ID}.""")
 
     # ;roles
     if message.content == f"{PREFIX}roles":
-        if not check_privilage(DATABASE_URL, GUILD_ID, message):
+        if not await check_privilage(DATABASE_URL, GUILD_ID, message):
             return
 
         text = []
@@ -108,7 +108,7 @@ ID of admin role is {ADMIN_ROLE_ID}.""")
 
     # ;text_channels
     if message.content == f"{PREFIX}text_channels":
-        if not check_privilage(DATABASE_URL, GUILD_ID, message):
+        if not await check_privilage(DATABASE_URL, GUILD_ID, message):
             return
 
         text = []
@@ -119,7 +119,7 @@ ID of admin role is {ADMIN_ROLE_ID}.""")
 
     # ;guild
     if message.content == f"{PREFIX}guild":
-        if not check_privilage(DATABASE_URL, GUILD_ID, message):
+        if not await check_privilage(DATABASE_URL, GUILD_ID, message):
             return
 
         await message.channel.send(f"{message.guild.name}: {message.guild.id}")
@@ -127,7 +127,7 @@ ID of admin role is {ADMIN_ROLE_ID}.""")
 
     # ;setprefix <prefix>
     if message.content.startswith(f"{PREFIX}setprefix "):
-        if not check_privilage(DATABASE_URL, GUILD_ID, message):
+        if not await check_privilage(DATABASE_URL, GUILD_ID, message):
             return
 
         res = message.content.split(" ")
@@ -143,7 +143,7 @@ ID of admin role is {ADMIN_ROLE_ID}.""")
 
     # ;setchannel <channel_id>
     if message.content.startswith(f"{PREFIX}setchannel "):
-        if not check_privilage(DATABASE_URL, GUILD_ID, message):
+        if not await check_privilage(DATABASE_URL, GUILD_ID, message):
             return
 
         res = message.content.split(" ")
@@ -167,7 +167,7 @@ ID of admin role is {ADMIN_ROLE_ID}.""")
 
     # ;setrole <role_id>
     if message.content.startswith(f"{PREFIX}setrole "):
-        if not check_privilage(DATABASE_URL, GUILD_ID, message):
+        if not await check_privilage(DATABASE_URL, GUILD_ID, message):
             return
 
         res = message.content.split(" ")
@@ -191,7 +191,7 @@ ID of admin role is {ADMIN_ROLE_ID}.""")
 
     # ;setadmin <admin_role_id>
     if message.content.startswith(f"{PREFIX}setadmin "):
-        if not check_privilage(DATABASE_URL, GUILD_ID, message):
+        if not await check_privilage(DATABASE_URL, GUILD_ID, message):
             return
 
         res = message.content.split(" ")
