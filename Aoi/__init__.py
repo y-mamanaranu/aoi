@@ -62,11 +62,7 @@ def init_db(DATABASE_URL):
 
 
 def insert_ids(DATABASE_URL: str,
-               GUILD_ID: int,
-               CHANNEL_ID: int,
-               ROLE_ID: int,
-               ADMIN_ROLE_ID: int,
-               PREFIX: str):
+               GUILD_ID: int):
     """Insert new ids into database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -77,21 +73,25 @@ def insert_ids(DATABASE_URL: str,
                 admin_role_id,
                 prefix
                 ) VALUES(%s, %s, %s, %s, %s);""",
-                        (GUILD_ID, CHANNEL_ID, ROLE_ID, ADMIN_ROLE_ID, PREFIX)
+                        (GUILD_ID,
+                         DEFAULT_CHANNEL_ID,
+                         DEFAULT_ROLE_ID,
+                         DEFAULT_ADMIN_ROLE_ID,
+                         DEFAULT_PREFIX)
                         )
             conn.commit()
 
 
-def insert_ids_default(DATABASE_URL: str,
-                       GUILD_ID: int):
-    """Insert new ids into database with default values."""
-    insert_ids(
-        DATABASE_URL,
-        GUILD_ID,
-        DEFAULT_CHANNEL_ID,
-        DEFAULT_ROLE_ID,
-        DEFAULT_ADMIN_ROLE_ID,
-        DEFAULT_PREFIX)
+def remove_ids(DATABASE_URL: str,
+               GUILD_ID: str):
+    """Remove ids from database."""
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""DELETE FROM reactedrole
+            WHERE guild_id = %s;""",
+                        (GUILD_ID, )
+                        )
+            conn.commit()
 
 
 def get_ids(DATABASE_URL, GUILD_ID):
@@ -104,11 +104,7 @@ def get_ids(DATABASE_URL, GUILD_ID):
                         (GUILD_ID,))
             res = cur.fetchone()
 
-    if res is None:
-        insert_ids_default(DATABASE_URL, GUILD_ID)
-        return DEFAULT_CHANNEL_ID, DEFAULT_ROLE_ID, DEFAULT_ADMIN_ROLE_ID
-    else:
-        return res
+    return res
 
 
 def get_prefix(DATABASE_URL, GUILD_ID):
@@ -121,11 +117,7 @@ def get_prefix(DATABASE_URL, GUILD_ID):
                         (GUILD_ID,))
             res = cur.fetchone()
 
-    if res is None:
-        insert_ids_default(DATABASE_URL, GUILD_ID)
-        return DEFAULT_PREFIX
-    else:
-        return res[0]
+    return res[0]
 
 
 def get_channel_id(DATABASE_URL, GUILD_ID):
@@ -138,11 +130,7 @@ def get_channel_id(DATABASE_URL, GUILD_ID):
                         (GUILD_ID,))
             res = cur.fetchone()
 
-    if res is None:
-        insert_ids_default(DATABASE_URL, GUILD_ID)
-        return DEFAULT_CHANNEL_ID
-    else:
-        return res[0]
+    return res[0]
 
 
 def get_admin_role_id(DATABASE_URL, GUILD_ID):
@@ -155,11 +143,7 @@ def get_admin_role_id(DATABASE_URL, GUILD_ID):
                         (GUILD_ID,))
             res = cur.fetchone()
 
-    if res is None:
-        insert_ids_default(DATABASE_URL, GUILD_ID)
-        return DEFAULT_ADMIN_ROLE_ID
-    else:
-        return res[0]
+    return res[0]
 
 
 def get_status(DATABASE_URL, GUILD_ID):
@@ -172,11 +156,7 @@ def get_status(DATABASE_URL, GUILD_ID):
                         (GUILD_ID,))
             res = cur.fetchone()
 
-    if res is None:
-        insert_ids_default(DATABASE_URL, GUILD_ID)
-        return DEFAULT_CHANNEL_ID, DEFAULT_ROLE_ID, DEFAULT_ADMIN_ROLE_ID, DEFAULT_PREFIX
-    else:
-        return res
+    return res
 
 
 def update_channel_id(DATABASE_URL, GUILD_ID, CHANNEL_ID):

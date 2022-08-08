@@ -1,8 +1,12 @@
 # Aoi
-Aoi monitors a particular channel and when a member with a particular role reacts, Aoi grants the role to the user who received the reaction.
+Aoi is a bot for automating profile channel management on chat servers.
+Aoi monitors the profile channel and when a member with a particular role reacts, Aoi grants the role to the user who received the reaction.
+It is intended to grant roles to new members with Aoi.
 
 ## Config
-Aoi needs environment variables below.
+Aoi needs the environment variables below in the hosted server.
+If you are trying to host Aoi yourself, please set them in some way.
+If you are a bot user, please skip this section.
 
 |    environ     |             content             |
 | -------------- | ------------------------------- |
@@ -13,18 +17,21 @@ Aoi needs environment variables below.
 
 |           command           |                               content                               |
 | --------------------------- | ------------------------------------------------------------------- |
-| `;help`                     | Show help.                                                          |
-| `;status`                   | Show current config.                                                |
-| `;roles`                    | List name and id of roles.                                          |
-| `;text_channels`            | List name and id of text channels.                                  |
+| `;eliminate`                | Elminate message from leaved member in channel to monitor.          |
 | `;guild`                    | Return name and id of guild.                                        |
-| `;setprefix <prefix>`       | Change prefix to `prefix`. Default prefix is `;`.                   |
-| `;setchannel <channel_id>`  | Change ID of channel to monitor to `channel_id`. Default is `None`. |
-| `;setrole <role_id>`        | Change ID of role to assign to `role_id`. Default is `None`.        |
+| `;help`                     | Show help.                                                          |
+| `;roles`                    | List name and id of roles.                                          |
 | `;setadmin <admin_role_id>` | Change ID of admin role to `admin_role_id`. Default is `None`.      |
+| `;setchannel <channel_id>`  | Change ID of channel to monitor to `channel_id`. Default is `None`. |
+| `;setprefix <prefix>`       | Change prefix to `prefix`. Default prefix is `;`.                   |
+| `;setrole <role_id>`        | Change ID of role to assign to `role_id`. Default is `None`.        |
+| `;status`                   | Show current config.                                                |
+| `;text_channels`            | List name and id of text channels.                                  |
 
 
 ## Generate `requirements.txt`
+If you add a new dependency to Aoi, please update `requirements.txt`.
+
 ```
 poetry export -f requirements.txt --output requirements.txt
 ```
