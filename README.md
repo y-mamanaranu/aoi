@@ -3,6 +3,8 @@ Aoi is a bot for automating profile channel management on chat servers.
 Aoi monitors the profile channel and when a member with a particular role reacts, Aoi grants the role to the user who received the reaction.
 It is intended to grant roles to new members with Aoi.
 
+[Add Aoi to Server](https://discord.com/api/oauth2/authorize?client_id=1004329762484916304&permissions=268512256&scope=bot)
+
 ## Config
 Aoi needs the environment variables below in the hosted server.
 If you are trying to host Aoi yourself, please set them in some way.
