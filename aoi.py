@@ -1,4 +1,5 @@
 import discord
+import asyncio
 from logging import getLogger, INFO, DEBUG, StreamHandler
 from discord.utils import get
 from Aoi import (get_token,
@@ -58,6 +59,7 @@ async def on_message(message):
     `;setchannel <channel_id>`: Change ID of channel to monitor to `channel_id`. Default is `None`.
     `;setrole <role_id>`: Change ID of role to assign to `role_id`. Default is `None`.
     `;setadmin <admin_role_id>`: Change ID of admin role to `admin_role_id`. Default is `None`.
+    `;eliminate`: Elminate message from leaved member in channel to monitor.
     """
     # メッセージ送信者がBotだった場合は無視する
     if message.author.bot:
@@ -213,8 +215,61 @@ ID of admin role is {ADMIN_ROLE_ID}.""")
             await message.channel.send(f"Argument <admin_role_id> contains extra spaces.")
         return
 
+    # ;eliminate
+    if message.content == f"{PREFIX}eliminate":
+        if not await check_privilage(DATABASE_URL, GUILD_ID, message):
+            return
 
-@client.event
+        member_cand = ["Message from user following will be eliminated."]
+        message_cand = []
+        CHANNEL_ID = get_channel_id(DATABASE_URL, GUILD_ID)
+        if CHANNEL_ID is not None:
+            channel = client.get_channel(CHANNEL_ID)
+            async for m in channel.history(limit=200):
+                # skip if author is bot
+                if m.author.bot:
+                    continue
+
+                # check if author is member
+                res = await m.guild.query_members(user_ids=[m.author.id])
+                if len(res) == 0:
+                    member_cand.append(f"<@{m.author.id}>")
+                    message_cand.append(m)
+
+            if len(member_cand) > 1:
+                confirm_content = f"YES, eliminate in {message.guild}."
+                member_cand.append(
+                    f"If you want to excute elimination, plese type `{confirm_content}`.")
+                await message.channel.send("\n".join(member_cand))
+
+                def check(m):
+                    """Check if it's the same user and channel."""
+                    return m.author == message.author and m.channel == message.channel
+
+                try:
+                    response = await client.wait_for('message', check=check, timeout=30.0)
+                except asyncio.TimeoutError:
+                    await message.channel.send("Elimination is canceled with timeout.")
+                    return
+
+                if response.content == confirm_content:
+                    for m in message_cand:
+                        await m.delete()
+                    await message.channel.send("Elimination is excuted.")
+                    return
+                else:
+                    await message.channel.send("Elimination is canceled.")
+                    return
+
+            else:
+                await message.channel.send("No message to eliminate is found.")
+                return
+        else:
+            await message.channel.send(f"ID of channel to monitor is not set.")
+            return
+
+
+@ client.event
 async def on_raw_reaction_add(payload):
     """Run on reaction is made.
 
