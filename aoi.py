@@ -59,6 +59,7 @@ async def on_message(message):
     `;setchannel <channel_id>`: Change ID of channel to monitor to `channel_id`. Default is `None`.
     `;setrole <role_id>`: Change ID of role to assign to `role_id`. Default is `None`.
     `;setadmin <admin_role_id>`: Change ID of admin role to `admin_role_id`. Default is `None`.
+    `;eliminate`: Elminate message from leaved member in channel to monitor.
     """
     # メッセージ送信者がBotだった場合は無視する
     if message.author.bot:
