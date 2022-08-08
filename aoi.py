@@ -213,6 +213,37 @@ ID of admin role is {ADMIN_ROLE_ID}.""")
             await message.channel.send(f"Argument <admin_role_id> contains extra spaces.")
         return
 
+    # ;eliminate
+    if message.content == f"{PREFIX}eliminate":
+        if not await check_privilage(DATABASE_URL, GUILD_ID, message):
+            return
+
+        member_cand = ["Message from user following will be eliminated."]
+        message_cand = []
+        CHANNEL_ID = get_channel_id(DATABASE_URL, GUILD_ID)
+        if CHANNEL_ID is not None:
+            channel = client.get_channel(CHANNEL_ID)
+            async for m in channel.history(limit=200):
+                # skip if author is bot
+                if m.author.bot:
+                    continue
+
+                # check if author is member
+                res = await m.guild.query_members(user_ids=[m.author.id])
+                if len(res) == 0:
+                    member_cand.append(f"<@{m.author.id}>")
+                    message_cand.append(m.id)
+
+            if len(member_cand) > 1:
+                await message.channel.send("\n".join(member_cand))
+                return
+            else:
+                await message.channel.send("No message to eliminate is found.")
+                return
+        else:
+            await message.channel.send(f"ID of channel to monitor is not set.")
+            return
+
 
 @client.event
 async def on_raw_reaction_add(payload):
