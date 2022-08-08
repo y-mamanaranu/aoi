@@ -1,12 +1,33 @@
-from distutils.sysconfig import PREFIX
+from discord.utils import get
 import os
-from unittest.mock import DEFAULT
 import psycopg2
 
 DEFAULT_CHANNEL_ID = None
 DEFAULT_ROLE_ID = None
 DEFAULT_ADMIN_ROLE_ID = None
 DEFAULT_PREFIX = ";"
+
+
+def check_privilage(DATABASE_URL, GUILD_ID, message):
+    """"Check user hold Admin role."""
+    ADMIN_ROLE_ID = get_admin_role_id(DATABASE_URL, GUILD_ID)
+    if ADMIN_ROLE_ID is not None:
+        role = get(message.guild.roles, id=ADMIN_ROLE_ID)
+        if role is not None:
+            role = get(message.author.roles, id=ADMIN_ROLE_ID)
+            if role is None:
+                await message.channel.send("""You don't have privilege to excute this command.""")
+                return False
+            else:
+                return True
+        else:
+            await message.channel.send(f"""ID of admin role of {ADMIN_ROLE_ID} is set but corresponding role is not found.
+Config command is allowed to all members.""")
+            return True
+    else:
+        await message.channel.send(f"""ID of admin role is not set.
+Config command is allowed to all members.""")
+        return True
 
 
 def get_token():
@@ -61,6 +82,18 @@ def insert_ids(DATABASE_URL: str,
             conn.commit()
 
 
+def insert_ids_default(DATABASE_URL: str,
+                       GUILD_ID: int):
+    """Insert new ids into database with default values."""
+    insert_ids(
+        DATABASE_URL,
+        GUILD_ID,
+        DEFAULT_CHANNEL_ID,
+        DEFAULT_ROLE_ID,
+        DEFAULT_ADMIN_ROLE_ID,
+        DEFAULT_PREFIX)
+
+
 def get_ids(DATABASE_URL, GUILD_ID):
     """Get ids from database."""
     with psycopg2.connect(DATABASE_URL) as conn:
@@ -72,13 +105,7 @@ def get_ids(DATABASE_URL, GUILD_ID):
             res = cur.fetchone()
 
     if res is None:
-        insert_ids(
-            DATABASE_URL,
-            GUILD_ID,
-            DEFAULT_CHANNEL_ID,
-            DEFAULT_ROLE_ID,
-            DEFAULT_ADMIN_ROLE_ID,
-            DEFAULT_PREFIX)
+        insert_ids_default(DATABASE_URL, GUILD_ID)
         return DEFAULT_CHANNEL_ID, DEFAULT_ROLE_ID, DEFAULT_ADMIN_ROLE_ID
     else:
         return res
@@ -95,14 +122,25 @@ def get_prefix(DATABASE_URL, GUILD_ID):
             res = cur.fetchone()
 
     if res is None:
-        insert_ids(
-            DATABASE_URL,
-            GUILD_ID,
-            DEFAULT_CHANNEL_ID,
-            DEFAULT_ROLE_ID,
-            DEFAULT_ADMIN_ROLE_ID,
-            DEFAULT_PREFIX)
+        insert_ids_default(DATABASE_URL, GUILD_ID)
         return DEFAULT_PREFIX
+    else:
+        return res[0]
+
+
+def get_channel_id(DATABASE_URL, GUILD_ID):
+    """Get ID of admin role from database."""
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""SELECT channel_id
+            FROM reactedrole
+            WHERE guild_id = %s;""",
+                        (GUILD_ID,))
+            res = cur.fetchone()
+
+    if res is None:
+        insert_ids_default(DATABASE_URL, GUILD_ID)
+        return DEFAULT_CHANNEL_ID
     else:
         return res[0]
 
@@ -118,13 +156,7 @@ def get_admin_role_id(DATABASE_URL, GUILD_ID):
             res = cur.fetchone()
 
     if res is None:
-        insert_ids(
-            DATABASE_URL,
-            GUILD_ID,
-            DEFAULT_CHANNEL_ID,
-            DEFAULT_ROLE_ID,
-            DEFAULT_ADMIN_ROLE_ID,
-            DEFAULT_PREFIX)
+        insert_ids_default(DATABASE_URL, GUILD_ID)
         return DEFAULT_ADMIN_ROLE_ID
     else:
         return res[0]
@@ -141,13 +173,7 @@ def get_status(DATABASE_URL, GUILD_ID):
             res = cur.fetchone()
 
     if res is None:
-        insert_ids(
-            DATABASE_URL,
-            GUILD_ID,
-            DEFAULT_CHANNEL_ID,
-            DEFAULT_ROLE_ID,
-            DEFAULT_ADMIN_ROLE_ID,
-            DEFAULT_PREFIX)
+        insert_ids_default(DATABASE_URL, GUILD_ID)
         return DEFAULT_CHANNEL_ID, DEFAULT_ROLE_ID, DEFAULT_ADMIN_ROLE_ID, DEFAULT_PREFIX
     else:
         return res
