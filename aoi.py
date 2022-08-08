@@ -14,6 +14,8 @@ from Aoi import (get_token,
                  update_admin_role_id,
                  get_status,
                  get_channel_id,
+                 remove_ids,
+                 insert_ids,
                  check_privilage)
 
 # Setup logging
@@ -326,5 +328,18 @@ async def on_raw_reaction_add(payload):
                 await member.add_roles(ROLE)
 
     logger.debug(f"end on_raw_reaction_add")
+
+
+@bot.event
+async def on_guild_join(guild):
+    """When the bot joins the guild."""
+    insert_ids(DATABASE_URL, guild.id)
+
+
+@bot.event
+async def on_guild_remove(guild):
+    """When the bot is removed from the guild."""
+    remove_ids(DATABASE_URL, guild.id)
+
 
 bot.run(TOKEN)
