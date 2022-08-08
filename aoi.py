@@ -75,7 +75,7 @@ async def status(ctx):
     if ADMIN_ROLE_ID is not None:
         ADMIN_ROLE_ID = get(ctx.message.guild.roles, id=ADMIN_ROLE_ID)
     await ctx.message.channel.send(f"""Prefix is {PREFIX}.
-ID of channel to monitor is {CHANNEL_ID}.
+ID of profile channel is {CHANNEL_ID}.
 ID of role to assign is {ROLE_ID}.
 ID of admin role is {ADMIN_ROLE_ID}.""")
     return
@@ -149,7 +149,7 @@ async def setprefix(ctx, *kwargs):
 
 @bot.command()
 async def setchannel(ctx, *kwargs):
-    """Change ID of channel to monitor to `channel_id` with `;setchannel <channel_id>`.
+    """Change ID of profile channel to `channel_id` with `;setchannel <channel_id>`.
 
     Default is `None`.
     """
@@ -171,7 +171,7 @@ async def setchannel(ctx, *kwargs):
                 await ctx.message.channel.send(f"Channel with ID of {CHANNEL_ID} does not exist.")
             else:
                 update_channel_id(DATABASE_URL, GUILD_ID, CHANNEL_ID)
-                await ctx.message.channel.send(f"Channel to monitor is changed to {channel}.")
+                await ctx.message.channel.send(f"Profile channel is changed to {channel}.")
     else:
         await ctx.message.channel.send(f"Argument  must be only `<channel_id>`.")
     return
@@ -239,7 +239,7 @@ async def setadmin(ctx, *kwargs):
 
 @bot.command()
 async def eliminate(ctx):
-    """Elminate message from leaved member in channel to monitor."""
+    """Elminate message from leaved member in profile channel."""
     GUILD_ID = ctx.message.guild.id
 
     if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
@@ -290,7 +290,62 @@ async def eliminate(ctx):
             await ctx.message.channel.send("No message to eliminate is found.")
             return
     else:
-        await ctx.message.channel.send(f"ID of channel to monitor is not set.")
+        await ctx.message.channel.send(f"ID of profile channel is not set.")
+        return
+
+
+@bot.command()
+async def adjust(ctx):
+    """Delete message from duplicate member in profile channel."""
+    GUILD_ID = ctx.message.guild.id
+
+    if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
+        return
+
+    memberlist = []
+    message_cand = []
+    CHANNEL_ID = get_channel_id(DATABASE_URL, GUILD_ID)
+    if CHANNEL_ID is not None:
+        channel = bot.get_channel(CHANNEL_ID)
+        async for m in channel.history(limit=200, oldest_first=True):
+            # skip if author is bot
+            if m.author.bot:
+                continue
+
+            # check if author is member
+            if m.author.id in memberlist:
+                message_cand.append(m)
+            else:
+                memberlist.append(m.author.id)
+
+        if len(message_cand) > 0:
+            confirm_content = f"YES, adjustment in {ctx.message.guild}."
+            await ctx.message.channel.send(f"If you want to excute adjustment, plese type `{confirm_content}`.")
+
+            def check(m):
+                """Check if it's the same user and channel."""
+                return m.author == ctx.message.author and m.channel == ctx.message.channel
+
+            try:
+                response = await bot.wait_for('message', check=check, timeout=30.0)
+            except asyncio.TimeoutError:
+                await ctx.message.channel.send("Adjustment is canceled with timeout.")
+                return
+
+            if response.content == confirm_content:
+                for m in message_cand:
+                    await m.delete()
+                await ctx.message.channel.send("Adjustment is excuted.")
+                return
+            else:
+                await ctx.message.channel.send("Adjustment is canceled.")
+                return
+
+        else:
+            await ctx.message.channel.send("No message to adjust is found.")
+            return
+    else:
+        await ctx.message.channel.send(f"ID of profile channel is not set.")
         return
 
 

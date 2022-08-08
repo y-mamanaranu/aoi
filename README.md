@@ -15,18 +15,19 @@ If you are a bot user, please skip this section.
 
 ## Commands
 
-|           command           |                               content                               |
-| --------------------------- | ------------------------------------------------------------------- |
-| `;eliminate`                | Elminate message from leaved member in channel to monitor.          |
-| `;guild`                    | Return name and id of guild.                                        |
-| `;help`                     | Show help.                                                          |
-| `;roles`                    | List name and id of roles.                                          |
-| `;setadmin <admin_role_id>` | Change ID of admin role to `admin_role_id`. Default is `None`.      |
-| `;setchannel <channel_id>`  | Change ID of channel to monitor to `channel_id`. Default is `None`. |
-| `;setprefix <prefix>`       | Change prefix to `prefix`. Default prefix is `;`.                   |
-| `;setrole <role_id>`        | Change ID of role to assign to `role_id`. Default is `None`.        |
-| `;status`                   | Show current config.                                                |
-| `;text_channels`            | List name and id of text channels.                                  |
+|           command           |                             content                              |
+| --------------------------- | ---------------------------------------------------------------- |
+| `;adjustment`               | Delete message from duplicate message in profile channel.        |
+| `;eliminate`                | Elminate message from leaved member in profile channel.          |
+| `;guild`                    | Return name and id of guild.                                     |
+| `;help`                     | Show help.                                                       |
+| `;roles`                    | List name and id of roles.                                       |
+| `;setadmin <admin_role_id>` | Change ID of admin role to `admin_role_id`. Default is `None`.   |
+| `;setchannel <channel_id>`  | Change ID of profile channel to `channel_id`. Default is `None`. |
+| `;setprefix <prefix>`       | Change prefix to `prefix`. Default prefix is `;`.                |
+| `;setrole <role_id>`        | Change ID of role to assign to `role_id`. Default is `None`.     |
+| `;status`                   | Show current config.                                             |
+| `;text_channels`            | List name and id of text channels.                               |
 
 
 ## Generate `requirements.txt`
