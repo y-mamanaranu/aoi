@@ -11,7 +11,8 @@ from Aoi import (get_token,
                  update_role_id,
                  update_admin_role_id,
                  get_status,
-                 get_admin_role_id)
+                 get_channel_id,
+                 check_privilage)
 
 # Setup logging
 logger_level = INFO
@@ -94,24 +95,11 @@ ID of role to assign is {ROLE_ID}.
 ID of admin role is {ADMIN_ROLE_ID}.""")
         return
 
-    # Admin roleを持っていない場合も無視する
-    ADMIN_ROLE_ID = get_admin_role_id(DATABASE_URL, GUILD_ID)
-    if ADMIN_ROLE_ID is not None:
-        role = get(message.guild.roles, id=ADMIN_ROLE_ID)
-        if role is not None:
-            role = get(message.author.roles, id=ADMIN_ROLE_ID)
-            if role is None:
-                await message.channel.send("""You don't have privilege to excute this command.""")
-                return
-        else:
-            await message.channel.send(f"""ID of admin role of {ADMIN_ROLE_ID} is set but corresponding role is not found.
-Config command is allowed to all members.""")
-    else:
-        await message.channel.send(f"""ID of admin role is not set.
-Config command is allowed to all members.""")
-
     # ;roles
     if message.content == f"{PREFIX}roles":
+        if not check_privilage(DATABASE_URL, GUILD_ID, message):
+            return
+
         text = []
         for role in message.guild.roles:
             text.append(f"{role.name}: {role.id}")
@@ -120,6 +108,9 @@ Config command is allowed to all members.""")
 
     # ;text_channels
     if message.content == f"{PREFIX}text_channels":
+        if not check_privilage(DATABASE_URL, GUILD_ID, message):
+            return
+
         text = []
         for chann in message.guild.text_channels:
             text.append(f"{chann.name}: {chann.id}")
@@ -128,11 +119,17 @@ Config command is allowed to all members.""")
 
     # ;guild
     if message.content == f"{PREFIX}guild":
+        if not check_privilage(DATABASE_URL, GUILD_ID, message):
+            return
+
         await message.channel.send(f"{message.guild.name}: {message.guild.id}")
         return
 
     # ;setprefix <prefix>
     if message.content.startswith(f"{PREFIX}setprefix "):
+        if not check_privilage(DATABASE_URL, GUILD_ID, message):
+            return
+
         res = message.content.split(" ")
         if len(res) == 1:
             await message.channel.send(f"Need argument <prefix>.")
@@ -146,6 +143,9 @@ Config command is allowed to all members.""")
 
     # ;setchannel <channel_id>
     if message.content.startswith(f"{PREFIX}setchannel "):
+        if not check_privilage(DATABASE_URL, GUILD_ID, message):
+            return
+
         res = message.content.split(" ")
         if len(res) == 1:
             await message.channel.send(f"Need argument <channel_id>.")
@@ -167,6 +167,9 @@ Config command is allowed to all members.""")
 
     # ;setrole <role_id>
     if message.content.startswith(f"{PREFIX}setrole "):
+        if not check_privilage(DATABASE_URL, GUILD_ID, message):
+            return
+
         res = message.content.split(" ")
         if len(res) == 1:
             await message.channel.send(f"Need argument <role_id>.")
@@ -188,6 +191,9 @@ Config command is allowed to all members.""")
 
     # ;setadmin <admin_role_id>
     if message.content.startswith(f"{PREFIX}setadmin "):
+        if not check_privilage(DATABASE_URL, GUILD_ID, message):
+            return
+
         res = message.content.split(" ")
         if len(res) == 1:
             await message.channel.send(f"Need argument <admin_role_id>.")
@@ -225,10 +231,7 @@ async def on_raw_reaction_add(payload):
         ROLE = get(payload.member.roles, id=ROLE_ID)
         logger.debug(f"ROLE: {ROLE}")
         if ROLE is not None:
-            channel_id = payload.channel_id
-            logger.debug(f"channel_id: {channel_id}")
-
-            channel = client.get_channel(channel_id)
+            channel = client.get_channel(CHANNEL_ID)
             logger.debug(f"channel: {channel}")
 
             message_id = payload.message_id
