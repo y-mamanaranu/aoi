@@ -1,7 +1,7 @@
 from discord.ext import commands
 import discord
 import asyncio
-from discord.ext.commands import Context
+from discord.ext.commands import Context, DefaultHelpCommand
 from logging import getLogger, INFO, DEBUG, StreamHandler
 from discord.utils import get
 from Aoi import (get_token,
@@ -49,6 +49,8 @@ intents = discord.Intents.default()
 intents.reactions = True
 # client = discord.Client(intents=intents)
 bot = commands.Bot(command_prefix=(get_prefix_ctx),
+                   help_command=DefaultHelpCommand(indent=0,
+                   no_category="Commands"),
                    intents=intents)
 
 
