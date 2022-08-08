@@ -1,6 +1,7 @@
 from discord.ext import commands
 import discord
 import asyncio
+from discord.ext.commands import Context
 from logging import getLogger, INFO, DEBUG, StreamHandler
 from discord.utils import get
 from Aoi import (get_token,
@@ -62,7 +63,7 @@ async def on_ready():
 
 
 @bot.command()
-async def status(ctx):
+async def status(ctx: Context):
     """Show current config."""
     GUILD_ID = ctx.guild.id
 
@@ -82,7 +83,7 @@ ID of admin role is {ADMIN_ROLE_ID}.""")
 
 
 @bot.command()
-async def roles(ctx):
+async def roles(ctx: Context):
     """List name and id of roles."""
     GUILD_ID = ctx.guild.id
 
@@ -97,7 +98,7 @@ async def roles(ctx):
 
 
 @bot.command()
-async def text_channels(ctx):
+async def text_channels(ctx: Context):
     """List name and id of text channels."""
     GUILD_ID = ctx.guild.id
 
@@ -112,7 +113,7 @@ async def text_channels(ctx):
 
 
 @bot.command()
-async def guild(ctx):
+async def guild(ctx: Context):
     """Return name and id of guild."""
     GUILD_ID = ctx.guild.id
 
@@ -124,8 +125,8 @@ async def guild(ctx):
 
 
 @bot.command()
-async def setprefix(ctx, *kwargs):
-    """Change prefix to `prefix` with `;setprefix <prefix>`.
+async def setprefix(ctx: Context, prefix: str):
+    """Change prefix.
 
     Default prefix is `;`.
     """
@@ -134,111 +135,85 @@ async def setprefix(ctx, *kwargs):
     if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
         return
 
-    if len(kwargs) == 0:
-        await ctx.channel.send(f"Need argument `<prefix>`.")
-        return
-    elif len(kwargs) == 1:
-        prefix = kwargs[0]
-        update_prefix(DATABASE_URL, GUILD_ID, prefix)
-        await ctx.channel.send(f"Prefix is changed to `{prefix}`.")
-        return
-    else:
-        await ctx.channel.send(f"Argument must be only `<prefix>`.")
-        return
+    update_prefix(DATABASE_URL, GUILD_ID, prefix)
+    await ctx.channel.send(f"Prefix is changed to `{prefix}`.")
+    return
 
 
 @bot.command()
-async def setchannel(ctx, *kwargs):
-    """Change ID of profile channel to `channel_id` with `;setchannel <channel_id>`.
+async def setchannel(ctx: Context, channel_id: str):
+    """Change ID of profile channel.
 
-    Default is `None`.
+    Default profile channel is `None`.
     """
     GUILD_ID = ctx.guild.id
 
     if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
         return
 
-    if len(kwargs) == 0:
-        await ctx.channel.send(f"Need argument `<channel_id>`.")
-    elif len(kwargs) == 1:
-        CHANNEL_ID = kwargs[0]
-        if not CHANNEL_ID.isnumeric():
-            await ctx.channel.send(f"Argument `<channel_id>` must be interger.")
-        else:
-            CHANNEL_ID = int(CHANNEL_ID)
-            channel = get(ctx.guild.text_channels, id=CHANNEL_ID)
-            if channel is None:
-                await ctx.channel.send(f"Channel with ID of {CHANNEL_ID} does not exist.")
-            else:
-                update_channel_id(DATABASE_URL, GUILD_ID, CHANNEL_ID)
-                await ctx.channel.send(f"Profile channel is changed to {channel}.")
+    if not channel_id.isnumeric():
+        await ctx.channel.send(f"Argument `<channel_id>` must be interger.")
     else:
-        await ctx.channel.send(f"Argument  must be only `<channel_id>`.")
+        channel_id = int(channel_id)
+        channel = get(ctx.guild.text_channels, id=channel_id)
+        if channel is None:
+            await ctx.channel.send(f"Channel with ID of {channel_id} does not exist.")
+        else:
+            update_channel_id(DATABASE_URL, GUILD_ID, channel_id)
+            await ctx.channel.send(f"Profile channel is changed to {channel}.")
     return
 
 
 @bot.command()
-async def setrole(ctx, *kwargs):
-    """Change ID of role to assign to `role_id` with `;setrole <role_id>`.
+async def setrole(ctx: Context, role_id: str):
+    """Change ID of role to assign.
 
-    Default is `None`.
+    Default role to assign is `None`.
     """
     GUILD_ID = ctx.guild.id
 
     if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
         return
 
-    if len(kwargs) == 0:
-        await ctx.channel.send(f"Need argument `<role_id>`.")
-    elif len(kwargs) == 1:
-        ROLE_ID = kwargs[0]
-        if not ROLE_ID.isnumeric():
-            await ctx.channel.send(f"Argument `<role_id>` must be interger.")
-        else:
-            ROLE_ID = int(ROLE_ID)
-            role = get(ctx.author.roles, id=ROLE_ID)
-            if role is None:
-                await ctx.channel.send(f"Argument `<role_id>` must be ID of role you have.")
-            else:
-                update_role_id(DATABASE_URL, GUILD_ID, ROLE_ID)
-                await ctx.channel.send(f"Role to assign is changed to {role}.")
+    if not role_id.isnumeric():
+        await ctx.channel.send(f"Argument `<role_id>` must be interger.")
     else:
-        await ctx.channel.send(f"Argument must be only `<role_id>`.")
+        role_id = int(role_id)
+        role = get(ctx.author.roles, id=role_id)
+        if role is None:
+            await ctx.channel.send(f"Argument `<role_id>` must be ID of role you have.")
+        else:
+            update_role_id(DATABASE_URL, GUILD_ID, role_id)
+            await ctx.channel.send(f"Role to assign is changed to {role}.")
     return
 
 
 @bot.command()
-async def setadmin(ctx, *kwargs):
-    """Change ID of admin role to `admin_role_id` with `;setadmin <admin_role_id>`.
+async def setadmin(ctx: Context, admin_role_id: str):
+    """Change ID of admin role.
 
-    Default is `None`.
+    Default admin role is `None`.
     """
     GUILD_ID = ctx.guild.id
 
     if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
         return
 
-    if len(kwargs) == 0:
-        await ctx.channel.send(f"Need argument `<admin_role_id>`.")
-    elif len(kwargs) == 1:
-        ADMIN_ROLE_ID = kwargs[0]
-        if not ADMIN_ROLE_ID.isnumeric():
-            await ctx.channel.send(f"Argument `<admin_role_id>` must be interger.")
-        else:
-            ADMIN_ROLE_ID = int(ADMIN_ROLE_ID)
-            admin_role = get(ctx.author.roles, id=ADMIN_ROLE_ID)
-            if admin_role is None:
-                await ctx.channel.send(f"Argument `<admin_role_id>` must be ID of role you have.")
-            else:
-                update_admin_role_id(DATABASE_URL, GUILD_ID, ADMIN_ROLE_ID)
-                await ctx.channel.send(f"Admin role is changed to {admin_role}.")
+    if not admin_role_id.isnumeric():
+        await ctx.channel.send(f"Argument `<admin_role_id>` must be interger.")
     else:
-        await ctx.channel.send(f"Argument  must be only `<admin_role_id>`.")
+        admin_role_id = int(admin_role_id)
+        admin_role = get(ctx.author.roles, id=admin_role_id)
+        if admin_role is None:
+            await ctx.channel.send(f"Argument `<admin_role_id>` must be ID of role you have.")
+        else:
+            update_admin_role_id(DATABASE_URL, GUILD_ID, admin_role_id)
+            await ctx.channel.send(f"Admin role is changed to {admin_role}.")
     return
 
 
 @bot.command()
-async def eliminate(ctx):
+async def eliminate(ctx: Context):
     """Elminate message from leaved member in profile channel."""
     GUILD_ID = ctx.guild.id
 
@@ -295,7 +270,7 @@ async def eliminate(ctx):
 
 
 @bot.command()
-async def adjust(ctx):
+async def adjust(ctx: Context):
     """Delete message from duplicate member in profile channel."""
     GUILD_ID = ctx.guild.id
 
