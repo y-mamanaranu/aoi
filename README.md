@@ -20,9 +20,11 @@ If you are a bot user, please skip this section.
 |           command           |                             content                              |
 | --------------------------- | ---------------------------------------------------------------- |
 | `;adjustment`               | Delete message from duplicate message in profile channel.        |
+| `;bots`                     | List name and id of bots.                                        |
 | `;eliminate`                | Elminate message from leaved member in profile channel.          |
 | `;guild`                    | Return name and id of guild.                                     |
 | `;help`                     | Show help.                                                       |
+| `;members`                  | List name and id of members.                                     |
 | `;roles`                    | List name and id of roles.                                       |
 | `;setadmin <admin_role_id>` | Change ID of admin role to `admin_role_id`. Default is `None`.   |
 | `;setchannel <channel_id>`  | Change ID of profile channel to `channel_id`. Default is `None`. |

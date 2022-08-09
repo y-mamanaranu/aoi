@@ -49,6 +49,7 @@ def get_prefix_ctx(client, message):
 # Crate object to connect Discord
 intents = discord.Intents.default()
 intents.reactions = True
+intents.members = True
 # client = discord.Client(intents=intents)
 bot = commands.Bot(command_prefix=(get_prefix_ctx),
                    help_command=DefaultHelpCommand(indent=0,
@@ -112,6 +113,42 @@ async def text_channels(ctx: Context):
     text = []
     for chann in ctx.guild.text_channels:
         text.append(f"{chann.name}: {chann.id}")
+    await ctx.channel.send("\n".join(text))
+    return
+
+
+@bot.command()
+async def members(ctx: Context):
+    """List name and id of members."""
+    GUILD_ID = ctx.guild.id
+
+    if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
+        return
+
+    text = []
+    for member in ctx.guild.members:
+        if member.bot:
+            continue
+
+        text.append(f"{member.name}: {member.id}")
+    await ctx.channel.send("\n".join(text))
+    return
+
+
+@bot.command()
+async def bots(ctx: Context):
+    """List name and id of bots."""
+    GUILD_ID = ctx.guild.id
+
+    if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
+        return
+
+    text = []
+    for member in ctx.guild.members:
+        if not member.bot:
+            continue
+
+        text.append(f"{member.name}: {member.id}")
     await ctx.channel.send("\n".join(text))
     return
 
