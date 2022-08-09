@@ -3,7 +3,7 @@ Aoi is a bot for automating profile channel management on chat servers.
 Aoi monitors the profile channel and when a member with a particular role reacts, Aoi grants the role to the user who received the reaction.
 It is intended to grant roles to new members with Aoi.
 
-[Add Aoi to Server](https://discord.com/api/oauth2/authorize?client_id=1004329762484916304&permissions=268512256&scope=bot)
+[Add Aoi to Server](https://discord.com/api/oauth2/authorize?client_id=1004329762484916304&permissions=2416126992&scope=bot)
 
 ## Config
 Aoi needs the environment variables below in the hosted server.
@@ -15,25 +15,35 @@ If you are a bot user, please skip this section.
 | `TOKEN`        | Discord Bot Token               |
 | `DATABASE_URL` | Database URL of Heroku Postgres |
 
+## Parameters
+
+|   name   |             content              | default |
+| -------- | -------------------------------- | ------- |
+| prefix   | Prefix of command                | `;`     |
+| #Profile | Profile channel                  | `None`  |
+| @Member  | Role to assign to new member     | `None`  |
+| @Admin   | Role who can use config commands | `None`  |
+
+
 ## Commands
 
-|           command           |                             content                              |
-| --------------------------- | ---------------------------------------------------------------- |
-| `;adjustment`               | Delete message from duplicate message in profile channel.        |
-| `;bots`                     | List bots.                                                       |
-| `;eliminate`                | Elminate message from leaved member in profile channel.          |
-| `;guild`                    | Return name and id of guild.                                     |
-| `;help`                     | Show help.                                                       |
-| `;members`                  | List of members.                                                 |
-| `;profile`                  | Show profile of member.                                          |
-| `;roles`                    | List of roles.                                                   |
-| `;setadmin <admin_role_id>` | Change ID of admin role to `admin_role_id`. Default is `None`.   |
-| `;setchannel <channel_id>`  | Change ID of profile channel to `channel_id`. Default is `None`. |
-| `;setprefix <prefix>`       | Change prefix to `prefix`. Default prefix is `;`.                |
-| `;setrole <role_id>`        | Change ID of role to assign to `role_id`. Default is `None`.     |
-| `;status`                   | Show current config.                                             |
-| `;text_channels`            | List of text channels.                                           |
-
+|           command           |                       content                       | @Admin only |
+| --------------------------- | --------------------------------------------------- | ----------- |
+| `;adjustment`               | Delete second or subsequent profile of same user.   | YES         |
+| `;bots`                     | List bots.                                          |             |
+| `;eliminate`                | Delete profile of leaved member.                    | YES         |
+| `;guild`                    | Return name and id of guild.                        | YES         |
+| `;help`                     | Show help.                                          |             |
+| `;members`                  | List members.                                       |             |
+| `;profile <user_id>`        | Show profile of member with id of `user_id`.        |             |
+| `;roles`                    | List roles.                                         |             |
+| `;setadmin <admin_role_id>` | Change ID of @Admin to `admin_role_id`.             | YES         |
+| `;setchannel <channel_id>`  | Change ID of #Profile to `channel_id`.              | YES         |
+| `;setlimit`                 | Change upper limit of voice channel which you join. |             |
+| `;setprefix <prefix>`       | Change prefix to `prefix`.                          | YES         |
+| `;setrole <role_id>`        | Change ID of @Member to `role_id`.                  | YES         |
+| `;status`                   | Show current config.                                |             |
+| `;text_channels`            | List text channels.                                 |             |
 
 ## Generate `requirements.txt`
 If you add a new dependency to Aoi, please update `requirements.txt`.
