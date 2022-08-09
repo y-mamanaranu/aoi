@@ -15,9 +15,15 @@ from Aoi import (get_token,
                  update_prefix,
                  update_role_id,
                  update_admin_role_id,
+                 convert_user_to_mention,
+                 convert_channel_to_mention,
+                 convert_role_to_mention,
                  get_status,
                  get_channel_id,
                  remove_ids,
+                 convert_mention_to_channel,
+                 convert_mention_to_role,
+                 convert_mention_to_user,
                  insert_ids,
                  check_privilage)
 
@@ -74,22 +80,16 @@ async def status(ctx: Context):
 
     CHANNEL_ID, ROLE_ID, ADMIN_ROLE_ID, PREFIX = get_status(DATABASE_URL,
                                                             GUILD_ID)
-    if CHANNEL_ID is not None:
-        CHANNEL_ID = get(ctx.guild.channels, id=CHANNEL_ID)
-    if ROLE_ID is not None:
-        ROLE_ID = get(ctx.guild.roles, id=ROLE_ID)
-    if ADMIN_ROLE_ID is not None:
-        ADMIN_ROLE_ID = get(ctx.guild.roles, id=ADMIN_ROLE_ID)
     await ctx.channel.send(f"""Prefix is {PREFIX}.
-ID of profile channel is {CHANNEL_ID}.
-ID of role to assign is {ROLE_ID}.
-ID of admin role is {ADMIN_ROLE_ID}.""")
+ID of profile channel is {convert_channel_to_mention(CHANNEL_ID)}.
+ID of role to assign is {convert_role_to_mention(ROLE_ID)}.
+ID of admin role is {convert_role_to_mention(ADMIN_ROLE_ID)}.""")
     return
 
 
 @bot.command()
 async def roles(ctx: Context):
-    """List name and id of roles."""
+    """List roles."""
     GUILD_ID = ctx.guild.id
 
     if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
@@ -97,14 +97,14 @@ async def roles(ctx: Context):
 
     text = []
     for role in ctx.guild.roles:
-        text.append(f"{role.name}: {role.id}")
+        text.append(f"{convert_role_to_mention(role.id)}")
     await ctx.channel.send("\n".join(text))
     return
 
 
 @bot.command()
 async def text_channels(ctx: Context):
-    """List name and id of text channels."""
+    """List text channels."""
     GUILD_ID = ctx.guild.id
 
     if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
@@ -112,14 +112,14 @@ async def text_channels(ctx: Context):
 
     text = []
     for chann in ctx.guild.text_channels:
-        text.append(f"{chann.name}: {chann.id}")
+        text.append(f"{convert_channel_to_mention(chann.id)}")
     await ctx.channel.send("\n".join(text))
     return
 
 
 @bot.command()
 async def members(ctx: Context):
-    """List name and id of members."""
+    """List members."""
     GUILD_ID = ctx.guild.id
 
     if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
@@ -130,14 +130,14 @@ async def members(ctx: Context):
         if member.bot:
             continue
 
-        text.append(f"{member.name}: {member.id}")
+        text.append(f"{convert_user_to_mention(member.id)}")
     await ctx.channel.send("\n".join(text))
     return
 
 
 @bot.command()
 async def bots(ctx: Context):
-    """List name and id of bots."""
+    """List of bots."""
     GUILD_ID = ctx.guild.id
 
     if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
@@ -148,7 +148,7 @@ async def bots(ctx: Context):
         if not member.bot:
             continue
 
-        text.append(f"{member.name}: {member.id}")
+        text.append(f"{convert_user_to_mention(member.id)}")
     await ctx.channel.send("\n".join(text))
     return
 
@@ -188,6 +188,7 @@ async def setchannel(ctx: Context, channel_id: str):
     Default profile channel is `None`.
     """
     GUILD_ID = ctx.guild.id
+    channel_id = convert_mention_to_channel(channel_id)
 
     if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
         return
@@ -201,7 +202,8 @@ async def setchannel(ctx: Context, channel_id: str):
             await ctx.channel.send(f"Channel with ID of {channel_id} does not exist.")
         else:
             update_channel_id(DATABASE_URL, GUILD_ID, channel_id)
-            await ctx.channel.send(f"Profile channel is changed to {channel}.")
+            await ctx.channel.send("Profile channel is changed "
+                                   f"to {convert_channel_to_mention(channel_id)}.")
     return
 
 
@@ -212,6 +214,7 @@ async def setrole(ctx: Context, role_id: str):
     Default role to assign is `None`.
     """
     GUILD_ID = ctx.guild.id
+    role_id = convert_mention_to_role(role_id)
 
     if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
         return
@@ -225,7 +228,8 @@ async def setrole(ctx: Context, role_id: str):
             await ctx.channel.send("Argument `<role_id>` must be ID of role you have.")
         else:
             update_role_id(DATABASE_URL, GUILD_ID, role_id)
-            await ctx.channel.send(f"Role to assign is changed to {role}.")
+            await ctx.channel.send("Role to assign is changed "
+                                   f"to {convert_role_to_mention(role_id)}.")
     return
 
 
@@ -236,6 +240,7 @@ async def setadmin(ctx: Context, admin_role_id: str):
     Default admin role is `None`.
     """
     GUILD_ID = ctx.guild.id
+    admin_role_id = convert_mention_to_role(admin_role_id)
 
     if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
         return
@@ -249,7 +254,8 @@ async def setadmin(ctx: Context, admin_role_id: str):
             await ctx.channel.send("Argument `<admin_role_id>` must be ID of role you have.")
         else:
             update_admin_role_id(DATABASE_URL, GUILD_ID, admin_role_id)
-            await ctx.channel.send(f"Admin role is changed to {admin_role}.")
+            await ctx.channel.send("Admin role is changed "
+                                   f"to {convert_role_to_mention(admin_role_id)}.")
     return
 
 
@@ -266,7 +272,7 @@ async def eliminate(ctx: Context):
     CHANNEL_ID = get_channel_id(DATABASE_URL, GUILD_ID)
     if CHANNEL_ID is not None:
         channel = bot.get_channel(CHANNEL_ID)
-        async for m in channel.history(limit=200):
+        async for m in channel.history(limit=200, oldest_first=True):
             # skip if author is bot
             if m.author.bot:
                 continue
@@ -274,7 +280,7 @@ async def eliminate(ctx: Context):
             # check if author is member
             res = await m.guild.query_members(user_ids=[m.author.id])
             if len(res) == 0:
-                member_cand.append(f"<@{m.author.id}>")
+                member_cand.append(convert_user_to_mention(m.author.id))
                 message_cand.append(m)
 
         if len(member_cand) > 1:
@@ -363,6 +369,44 @@ async def adjust(ctx: Context):
             return
     else:
         await ctx.channel.send("ID of profile channel is not set.")
+        return
+
+
+@bot.command()
+async def profile(ctx: Context, user_id: str):
+    """Show profile of member."""
+    GUILD_ID = ctx.guild.id
+    user_id = convert_mention_to_user(user_id)
+
+    # If CHANNEL_ID is None, stop
+    CHANNEL_ID = get_channel_id(DATABASE_URL, GUILD_ID)
+    if CHANNEL_ID is None:
+        await ctx.channel.send("ID of profile channel is not set.")
+        return
+
+    # If user_id is invalid, stop
+    res = await ctx.guild.query_members(user_ids=[user_id])
+    if len(res) == 0:
+        await ctx.channel.send("Invalid `user_id`.")
+        return
+    else:
+        member, = res
+
+    # Show profile
+    channel = bot.get_channel(CHANNEL_ID)
+
+    messages = await channel.history(limit=200, oldest_first=True).flatten()
+    message = get(messages, author=member)
+
+    if message is not None:
+        embed = discord.Embed(description=message.content)
+        embed.set_author(name=member.nick or member.name,
+                         icon_url=member.avatar_url)
+
+        await ctx.channel.send(embed=embed)
+        return
+    else:
+        await ctx.channel.send("No profile is found.")
         return
 
 

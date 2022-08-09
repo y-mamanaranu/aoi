@@ -20,18 +20,19 @@ If you are a bot user, please skip this section.
 |           command           |                             content                              |
 | --------------------------- | ---------------------------------------------------------------- |
 | `;adjustment`               | Delete message from duplicate message in profile channel.        |
-| `;bots`                     | List name and id of bots.                                        |
+| `;bots`                     | List bots.                                                       |
 | `;eliminate`                | Elminate message from leaved member in profile channel.          |
 | `;guild`                    | Return name and id of guild.                                     |
 | `;help`                     | Show help.                                                       |
-| `;members`                  | List name and id of members.                                     |
-| `;roles`                    | List name and id of roles.                                       |
+| `;members`                  | List of members.                                                 |
+| `;profile`                  | Show profile of member.                                          |
+| `;roles`                    | List of roles.                                                   |
 | `;setadmin <admin_role_id>` | Change ID of admin role to `admin_role_id`. Default is `None`.   |
 | `;setchannel <channel_id>`  | Change ID of profile channel to `channel_id`. Default is `None`. |
 | `;setprefix <prefix>`       | Change prefix to `prefix`. Default prefix is `;`.                |
 | `;setrole <role_id>`        | Change ID of role to assign to `role_id`. Default is `None`.     |
 | `;status`                   | Show current config.                                             |
-| `;text_channels`            | List name and id of text channels.                               |
+| `;text_channels`            | List of text channels.                                           |
 
 
 ## Generate `requirements.txt`
