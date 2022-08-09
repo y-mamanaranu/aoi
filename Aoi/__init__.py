@@ -1,11 +1,63 @@
 from discord.utils import get
 import os
 import psycopg2
+import re
 
 DEFAULT_CHANNEL_ID = None
 DEFAULT_ROLE_ID = None
 DEFAULT_ADMIN_ROLE_ID = None
 DEFAULT_PREFIX = ";"
+
+
+def convert_mention_to_user(mention: str):
+    """Convert mention to user to user_id."""
+    res = re.match(r"^<@(\d+)>$", mention)
+    if res is None:
+        return mention
+    else:
+        return res.group(1)
+
+
+def convert_mention_to_channel(mention: str):
+    """Convert mention to channel to channel_id."""
+    res = re.match(r"^<#(\d+)>$", mention)
+    if res is None:
+        return mention
+    else:
+        return res.group(1)
+
+
+def convert_mention_to_role(mention: str):
+    """Convert mention to role to role_id."""
+    res = re.match(r"^<@&(\d+)>$", mention)
+    if res is None:
+        return mention
+    else:
+        return res.group(1)
+
+
+def convert_user_to_mention(user_id: str):
+    """Convert user_id mention to user."""
+    if user_id is None:
+        return None
+
+    return f"<@{user_id}>"
+
+
+def convert_channel_to_mention(channel_id: str):
+    """Convert channel_id to mention to channel."""
+    if channel_id is None:
+        return None
+
+    return f"<#{channel_id}>"
+
+
+def convert_role_to_mention(role_id: str):
+    """Convert role_id mention to role."""
+    if role_id is None:
+        return None
+
+    return f"<@&{role_id}>"
 
 
 async def check_privilage(DATABASE_URL, GUILD_ID, message):
@@ -21,12 +73,13 @@ async def check_privilage(DATABASE_URL, GUILD_ID, message):
             else:
                 return True
         else:
-            await message.channel.send(f"""ID of admin role of {ADMIN_ROLE_ID} is set but corresponding role is not found.
-Config command is allowed to all members.""")
+            await message.channel.send(f"""ID of admin role of {ADMIN_ROLE_ID} is set, """
+                                       """but corresponding role is not found. """
+                                       """Config command is allowed to all members.""")
             return True
     else:
-        await message.channel.send(f"""ID of admin role is not set.
-Config command is allowed to all members.""")
+        await message.channel.send("""ID of admin role is not set. """
+                                   """Config command is allowed to all members.""")
         return True
 
 
