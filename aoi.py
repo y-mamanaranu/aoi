@@ -412,6 +412,30 @@ async def profile(ctx: Context, user_id: str):
         return
 
 
+@bot.command()
+async def setlimit(ctx: Context, limit: str):
+    """Change upper limit of voice channel which you join`.
+
+    The user limit is change to `limit`.
+    Value of `0` to remove limit.
+    """
+    if not limit.isnumeric():
+        await ctx.channel.send("Argument `<limit>` must be interger.")
+    else:
+        limit = int(limit)
+        channel = ctx.author.voice.channel
+
+        if channel is None:
+            await ctx.channel.send("You do not join voice channel.")
+            return
+        else:
+            if limit == 0:
+                await channel.edit(user_limit=None)
+            else:
+                await channel.edit(user_limit=limit)
+            return
+
+
 @ bot.event
 async def on_raw_reaction_add(payload):
     """Run on reaction is made.
