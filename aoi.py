@@ -1,8 +1,10 @@
+"""Aoi Bot code."""
 from discord.ext import commands
 import discord
 import asyncio
 from discord.ext.commands import Context, DefaultHelpCommand
-from logging import getLogger, INFO, DEBUG, StreamHandler
+from logging import getLogger, INFO, StreamHandler
+# from logging import DEBUG
 from discord.utils import get
 from Aoi import (get_token,
                  get_database_url,
@@ -154,7 +156,7 @@ async def setchannel(ctx: Context, channel_id: str):
         return
 
     if not channel_id.isnumeric():
-        await ctx.channel.send(f"Argument `<channel_id>` must be interger.")
+        await ctx.channel.send("Argument `<channel_id>` must be interger.")
     else:
         channel_id = int(channel_id)
         channel = get(ctx.guild.text_channels, id=channel_id)
@@ -178,12 +180,12 @@ async def setrole(ctx: Context, role_id: str):
         return
 
     if not role_id.isnumeric():
-        await ctx.channel.send(f"Argument `<role_id>` must be interger.")
+        await ctx.channel.send("Argument `<role_id>` must be interger.")
     else:
         role_id = int(role_id)
         role = get(ctx.author.roles, id=role_id)
         if role is None:
-            await ctx.channel.send(f"Argument `<role_id>` must be ID of role you have.")
+            await ctx.channel.send("Argument `<role_id>` must be ID of role you have.")
         else:
             update_role_id(DATABASE_URL, GUILD_ID, role_id)
             await ctx.channel.send(f"Role to assign is changed to {role}.")
@@ -202,12 +204,12 @@ async def setadmin(ctx: Context, admin_role_id: str):
         return
 
     if not admin_role_id.isnumeric():
-        await ctx.channel.send(f"Argument `<admin_role_id>` must be interger.")
+        await ctx.channel.send("Argument `<admin_role_id>` must be interger.")
     else:
         admin_role_id = int(admin_role_id)
         admin_role = get(ctx.author.roles, id=admin_role_id)
         if admin_role is None:
-            await ctx.channel.send(f"Argument `<admin_role_id>` must be ID of role you have.")
+            await ctx.channel.send("Argument `<admin_role_id>` must be ID of role you have.")
         else:
             update_admin_role_id(DATABASE_URL, GUILD_ID, admin_role_id)
             await ctx.channel.send(f"Admin role is changed to {admin_role}.")
@@ -267,7 +269,7 @@ async def eliminate(ctx: Context):
             await ctx.channel.send("No message to eliminate is found.")
             return
     else:
-        await ctx.channel.send(f"ID of profile channel is not set.")
+        await ctx.channel.send("ID of profile channel is not set.")
         return
 
 
@@ -297,7 +299,8 @@ async def adjust(ctx: Context):
 
         if len(message_cand) > 0:
             confirm_content = f"YES, adjustment in {ctx.guild}."
-            await ctx.channel.send(f"If you want to excute adjustment, plese type `{confirm_content}`.")
+            await ctx.channel.send("If you want to excute adjustment, "
+                                   f"plese type `{confirm_content}`.")
 
             def check(m):
                 """Check if it's the same user and channel."""
@@ -322,7 +325,7 @@ async def adjust(ctx: Context):
             await ctx.channel.send("No message to adjust is found.")
             return
     else:
-        await ctx.channel.send(f"ID of profile channel is not set.")
+        await ctx.channel.send("ID of profile channel is not set.")
         return
 
 
@@ -330,9 +333,10 @@ async def adjust(ctx: Context):
 async def on_raw_reaction_add(payload):
     """Run on reaction is made.
 
-    When a member with `ROLE` reacts on `CHANNEL`, `ROLE` is given to the person who sent the message.
+    When a member with `ROLE` reacts on `CHANNEL`,
+    `ROLE` is given to the person who sent the message.
     """
-    logger.debug(f"start on_raw_reaction_add")
+    logger.debug("start on_raw_reaction_add")
 
     GUILD_ID = payload.guild_id
     logger.debug(f"GUILD_ID: {GUILD_ID}")
@@ -359,7 +363,7 @@ async def on_raw_reaction_add(payload):
                 logger.debug(f"Add {ROLE} to {member}")
                 await member.add_roles(ROLE)
 
-    logger.debug(f"end on_raw_reaction_add")
+    logger.debug("end on_raw_reaction_add")
 
 
 @bot.event
