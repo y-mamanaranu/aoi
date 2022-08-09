@@ -75,12 +75,18 @@ async def on_ready():
 
 @bot.command()
 async def status(ctx: Context):
-    """Show current config."""
+    """Show current config.
+
+    Prefix is Prefix of command.
+    #Profile is Profile channel.
+    @Member is Role to assign to new member.
+    @Admin is Role who can use config commands.
+    """
     GUILD_ID = ctx.guild.id
 
     CHANNEL_ID, ROLE_ID, ADMIN_ROLE_ID, PREFIX = get_status(DATABASE_URL,
                                                             GUILD_ID)
-    await ctx.channel.send(f"""Prefix is {PREFIX}.
+    await ctx.channel.send(f"""Prefix is `{PREFIX}`.
 ID of profile channel is {convert_channel_to_mention(CHANNEL_ID)}.
 ID of role to assign is {convert_role_to_mention(ROLE_ID)}.
 ID of admin role is {convert_role_to_mention(ADMIN_ROLE_ID)}.""")
@@ -90,11 +96,6 @@ ID of admin role is {convert_role_to_mention(ADMIN_ROLE_ID)}.""")
 @bot.command()
 async def roles(ctx: Context):
     """List roles."""
-    GUILD_ID = ctx.guild.id
-
-    if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
-        return
-
     text = []
     for role in ctx.guild.roles:
         text.append(f"{convert_role_to_mention(role.id)}")
@@ -105,11 +106,6 @@ async def roles(ctx: Context):
 @bot.command()
 async def text_channels(ctx: Context):
     """List text channels."""
-    GUILD_ID = ctx.guild.id
-
-    if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
-        return
-
     text = []
     for chann in ctx.guild.text_channels:
         text.append(f"{convert_channel_to_mention(chann.id)}")
@@ -120,11 +116,6 @@ async def text_channels(ctx: Context):
 @bot.command()
 async def members(ctx: Context):
     """List members."""
-    GUILD_ID = ctx.guild.id
-
-    if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
-        return
-
     text = []
     for member in ctx.guild.members:
         if member.bot:
@@ -137,12 +128,7 @@ async def members(ctx: Context):
 
 @bot.command()
 async def bots(ctx: Context):
-    """List of bots."""
-    GUILD_ID = ctx.guild.id
-
-    if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
-        return
-
+    """List bots."""
     text = []
     for member in ctx.guild.members:
         if not member.bot:
@@ -155,7 +141,10 @@ async def bots(ctx: Context):
 
 @bot.command()
 async def guild(ctx: Context):
-    """Return name and id of guild."""
+    """Return name and id of guild.
+
+    @Admin is required excute this commnad.
+    """
     GUILD_ID = ctx.guild.id
 
     if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
@@ -167,8 +156,9 @@ async def guild(ctx: Context):
 
 @bot.command()
 async def setprefix(ctx: Context, prefix: str):
-    """Change prefix.
+    """Change prefix to `prefix`.
 
+    Prefix is Prefix of command.
     Default prefix is `;`.
     """
     GUILD_ID = ctx.guild.id
@@ -183,9 +173,11 @@ async def setprefix(ctx: Context, prefix: str):
 
 @bot.command()
 async def setchannel(ctx: Context, channel_id: str):
-    """Change ID of profile channel.
+    """Change ID of #Profile to `channel_id`.
 
-    Default profile channel is `None`.
+    @Admin is required excute this commnad.
+    #Profile is Profile channel.
+    Default ID of #Profile is `None`.
     """
     GUILD_ID = ctx.guild.id
     channel_id = convert_mention_to_channel(channel_id)
@@ -209,9 +201,11 @@ async def setchannel(ctx: Context, channel_id: str):
 
 @bot.command()
 async def setrole(ctx: Context, role_id: str):
-    """Change ID of role to assign.
+    """Change ID of @Member to `role_id`.
 
-    Default role to assign is `None`.
+    @Admin is required excute this commnad.
+    @Member is Role to assign to new member.
+    Default ID of @Member is `None`.
     """
     GUILD_ID = ctx.guild.id
     role_id = convert_mention_to_role(role_id)
@@ -235,9 +229,11 @@ async def setrole(ctx: Context, role_id: str):
 
 @bot.command()
 async def setadmin(ctx: Context, admin_role_id: str):
-    """Change ID of admin role.
+    """Change ID of @Admin to `admin_role_id`.
 
-    Default admin role is `None`.
+    @Admin is required excute this commnad.
+    @Admin is Role who can use config commands.
+    Default ID of @Admin is `None`.
     """
     GUILD_ID = ctx.guild.id
     admin_role_id = convert_mention_to_role(admin_role_id)
@@ -261,7 +257,10 @@ async def setadmin(ctx: Context, admin_role_id: str):
 
 @bot.command()
 async def eliminate(ctx: Context):
-    """Elminate message from leaved member in profile channel."""
+    """Delete profile of leaved member.
+
+    @Admin is required excute this commnad.
+    """
     GUILD_ID = ctx.guild.id
 
     if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
@@ -318,7 +317,10 @@ async def eliminate(ctx: Context):
 
 @bot.command()
 async def adjust(ctx: Context):
-    """Delete message from duplicate member in profile channel."""
+    """Delete second or subsequent profile of same user.
+
+    @Admin is required excute this commnad.
+    """
     GUILD_ID = ctx.guild.id
 
     if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
@@ -374,7 +376,7 @@ async def adjust(ctx: Context):
 
 @bot.command()
 async def profile(ctx: Context, user_id: str):
-    """Show profile of member."""
+    """Show profile of member with id of `user_id`."""
     GUILD_ID = ctx.guild.id
     user_id = convert_mention_to_user(user_id)
 
