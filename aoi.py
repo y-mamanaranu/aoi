@@ -429,11 +429,7 @@ async def setlimit(ctx: Context, limit: str):
             await ctx.channel.send("You do not join voice channel.")
             return
         else:
-            if limit == 0:
-                await channel.edit(user_limit=None)
-            else:
-                await channel.edit(user_limit=limit)
-            return
+            await channel.edit(user_limit=limit)
 
 
 @ bot.event
@@ -484,5 +480,14 @@ async def on_guild_remove(guild):
     """When the bot is removed from the guild."""
     remove_ids(DATABASE_URL, guild.id)
 
+
+@bot.event
+async def on_voice_state_update(member, before, after):
+    """Run on member join or leave voice channel."""
+    if member.bot:
+        if before.channel is not None and before.channel.user_limit != 0:
+            await before.channel.edit(user_limit=before.channel.user_limit - 1)
+        if after.channel is not None and after.channel.user_limit != 0:
+            await after.channel.edit(user_limit=after.channel.user_limit + 1)
 
 bot.run(TOKEN)
