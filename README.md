@@ -27,23 +27,26 @@ If you are a bot user, please skip this section.
 
 ## Commands
 
-|           command           |                       content                       | @Admin only |
-| --------------------------- | --------------------------------------------------- | ----------- |
-| `;adjustment`               | Delete second or subsequent profile of same user.   | YES         |
-| `;bots`                     | List bots.                                          |             |
-| `;eliminate`                | Delete profile of leaved member.                    | YES         |
-| `;guild`                    | Return name and id of guild.                        | YES         |
-| `;help`                     | Show help.                                          |             |
-| `;members`                  | List members.                                       |             |
-| `;profile <user_id>`        | Show profile of member with id of `user_id`.        |             |
-| `;roles`                    | List roles.                                         |             |
-| `;setadmin <admin_role_id>` | Change ID of @Admin to `admin_role_id`.             | YES         |
-| `;setchannel <channel_id>`  | Change ID of #Profile to `channel_id`.              | YES         |
-| `;setlimit`                 | Change upper limit of voice channel which you join. |             |
-| `;setprefix <prefix>`       | Change prefix to `prefix`.                          | YES         |
-| `;setrole <role_id>`        | Change ID of @Member to `role_id`.                  | YES         |
-| `;status`                   | Show current config.                                |             |
-| `;text_channels`            | List text channels.                                 |             |
+|           command           |                          content                          | @Admin only |
+| --------------------------- | --------------------------------------------------------- | ----------- |
+| `;adjustment`               | Delete second or subsequent profile of same user.         | YES         |
+| `;bots`                     | List bots.                                                |             |
+| `;eliminate`                | Delete profile of leaved member.                          | YES         |
+| `;guild`                    | Return name and id of guild.                              | YES         |
+| `;help`                     | Show help.                                                |             |
+| `;members`                  | List members.                                             |             |
+| `;profile <user_id>`        | Show profile of member with id of `user_id`.              |             |
+| `;roles`                    | List roles.                                               |             |
+| `;setadmin <admin_role_id>` | Change ID of @Admin to `admin_role_id`.                   | YES         |
+| `;setchannel <channel_id>`  | Change ID of #Profile to `channel_id`.                    | YES         |
+| `;setlimit`                 | Change upper limit of voice channel which you join.       |             |
+| `;setprefix <prefix>`       | Change prefix to `prefix`.                                | YES         |
+| `;setrole <role_id>`        | Change ID of @Member to `role_id`.                        | YES         |
+| `;split <channel_id>`       | Split voice channel member and move half to `channel_id`. |             |
+| `;splithere`                | Split voice channel member and move half here.            |             |
+| `;status`                   | Show current config.                                      |             |
+| `;text_channels`            | List text channels.                                       |             |
+| `;voice_channels`           | List voice channels.                                      |             |
 
 ## Generate `requirements.txt`
 If you add a new dependency to Aoi, please update `requirements.txt`.

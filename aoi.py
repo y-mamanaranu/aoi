@@ -1,6 +1,7 @@
 """Aoi Bot code."""
 from discord.ext import commands
 import discord
+import random
 import asyncio
 from discord.ext.commands import Context, DefaultHelpCommand
 from logging import getLogger, INFO, StreamHandler
@@ -108,7 +109,17 @@ async def text_channels(ctx: Context):
     """List text channels."""
     text = []
     for chann in ctx.guild.text_channels:
-        text.append(f"{convert_channel_to_mention(chann.id)}")
+        text.append(f"{convert_channel_to_mention(chann.id)}: {chann.id}")
+    await ctx.channel.send("\n".join(text))
+    return
+
+
+@bot.command()
+async def voice_channels(ctx: Context):
+    """List voice channels."""
+    text = []
+    for chann in ctx.guild.voice_channels:
+        text.append(f"{convert_channel_to_mention(chann.id)}: {chann.id}")
     await ctx.channel.send("\n".join(text))
     return
 
@@ -430,6 +441,47 @@ async def setlimit(ctx: Context, limit: str):
             return
         else:
             await channel.edit(user_limit=limit)
+
+
+@bot.command()
+async def split(ctx: Context, channel_id: str):
+    """Split voice channel member and move half to `channel_id`."""
+    channel_id = convert_mention_to_channel(channel_id)
+    origin = ctx.author.voice.channel
+
+    if not channel_id.isnumeric():
+        await ctx.channel.send("Argument `<channel_id>` must be interger.")
+    else:
+        channel_id = int(channel_id)
+        channel = get(ctx.guild.voice_channels, id=channel_id)
+        if channel is None:
+            await ctx.channel.send(f"Channel with ID of {channel_id} does not exist.")
+        else:
+            members = [
+                member for member in ctx.guild.members if not member.bot]
+            members = random.sample(members, len(members))
+            members1 = members[:len(members) // 2]
+            members2 = members[len(members) // 2:]
+
+            text = []
+            text.append(
+                f"> Members for {convert_channel_to_mention(origin.id)}")
+            for member in members1:
+                text.append(f"{convert_user_to_mention(member.id)}")
+            text.append(
+                f"> Members for {convert_channel_to_mention(channel.id)}")
+            for member in members2:
+                text.append(f"{convert_user_to_mention(member.id)}")
+                await member.move_to(channel)
+
+            await ctx.channel.send("\n".join(text))
+    return
+
+
+@bot.command()
+async def splithere(ctx: Context):
+    """Split voice channel member and move half here."""
+    await split(ctx, str(ctx.channel.id))
 
 
 @ bot.event
