@@ -10,7 +10,6 @@ from discord.utils import get
 from Aoi import (get_token,
                  get_database_url,
                  init_db,
-                 get_ids,
                  get_prefix,
                  update_channel_id,
                  update_prefix,
@@ -19,8 +18,9 @@ from Aoi import (get_token,
                  convert_user_to_mention,
                  convert_channel_to_mention,
                  convert_role_to_mention,
-                 get_status,
-                 get_channel_id,
+                 get_chann_log_role_admin_prefix,
+                 get_chann_log_role,
+                 update_log_id,
                  remove_ids,
                  convert_mention_to_channel,
                  convert_mention_to_role,
@@ -80,17 +80,19 @@ async def status(ctx: Context):
 
     Prefix is Prefix of command.
     #Profile is Profile channel.
+    #Log is Log channel.
     @Member is Role to assign to new member.
     @Admin is Role who can use config commands.
     """
     GUILD_ID = ctx.guild.id
 
-    CHANNEL_ID, ROLE_ID, ADMIN_ROLE_ID, PREFIX = get_status(DATABASE_URL,
-                                                            GUILD_ID)
+    CHANNEL_ID, LOG_ID, ROLE_ID, ADMIN_ROLE_ID, PREFIX = get_chann_log_role_admin_prefix(DATABASE_URL,
+                                                                                         GUILD_ID)
     await ctx.channel.send(f"""Prefix is `{PREFIX}`.
-ID of profile channel is {convert_channel_to_mention(CHANNEL_ID)}.
-ID of role to assign is {convert_role_to_mention(ROLE_ID)}.
-ID of admin role is {convert_role_to_mention(ADMIN_ROLE_ID)}.""")
+#Profile is {convert_channel_to_mention(CHANNEL_ID)}.
+#Log is {convert_channel_to_mention(LOG_ID)}.
+@Member is {convert_role_to_mention(ROLE_ID)}.
+@Admin is {convert_role_to_mention(ADMIN_ROLE_ID)}.""")
     return
 
 
@@ -207,6 +209,34 @@ async def setchannel(ctx: Context, channel_id: str):
             update_channel_id(DATABASE_URL, GUILD_ID, channel_id)
             await ctx.channel.send("Profile channel is changed "
                                    f"to {convert_channel_to_mention(channel_id)}.")
+    return
+
+
+@bot.command()
+async def setlog(ctx: Context, log_id: str):
+    """Change ID of #Log to `log_id`.
+
+    @Admin is required excute this commnad.
+    #Log is Log channel.
+    Default ID of #Log is `None`.
+    """
+    GUILD_ID = ctx.guild.id
+    log_id = convert_mention_to_channel(log_id)
+
+    if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
+        return
+
+    if not log_id.isnumeric():
+        await ctx.channel.send("Argument `<log_id>` must be interger.")
+    else:
+        log_id = int(log_id)
+        log = get(ctx.guild.text_channels, id=log_id)
+        if log is None:
+            await ctx.channel.send(f"Channel with ID of {log_id} does not exist.")
+        else:
+            update_log_id(DATABASE_URL, GUILD_ID, log_id)
+            await ctx.channel.send("Log channel is changed "
+                                   f"to {convert_channel_to_mention(log_id)}.")
     return
 
 
@@ -491,34 +521,26 @@ async def on_raw_reaction_add(payload):
     When a member with `ROLE` reacts on `CHANNEL`,
     `ROLE` is given to the person who sent the message.
     """
-    logger.debug("start on_raw_reaction_add")
 
     GUILD_ID = payload.guild_id
-    logger.debug(f"GUILD_ID: {GUILD_ID}")
-    CHANNEL_ID, ROLE_ID, _ = get_ids(DATABASE_URL, GUILD_ID)
-    logger.debug(f"CHANNEL_ID: {CHANNEL_ID}")
-    logger.debug(f"ROLE_ID: {ROLE_ID}")
+    CHANNEL_ID, LOG_ID, ROLE_ID = get_chann_log_role(DATABASE_URL,
+                                                     GUILD_ID)
     if None not in (CHANNEL_ID, ROLE_ID) and payload.channel_id == CHANNEL_ID:
         ROLE = get(payload.member.roles, id=ROLE_ID)
-        logger.debug(f"ROLE: {ROLE}")
         if ROLE is not None:
             channel = bot.get_channel(CHANNEL_ID)
-            logger.debug(f"channel: {channel}")
-
             message_id = payload.message_id
-            logger.debug(f"message_id: {message_id}")
-
             message = await channel.fetch_message(message_id)
-            logger.debug(f"message: {message}")
-
             member, = await message.guild.query_members(user_ids=[message.author.id])
-            logger.debug(f"member: {member}")
 
             if ROLE not in member.roles:
-                logger.debug(f"Add {ROLE} to {member}")
                 await member.add_roles(ROLE)
 
-    logger.debug("end on_raw_reaction_add")
+                if LOG_ID is not None:
+                    channel = bot.get_channel(LOG_ID)
+                    await channel.send(f"{convert_user_to_mention(payload.member.id)} "
+                                       f"add {convert_role_to_mention(ROLE_ID)} "
+                                       f"to {convert_user_to_mention(member.id)} via Aoi.")
 
 
 @bot.event

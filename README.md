@@ -21,6 +21,7 @@ If you are a bot user, please skip this section.
 | -------- | -------------------------------- | ------- |
 | prefix   | Prefix of command                | `;`     |
 | #Profile | Profile channel                  | `None`  |
+| #Log     | Log channel                      | `None`  |
 | @Member  | Role to assign to new member     | `None`  |
 | @Admin   | Role who can use config commands | `None`  |
 
