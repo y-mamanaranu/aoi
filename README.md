@@ -21,6 +21,7 @@ If you are a bot user, please skip this section.
 | -------- | -------------------------------- | ------- |
 | prefix   | Prefix of command                | `;`     |
 | #Profile | Profile channel                  | `None`  |
+| #Log     | Log channel                      | `None`  |
 | @Member  | Role to assign to new member     | `None`  |
 | @Admin   | Role who can use config commands | `None`  |
 
@@ -40,6 +41,7 @@ If you are a bot user, please skip this section.
 | `;setadmin <admin_role_id>` | Change ID of @Admin to `admin_role_id`.                   | YES         |
 | `;setchannel <channel_id>`  | Change ID of #Profile to `channel_id`.                    | YES         |
 | `;setlimit`                 | Change upper limit of voice channel which you join.       |             |
+| `;setlog`                   | Change ID of #Log to `log_id`.                            |             |
 | `;setprefix <prefix>`       | Change prefix to `prefix`.                                | YES         |
 | `;setrole <role_id>`        | Change ID of @Member to `role_id`.                        | YES         |
 | `;split <channel_id>`       | Split voice channel member and move half to `channel_id`. |             |
