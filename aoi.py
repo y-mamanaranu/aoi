@@ -22,6 +22,7 @@ from Aoi import (get_token,
                  get_chann_log_role,
                  update_log_id,
                  remove_ids,
+                 get_channel_id,
                  convert_mention_to_channel,
                  convert_mention_to_role,
                  convert_mention_to_user,
@@ -86,8 +87,9 @@ async def status(ctx: Context):
     """
     GUILD_ID = ctx.guild.id
 
-    CHANNEL_ID, LOG_ID, ROLE_ID, ADMIN_ROLE_ID, PREFIX = get_chann_log_role_admin_prefix(DATABASE_URL,
-                                                                                         GUILD_ID)
+    CHANNEL_ID, LOG_ID, ROLE_ID, ADMIN_ROLE_ID, PREFIX = \
+        get_chann_log_role_admin_prefix(DATABASE_URL,
+                                        GUILD_ID)
     await ctx.channel.send(f"""Prefix is `{PREFIX}`.
 #Profile is {convert_channel_to_mention(CHANNEL_ID)}.
 #Log is {convert_channel_to_mention(LOG_ID)}.
@@ -207,7 +209,7 @@ async def setchannel(ctx: Context, channel_id: str):
             await ctx.channel.send(f"Channel with ID of {channel_id} does not exist.")
         else:
             update_channel_id(DATABASE_URL, GUILD_ID, channel_id)
-            await ctx.channel.send("Profile channel is changed "
+            await ctx.channel.send("#Profile is changed "
                                    f"to {convert_channel_to_mention(channel_id)}.")
     return
 
@@ -235,7 +237,7 @@ async def setlog(ctx: Context, log_id: str):
             await ctx.channel.send(f"Channel with ID of {log_id} does not exist.")
         else:
             update_log_id(DATABASE_URL, GUILD_ID, log_id)
-            await ctx.channel.send("Log channel is changed "
+            await ctx.channel.send("#Log is changed "
                                    f"to {convert_channel_to_mention(log_id)}.")
     return
 
@@ -263,7 +265,7 @@ async def setrole(ctx: Context, role_id: str):
             await ctx.channel.send("Argument `<role_id>` must be ID of role you have.")
         else:
             update_role_id(DATABASE_URL, GUILD_ID, role_id)
-            await ctx.channel.send("Role to assign is changed "
+            await ctx.channel.send("@Member is changed "
                                    f"to {convert_role_to_mention(role_id)}.")
     return
 
@@ -291,7 +293,7 @@ async def setadmin(ctx: Context, admin_role_id: str):
             await ctx.channel.send("Argument `<admin_role_id>` must be ID of role you have.")
         else:
             update_admin_role_id(DATABASE_URL, GUILD_ID, admin_role_id)
-            await ctx.channel.send("Admin role is changed "
+            await ctx.channel.send("@Admin is changed "
                                    f"to {convert_role_to_mention(admin_role_id)}.")
     return
 
@@ -352,7 +354,7 @@ async def eliminate(ctx: Context):
             await ctx.channel.send("No message to eliminate is found.")
             return
     else:
-        await ctx.channel.send("ID of profile channel is not set.")
+        await ctx.channel.send("@Profile is not set.")
         return
 
 
@@ -411,20 +413,20 @@ async def adjust(ctx: Context):
             await ctx.channel.send("No message to adjust is found.")
             return
     else:
-        await ctx.channel.send("ID of profile channel is not set.")
+        await ctx.channel.send("@Profile is not set.")
         return
 
 
 @bot.command()
 async def profile(ctx: Context, user_id: str):
-    """Show profile of member with id of `user_id`."""
+    """Show profile of member with ID of `user_id`."""
     GUILD_ID = ctx.guild.id
     user_id = convert_mention_to_user(user_id)
 
     # If CHANNEL_ID is None, stop
     CHANNEL_ID = get_channel_id(DATABASE_URL, GUILD_ID)
     if CHANNEL_ID is None:
-        await ctx.channel.send("ID of profile channel is not set.")
+        await ctx.channel.send("@Profile is not set.")
         return
 
     # If user_id is invalid, stop
