@@ -201,7 +201,8 @@ async def setchannel(ctx: Context, channel_id: str):
     if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
         return
 
-    if channel_id is None:
+    if channel_id == "None":
+        channel_id = None
         update_channel_id(DATABASE_URL, GUILD_ID, channel_id)
         await ctx.channel.send("#Profile is changed "
                                f"to {channel_id}.")
@@ -233,7 +234,8 @@ async def setlog(ctx: Context, log_id: str):
     if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
         return
 
-    if log_id is None:
+    if log_id == "None":
+        log_id = None
         update_log_id(DATABASE_URL, GUILD_ID, log_id)
         await ctx.channel.send("#Log is changed "
                                f"to {log_id}.")
@@ -265,7 +267,8 @@ async def setrole(ctx: Context, role_id: str):
     if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
         return
 
-    if role_id is None:
+    if role_id == "None":
+        role_id = None
         update_role_id(DATABASE_URL, GUILD_ID, role_id)
         await ctx.channel.send("@Member is changed "
                                f"to {role_id}.")
@@ -297,7 +300,8 @@ async def setadmin(ctx: Context, admin_role_id: str):
     if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
         return
 
-    if admin_role_id is None:
+    if admin_role_id == "None":
+        admin_role_id = None
         update_admin_role_id(DATABASE_URL, GUILD_ID, admin_role_id)
         await ctx.channel.send("@Admin is changed "
                                f"to {admin_role_id}.")
