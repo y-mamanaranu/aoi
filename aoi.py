@@ -11,18 +11,19 @@ from Aoi import (get_token,
                  get_database_url,
                  init_db,
                  get_prefix,
-                 update_channel_id,
+                 update_profile_id,
                  update_prefix,
-                 update_role_id,
-                 update_admin_role_id,
+                 update_freshman_id,
+                 update_admin_id,
                  convert_user_to_mention,
                  convert_channel_to_mention,
                  convert_role_to_mention,
-                 get_chann_log_role_admin_prefix,
-                 get_chann_log_role,
+                 get_pre_pro_log_fre_sen_adm,
+                 get_pro_log_fre_sen,
                  update_log_id,
+                 update_senior_id,
                  remove_ids,
-                 get_channel_id,
+                 get_profile_id,
                  convert_mention_to_channel,
                  convert_mention_to_role,
                  convert_mention_to_user,
@@ -54,6 +55,11 @@ def get_prefix_ctx(client, message):
     return PREFIX
 
 
+def get_message(client, message):
+    """Get prefix in context."""
+    return str(message)
+
+
 # Crate object to connect Discord
 intents = discord.Intents.default()
 intents.reactions = True
@@ -82,25 +88,39 @@ async def status(ctx: Context):
     Prefix is Prefix of command.
     #Profile is Profile channel.
     #Log is Log channel.
-    @Member is Role to assign to new member.
+    @Freshman is Role to assign to new member.
+    @Senior is Role who can assign to new member.
     @Admin is Role who can use config commands.
+
+    設定を表示します。
+
+    PrefixはコマンドのPrefixです。
+    #Profileは自己紹介のチャンネルです。
+    #Logはログを出力するチャンネルです。
+    @Freshmanは新規に付与するロールです。
+    @Seniorは新規への付与を許可するロールです。
+    @Adminは設定の変更を許可するロールです。
     """
     GUILD_ID = ctx.guild.id
 
-    CHANNEL_ID, LOG_ID, ROLE_ID, ADMIN_ROLE_ID, PREFIX = \
-        get_chann_log_role_admin_prefix(DATABASE_URL,
-                                        GUILD_ID)
+    PREFIX, PROFILE_ID, LOG_ID, FRESHMAN_ID, SENIOR_ID, ADMIN_ID = \
+        get_pre_pro_log_fre_sen_adm(DATABASE_URL,
+                                    GUILD_ID)
     await ctx.channel.send(f"""Prefix is `{PREFIX}`.
-#Profile is {convert_channel_to_mention(CHANNEL_ID)}.
+#Profile is {convert_channel_to_mention(PROFILE_ID)}.
 #Log is {convert_channel_to_mention(LOG_ID)}.
-@Member is {convert_role_to_mention(ROLE_ID)}.
-@Admin is {convert_role_to_mention(ADMIN_ROLE_ID)}.""")
+@Freshman is {convert_role_to_mention(FRESHMAN_ID)}.
+@Senior is {convert_role_to_mention(SENIOR_ID)}.
+@Admin is {convert_role_to_mention(ADMIN_ID)}.""")
     return
 
 
 @bot.command()
 async def roles(ctx: Context):
-    """List roles."""
+    """List roles.
+
+    ロールの一覧を出力します。
+    """
     text = []
     for role in ctx.guild.roles:
         text.append(f"{convert_role_to_mention(role.id)}")
@@ -110,7 +130,10 @@ async def roles(ctx: Context):
 
 @bot.command()
 async def text_channels(ctx: Context):
-    """List text channels."""
+    """List text channels.
+
+    テキストチャンネルの一覧を出力します。
+    """
     text = []
     for chann in ctx.guild.text_channels:
         text.append(f"{convert_channel_to_mention(chann.id)}: {chann.id}")
@@ -120,7 +143,10 @@ async def text_channels(ctx: Context):
 
 @bot.command()
 async def voice_channels(ctx: Context):
-    """List voice channels."""
+    """List voice channels.
+
+    ボイスチャンネルの一覧を出力します。
+    """
     text = []
     for chann in ctx.guild.voice_channels:
         text.append(f"{convert_channel_to_mention(chann.id)}: {chann.id}")
@@ -130,7 +156,10 @@ async def voice_channels(ctx: Context):
 
 @bot.command()
 async def members(ctx: Context):
-    """List members."""
+    """List members.
+
+    メンバーの一覧を出力します。
+    """
     text = []
     for member in ctx.guild.members:
         if member.bot:
@@ -143,7 +172,10 @@ async def members(ctx: Context):
 
 @bot.command()
 async def bots(ctx: Context):
-    """List bots."""
+    """List bots.
+
+    ボットの一覧を出力します。
+    """
     text = []
     for member in ctx.guild.members:
         if not member.bot:
@@ -159,6 +191,10 @@ async def guild(ctx: Context):
     """Return name and id of guild.
 
     @Admin is required excute this commnad.
+
+    サーバーの名前とIDを返します。
+
+    実行するには@Adminが必要です。
     """
     GUILD_ID = ctx.guild.id
 
@@ -175,6 +211,11 @@ async def setprefix(ctx: Context, prefix: str):
 
     Prefix is Prefix of command.
     Default prefix is `;`.
+
+    Prefixを`prefix`に変更します。
+
+    PrefixはコマンドのPrefixです。
+    デフォルトのPrefixは`;`です。
     """
     GUILD_ID = ctx.guild.id
 
@@ -188,35 +229,41 @@ async def setprefix(ctx: Context, prefix: str):
 
 
 @bot.command()
-async def setchannel(ctx: Context, channel_id: str):
-    """Change ID of #Profile to `channel_id`.
+async def setprofile(ctx: Context, profile_id: str):
+    """Change ID of #Profile to `profile_id`.
 
     @Admin is required excute this commnad.
     #Profile is Profile channel.
     Default ID of #Profile is `None`.
+
+    #ProfileのIDを`profile_id`に変更します。
+
+    実行するには@Adminが必要です。
+    #Profileは自己紹介のチャンネルです。
+    デフォルトの#ProfileのIDは`None`です。
     """
     GUILD_ID = ctx.guild.id
-    channel_id = convert_mention_to_channel(channel_id)
+    profile_id = convert_mention_to_channel(profile_id)
 
     if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
         return
 
-    if channel_id == "None":
-        channel_id = None
-        update_channel_id(DATABASE_URL, GUILD_ID, channel_id)
+    if profile_id == "None":
+        profile_id = None
+        update_profile_id(DATABASE_URL, GUILD_ID, profile_id)
         await ctx.channel.send("#Profile is changed "
-                               f"to {channel_id}.")
-    elif not channel_id.isnumeric():
-        await ctx.channel.send("Argument `<channel_id>` must be interger.")
+                               f"to {profile_id}.")
+    elif not profile_id.isnumeric():
+        await ctx.channel.send("Argument `<profile_id>` must be interger.")
     else:
-        channel_id = int(channel_id)
-        channel = get(ctx.guild.text_channels, id=channel_id)
+        profile_id = int(profile_id)
+        channel = get(ctx.guild.text_channels, id=profile_id)
         if channel is None:
-            await ctx.channel.send(f"Channel with ID of {channel_id} does not exist.")
+            await ctx.channel.send(f"Channel with ID of {profile_id} does not exist.")
         else:
-            update_channel_id(DATABASE_URL, GUILD_ID, channel_id)
+            update_profile_id(DATABASE_URL, GUILD_ID, profile_id)
             await ctx.channel.send("#Profile is changed "
-                                   f"to {convert_channel_to_mention(channel_id)}.")
+                                   f"to {convert_channel_to_mention(profile_id)}.")
     return
 
 
@@ -227,6 +274,12 @@ async def setlog(ctx: Context, log_id: str):
     @Admin is required excute this commnad.
     #Log is Log channel.
     Default ID of #Log is `None`.
+
+    #LogのIDを`log_id`に変更します。
+
+    実行するには@Adminが必要です。
+    #Logはログを出力するチャンネルです。
+    デフォルトの#LogのIDは`None`です。
     """
     GUILD_ID = ctx.guild.id
     log_id = convert_mention_to_channel(log_id)
@@ -254,68 +307,119 @@ async def setlog(ctx: Context, log_id: str):
 
 
 @bot.command()
-async def setrole(ctx: Context, role_id: str):
-    """Change ID of @Member to `role_id`.
+async def setfreshman(ctx: Context, freshman_id: str):
+    """Change ID of @Freshman to `freshman_id`.
 
     @Admin is required excute this commnad.
-    @Member is Role to assign to new member.
-    Default ID of @Member is `None`.
+    @Freshman is Role to assign to new member.
+    Default ID of @Freshman is `None`.
+
+    @FreshmanのIDを`freshman_id`に変更します。
+
+    実行するには@Adminが必要です。
+    @Freshmanは新規に付与するロールです。
+    デフォルトの@FreshmanのIDは`None`です。
     """
     GUILD_ID = ctx.guild.id
-    role_id = convert_mention_to_role(role_id)
+    freshman_id = convert_mention_to_role(freshman_id)
 
     if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
         return
 
-    if role_id == "None":
-        role_id = None
-        update_role_id(DATABASE_URL, GUILD_ID, role_id)
-        await ctx.channel.send("@Member is changed "
-                               f"to {role_id}.")
-    elif not role_id.isnumeric():
-        await ctx.channel.send("Argument `<role_id>` must be interger.")
+    if freshman_id == "None":
+        freshman_id = None
+        update_freshman_id(DATABASE_URL, GUILD_ID, freshman_id)
+        await ctx.channel.send("@Freshman is changed "
+                               f"to {freshman_id}.")
+    elif not freshman_id.isnumeric():
+        await ctx.channel.send("Argument `<freshman_id>` must be interger.")
     else:
-        role_id = int(role_id)
-        role = get(ctx.author.roles, id=role_id)
+        freshman_id = int(freshman_id)
+        role = get(ctx.author.roles, id=freshman_id)
         if role is None:
-            await ctx.channel.send("Argument `<role_id>` must be ID of role you have.")
+            await ctx.channel.send("Argument `<freshman_id>` must be ID of role you have.")
         else:
-            update_role_id(DATABASE_URL, GUILD_ID, role_id)
-            await ctx.channel.send("@Member is changed "
-                                   f"to {convert_role_to_mention(role_id)}.")
+            update_freshman_id(DATABASE_URL, GUILD_ID, freshman_id)
+            await ctx.channel.send("@Freshman is changed "
+                                   f"to {convert_role_to_mention(freshman_id)}.")
     return
 
 
 @bot.command()
-async def setadmin(ctx: Context, admin_role_id: str):
-    """Change ID of @Admin to `admin_role_id`.
+async def setsenior(ctx: Context, senior_id: str):
+    """Change ID of @Senior to `senior_id`.
 
     @Admin is required excute this commnad.
-    @Admin is Role who can use config commands.
-    Default ID of @Admin is `None`.
+    @Senior is Role to assign to new member.
+    Default ID of @Senior is `None`.
+
+    @SeniorのIDを`senior_id`に変更します。
+
+    実行するには@Adminが必要です。
+    @Seniorは新規への付与を許可するロールです。
+    デフォルトの@SeniorのIDは`None`です。
     """
     GUILD_ID = ctx.guild.id
-    admin_role_id = convert_mention_to_role(admin_role_id)
+    senior_id = convert_mention_to_role(senior_id)
 
     if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
         return
 
-    if admin_role_id == "None":
-        admin_role_id = None
-        update_admin_role_id(DATABASE_URL, GUILD_ID, admin_role_id)
-        await ctx.channel.send("@Admin is changed "
-                               f"to {admin_role_id}.")
-    elif not admin_role_id.isnumeric():
-        await ctx.channel.send("Argument `<admin_role_id>` must be interger.")
+    if senior_id == "None":
+        senior_id = None
+        update_senior_id(DATABASE_URL, GUILD_ID, senior_id)
+        await ctx.channel.send("@Senior is changed "
+                               f"to {senior_id}.")
+    elif not senior_id.isnumeric():
+        await ctx.channel.send("Argument `<senior_id>` must be interger.")
     else:
-        admin_role_id = int(admin_role_id)
-        admin_role = get(ctx.author.roles, id=admin_role_id)
-        if admin_role is None:
-            await ctx.channel.send("Argument `<admin_role_id>` must be ID of role you have.")
+        senior_id = int(senior_id)
+        role = get(ctx.author.roles, id=senior_id)
+        if role is None:
+            await ctx.channel.send("Argument `<senior_id>` must be ID of role you have.")
         else:
-            update_admin_role_id(DATABASE_URL, GUILD_ID, admin_role_id)
+            update_senior_id(DATABASE_URL, GUILD_ID, senior_id)
+            await ctx.channel.send("@Senior is changed "
+                                   f"to {convert_role_to_mention(senior_id)}.")
+    return
+
+
+@bot.command()
+async def setadmin(ctx: Context, admin_id: str):
+    """Change ID of @Admin to `admin_id`.
+
+    @Admin is required excute this commnad.
+    @Admin is Role who can use config commands.
+    Default ID of @Admin is `None`.
+
+    @AdminのIDを`admin_id`に変更します。
+
+    実行するには@Adminが必要です。
+    @Adminは設定の変更を許可するロールです。
+    デフォルトの@AdminのIDは`None`です。
+    """
+    GUILD_ID = ctx.guild.id
+    admin_id = convert_mention_to_role(admin_id)
+
+    if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
+        return
+
+    if admin_id == "None":
+        admin_id = None
+        update_admin_id(DATABASE_URL, GUILD_ID, admin_id)
+        await ctx.channel.send("@Admin is changed "
+                               f"to {admin_id}.")
+    elif not admin_id.isnumeric():
+        await ctx.channel.send("Argument `<admin_id>` must be interger.")
+    else:
+        admin_id = int(admin_id)
+        admin = get(ctx.author.roles, id=admin_id)
+        if admin is None:
+            await ctx.channel.send("Argument `<admin_id>` must be ID of role you have.")
+        else:
+            update_admin_id(DATABASE_URL, GUILD_ID, admin_id)
             await ctx.channel.send("@Admin is changed "
-                                   f"to {convert_role_to_mention(admin_role_id)}.")
+                                   f"to {convert_role_to_mention(admin_id)}.")
     return
 
 
@@ -324,6 +428,10 @@ async def eliminate(ctx: Context):
     """Delete profile of leaved member.
 
     @Admin is required excute this commnad.
+
+    居なくなったメンバーの自己紹介を削除します。
+
+    実行するには@Adminが必要です。
     """
     GUILD_ID = ctx.guild.id
 
@@ -332,9 +440,9 @@ async def eliminate(ctx: Context):
 
     member_cand = ["Message from user following will be eliminated."]
     message_cand = []
-    CHANNEL_ID = get_channel_id(DATABASE_URL, GUILD_ID)
-    if CHANNEL_ID is not None:
-        channel = bot.get_channel(CHANNEL_ID)
+    PROFILE_ID = get_profile_id(DATABASE_URL, GUILD_ID)
+    if PROFILE_ID is not None:
+        channel = bot.get_channel(PROFILE_ID)
         async for m in channel.history(limit=200, oldest_first=True):
             # skip if author is bot
             if m.author.bot:
@@ -384,6 +492,10 @@ async def adjust(ctx: Context):
     """Delete second or subsequent profile of same user.
 
     @Admin is required excute this commnad.
+
+    同じユーザーの2回目以降の自己紹介を削除します。
+
+    実行するには@Adminが必要です。
     """
     GUILD_ID = ctx.guild.id
 
@@ -392,9 +504,9 @@ async def adjust(ctx: Context):
 
     memberlist = []
     message_cand = []
-    CHANNEL_ID = get_channel_id(DATABASE_URL, GUILD_ID)
-    if CHANNEL_ID is not None:
-        channel = bot.get_channel(CHANNEL_ID)
+    PROFILE_ID = get_profile_id(DATABASE_URL, GUILD_ID)
+    if PROFILE_ID is not None:
+        channel = bot.get_channel(PROFILE_ID)
         async for m in channel.history(limit=200, oldest_first=True):
             # skip if author is bot
             if m.author.bot:
@@ -440,13 +552,16 @@ async def adjust(ctx: Context):
 
 @bot.command()
 async def profile(ctx: Context, user_id: str):
-    """Show profile of member with ID of `user_id`."""
+    """Show profile of member with ID of `user_id`.
+
+    IDが`user_id`のメンバーの自己紹介を表示します。
+    """
     GUILD_ID = ctx.guild.id
     user_id = convert_mention_to_user(user_id)
 
-    # If CHANNEL_ID is None, stop
-    CHANNEL_ID = get_channel_id(DATABASE_URL, GUILD_ID)
-    if CHANNEL_ID is None:
+    # If PROFILE_ID is None, stop
+    PROFILE_ID = get_profile_id(DATABASE_URL, GUILD_ID)
+    if PROFILE_ID is None:
         await ctx.channel.send("@Profile is not set.")
         return
 
@@ -459,7 +574,7 @@ async def profile(ctx: Context, user_id: str):
         member, = res
 
     # Show profile
-    channel = bot.get_channel(CHANNEL_ID)
+    channel = bot.get_channel(PROFILE_ID)
 
     messages = await channel.history(limit=200, oldest_first=True).flatten()
     message = get(messages, author=member)
@@ -478,10 +593,13 @@ async def profile(ctx: Context, user_id: str):
 
 @bot.command()
 async def setlimit(ctx: Context, limit: str):
-    """Change upper limit of voice channel which you join to `limit``.
+    """Change upper limit of voice channel which you join to `limit`.
 
-    The user limit is change to `limit`.
     Value of `0` to remove limit.
+
+    参加しているボイスチャンネルのユーザー上限を`limit`に変更します。
+
+    値が0の場合は、上限がなくなります。
     """
     if not limit.isnumeric():
         await ctx.channel.send("Argument `<limit>` must be interger.")
@@ -497,18 +615,21 @@ async def setlimit(ctx: Context, limit: str):
 
 
 @bot.command()
-async def split(ctx: Context, channel_id: str):
-    """Split voice channel member and move half to `channel_id`."""
-    channel_id = convert_mention_to_channel(channel_id)
+async def split(ctx: Context, voice_id: str):
+    """Split voice channel member and move half to `voice_id`.
+
+    ボイスチャンネルにいるメンバーを2つに分けて、半分を`voice_id`に移動します。
+    """
+    voice_id = convert_mention_to_channel(voice_id)
     origin = ctx.author.voice.channel
 
-    if not channel_id.isnumeric():
-        await ctx.channel.send("Argument `<channel_id>` must be interger.")
+    if not voice_id.isnumeric():
+        await ctx.channel.send("Argument `<voice_id>` must be interger.")
     else:
-        channel_id = int(channel_id)
-        channel = get(ctx.guild.voice_channels, id=channel_id)
+        voice_id = int(voice_id)
+        channel = get(ctx.guild.voice_channels, id=voice_id)
         if channel is None:
-            await ctx.channel.send(f"Channel with ID of {channel_id} does not exist.")
+            await ctx.channel.send(f"Channel with ID of {voice_id} does not exist.")
         else:
             members = [
                 member for member in origin.members if not member.bot]
@@ -533,23 +654,29 @@ async def split(ctx: Context, channel_id: str):
 
 @bot.command()
 async def splithere(ctx: Context):
-    """Split voice channel member and move half here."""
+    """Split voice channel member and move half here.
+
+    ボイスチャンネルにいるメンバーを2つに分けて、半分をここに移動します。
+    """
     await split(ctx, str(ctx.channel.id))
 
 
 @bot.command()
-async def move(ctx: Context, channel_id: str):
-    """Move all voice channel member to `channel_id`."""
-    channel_id = convert_mention_to_channel(channel_id)
+async def move(ctx: Context, voice_id: str):
+    """Move all voice channel member to `voice_id`.
+
+    ボイスチャンネルにいるすべてのメンバーを`voice_id`に移動します。
+    """
+    voice_id = convert_mention_to_channel(voice_id)
     origin = ctx.author.voice.channel
 
-    if not channel_id.isnumeric():
-        await ctx.channel.send("Argument `<channel_id>` must be interger.")
+    if not voice_id.isnumeric():
+        await ctx.channel.send("Argument `<voice_id>` must be interger.")
     else:
-        channel_id = int(channel_id)
-        channel = get(ctx.guild.voice_channels, id=channel_id)
+        voice_id = int(voice_id)
+        channel = get(ctx.guild.voice_channels, id=voice_id)
         if channel is None:
-            await ctx.channel.send(f"Channel with ID of {channel_id} does not exist.")
+            await ctx.channel.send(f"Channel with ID of {voice_id} does not exist.")
         else:
             for member in origin.members:
                 await member.move_to(channel)
@@ -558,7 +685,10 @@ async def move(ctx: Context, channel_id: str):
 
 @bot.command()
 async def movehere(ctx: Context):
-    """Move all voice channel member here."""
+    """Move all voice channel member here.
+
+    ボイスチャンネルにいるすべてのメンバーをここに移動します。
+    """
     await move(ctx, str(ctx.channel.id))
 
 
@@ -566,29 +696,43 @@ async def movehere(ctx: Context):
 async def on_raw_reaction_add(payload):
     """Run on reaction is made.
 
-    When a member with `ROLE` reacts on `CHANNEL`,
-    `ROLE` is given to the person who sent the message.
+    When a member with `@Senior` reacts on `#Profiles`,
+    `@Freshman` is given to the person who sent the message.
     """
 
     GUILD_ID = payload.guild_id
-    CHANNEL_ID, LOG_ID, ROLE_ID = get_chann_log_role(DATABASE_URL,
-                                                     GUILD_ID)
-    if None not in (CHANNEL_ID, ROLE_ID) and payload.channel_id == CHANNEL_ID:
-        ROLE = get(payload.member.roles, id=ROLE_ID)
-        if ROLE is not None:
-            channel = bot.get_channel(CHANNEL_ID)
-            message_id = payload.message_id
-            message = await channel.fetch_message(message_id)
-            member, = await message.guild.query_members(user_ids=[message.author.id])
+    PROFILE_ID, LOG_ID, FRESHMAN_ID, SENIOR_ID = get_pro_log_fre_sen(DATABASE_URL,
+                                                                     GUILD_ID)
+    if None in (PROFILE_ID,
+                FRESHMAN_ID,
+                SENIOR_ID) or payload.channel_id != PROFILE_ID:
+        return
 
-            if ROLE not in member.roles:
-                await member.add_roles(ROLE)
+    FRESHMAN = get(payload.member.guild.roles, id=FRESHMAN_ID)
+    if FRESHMAN is None:
+        return
 
-                if LOG_ID is not None:
-                    channel = bot.get_channel(LOG_ID)
-                    await channel.send(f"{convert_user_to_mention(payload.member.id)} "
-                                       f"add {convert_role_to_mention(ROLE_ID)} "
-                                       f"to {convert_user_to_mention(member.id)} via Aoi.")
+    SENIOR = get(payload.member.roles, id=SENIOR_ID)
+    if SENIOR is None:
+        return
+
+    channel = bot.get_channel(PROFILE_ID)
+    message_id = payload.message_id
+    message = await channel.fetch_message(message_id)
+    member, = await message.guild.query_members(user_ids=[message.author.id])
+
+    if FRESHMAN in member.roles:
+        return
+
+    await member.add_roles(FRESHMAN)
+
+    if LOG_ID is None:
+        return
+
+    channel = bot.get_channel(LOG_ID)
+    await channel.send(f"{convert_user_to_mention(payload.member.id)} "
+                       f"add {convert_role_to_mention(FRESHMAN_ID)} "
+                       f"to {convert_user_to_mention(member.id)} via Aoi.")
 
 
 @bot.event

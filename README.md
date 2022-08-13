@@ -22,7 +22,7 @@ If you are a bot user, please skip this section.
 | prefix   | Prefix of command                | `;`     |
 | #Profile | Profile channel                  | `None`  |
 | #Log     | Log channel                      | `None`  |
-| @Member  | Role to assign to new member     | `None`  |
+| @Freshman  | Role to assign to new member     | `None`  |
 | @Admin   | Role who can use config commands | `None`  |
 
 
@@ -36,17 +36,17 @@ If you are a bot user, please skip this section.
 | `;guild`                    | Return name and id of guild.                                   | YES         |
 | `;help`                     | Show help.                                                     |             |
 | `;members`                  | List members.                                                  |             |
-| `;move <channel_id>`        | Move all voice channel member to `channel_id`.                 |             |
+| `;move <profile_id>`        | Move all voice channel member to `profile_id`.                 |             |
 | `;movehere`                 | Move all voice channel member here.                            |             |
 | `;profile <user_id>`        | Show profile of member with id of `user_id`.                   |             |
 | `;roles`                    | List roles.                                                    |             |
-| `;setadmin <admin_role_id>` | Change ID of @Admin to `admin_role_id`.                        | YES         |
-| `;setchannel <channel_id>`  | Change ID of #Profile to `channel_id`.                         | YES         |
+| `;setadmin <admin_id>` | Change ID of @Admin to `admin_id`.                        | YES         |
+| `;setchannel <profile_id>`  | Change ID of #Profile to `profile_id`.                         | YES         |
 | `;setlimit <limit>`         | Change upper limit of voice channel which you join to `limit`. |             |
 | `;setlog <log_id>`          | Change ID of #Log to `log_id`.                                 |             |
 | `;setprefix <prefix>`       | Change prefix to `prefix`.                                     | YES         |
-| `;setrole <role_id>`        | Change ID of @Member to `role_id`.                             | YES         |
-| `;split <channel_id>`       | Split voice channel member and move half to `channel_id`.      |             |
+| `;setfreshman <freshman_id>`        | Change ID of @Freshman to `freshman_id`.                             | YES         |
+| `;split <profile_id>`       | Split voice channel member and move half to `profile_id`.      |             |
 | `;splithere`                | Split voice channel member and move half here.                 |             |
 | `;status`                   | Show current config.                                           |             |
 | `;text_channels`            | List text channels.                                            |             |
