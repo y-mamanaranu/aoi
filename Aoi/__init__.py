@@ -3,9 +3,10 @@ import os
 import psycopg2
 import re
 
-DEFAULT_CHANNEL_ID = None
-DEFAULT_ROLE_ID = None
-DEFAULT_ADMIN_ROLE_ID = None
+DEFAULT_PROFILE_ID = None
+DEFAULT_FRESHMAN_ID = None
+DEFAULT_SENIOR_ID = None
+DEFAULT_ADMIN_ID = None
 DEFAULT_PREFIX = ";"
 DEFAULT_LOG_ID = None
 
@@ -20,7 +21,7 @@ def convert_mention_to_user(mention: str):
 
 
 def convert_mention_to_channel(mention: str):
-    """Convert mention to channel to channel_id."""
+    """Convert mention to channel to profile_id."""
     res = re.match(r"^<#(\d+)>$", mention)
     if res is None:
         return mention
@@ -29,7 +30,7 @@ def convert_mention_to_channel(mention: str):
 
 
 def convert_mention_to_role(mention: str):
-    """Convert mention to role to role_id."""
+    """Convert mention to role to freshman_id."""
     res = re.match(r"^<@&(\d+)>$", mention)
     if res is None:
         return mention
@@ -45,36 +46,36 @@ def convert_user_to_mention(user_id: str):
     return f"<@{user_id}>"
 
 
-def convert_channel_to_mention(channel_id: str):
-    """Convert channel_id to mention to channel."""
-    if channel_id is None:
+def convert_channel_to_mention(profile_id: str):
+    """Convert profile_id to mention to channel."""
+    if profile_id is None:
         return None
 
-    return f"<#{channel_id}>"
+    return f"<#{profile_id}>"
 
 
-def convert_role_to_mention(role_id: str):
-    """Convert role_id mention to role."""
-    if role_id is None:
+def convert_role_to_mention(freshman_id: str):
+    """Convert freshman_id mention to role."""
+    if freshman_id is None:
         return None
 
-    return f"<@&{role_id}>"
+    return f"<@&{freshman_id}>"
 
 
 async def check_privilage(DATABASE_URL, GUILD_ID, message):
     """"Check user hold Admin role."""
-    ADMIN_ROLE_ID = get_admin_role_id(DATABASE_URL, GUILD_ID)
-    if ADMIN_ROLE_ID is not None:
-        role = get(message.guild.roles, id=ADMIN_ROLE_ID)
+    ADMIN_ID = get_admin_id(DATABASE_URL, GUILD_ID)
+    if ADMIN_ID is not None:
+        role = get(message.guild.roles, id=ADMIN_ID)
         if role is not None:
-            role = get(message.author.roles, id=ADMIN_ROLE_ID)
+            role = get(message.author.roles, id=ADMIN_ID)
             if role is None:
                 await message.channel.send("""You don't have privilege to excute this command.""")
                 return False
             else:
                 return True
         else:
-            await message.channel.send(f"""ID of admin role of {ADMIN_ROLE_ID} is set, """
+            await message.channel.send(f"""ID of admin role of {ADMIN_ID} is set, """
                                        """but corresponding role is not found. """
                                        """Config command is allowed to all members.""")
             return True
@@ -108,11 +109,12 @@ def init_db(DATABASE_URL):
             if ('reactedrole',) not in res:
                 cur.execute("""CREATE TABLE reactedrole (
                 guild_id bigint PRIMARY KEY,
-                channel_id bigint,
-                role_id bigint,
-                admin_role_id bigint,
                 prefix text,
+                profile_id bigint,
                 log_id bigint,
+                freshman_id bigint,
+                senior_id bigint,
+                admin_id bigint,
                 );""")
 
 
@@ -123,18 +125,20 @@ def insert_ids(DATABASE_URL: str,
         with conn.cursor() as cur:
             cur.execute("""INSERT INTO reactedrole (
                 guild_id,
-                channel_id,
-                role_id,
-                admin_role_id,
                 prefix,
-                log_id
+                profile_id,
+                log_id,
+                freshman_id,
+                senior_id,
+                admin_id
                 ) VALUES(%s, %s, %s, %s, %s, %s);""",
                         (GUILD_ID,
-                         DEFAULT_CHANNEL_ID,
-                         DEFAULT_ROLE_ID,
-                         DEFAULT_ADMIN_ROLE_ID,
                          DEFAULT_PREFIX,
-                         DEFAULT_LOG_ID)
+                         DEFAULT_PROFILE_ID,
+                         DEFAULT_LOG_ID,
+                         DEFAULT_FRESHMAN_ID,
+                         DEFAULT_SENIOR_ID,
+                         DEFAULT_ADMIN_ID)
                         )
             conn.commit()
 
@@ -151,11 +155,11 @@ def remove_ids(DATABASE_URL: str,
             conn.commit()
 
 
-def get_chann_log_role(DATABASE_URL, GUILD_ID):
+def get_pro_log_fre_sen(DATABASE_URL, GUILD_ID):
     """Get ids from database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            cur.execute("""SELECT channel_id, log_id, role_id
+            cur.execute("""SELECT profile_id, log_id, freshman_id, senior_id
             FROM reactedrole
             WHERE guild_id = %s;""",
                         (GUILD_ID,))
@@ -177,11 +181,11 @@ def get_prefix(DATABASE_URL, GUILD_ID):
     return res[0]
 
 
-def get_channel_id(DATABASE_URL, GUILD_ID):
+def get_profile_id(DATABASE_URL, GUILD_ID):
     """Get ID of admin role from database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            cur.execute("""SELECT channel_id
+            cur.execute("""SELECT profile_id
             FROM reactedrole
             WHERE guild_id = %s;""",
                         (GUILD_ID,))
@@ -203,11 +207,11 @@ def get_log_id(DATABASE_URL, GUILD_ID):
     return res[0]
 
 
-def get_admin_role_id(DATABASE_URL, GUILD_ID):
+def get_admin_id(DATABASE_URL, GUILD_ID):
     """Get ID of admin role from database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            cur.execute("""SELECT admin_role_id
+            cur.execute("""SELECT admin_id
             FROM reactedrole
             WHERE guild_id = %s;""",
                         (GUILD_ID,))
@@ -216,11 +220,11 @@ def get_admin_role_id(DATABASE_URL, GUILD_ID):
     return res[0]
 
 
-def get_chann_log_role_admin_prefix(DATABASE_URL, GUILD_ID):
+def get_pre_pro_log_fre_sen_adm(DATABASE_URL, GUILD_ID):
     """Get status from database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            cur.execute("""SELECT channel_id, log_id, role_id, admin_role_id, prefix
+            cur.execute("""SELECT prefix, profile_id, log_id, freshman_id, senior_id, admin_id
             FROM reactedrole
             WHERE guild_id = %s;""",
                         (GUILD_ID,))
@@ -229,15 +233,15 @@ def get_chann_log_role_admin_prefix(DATABASE_URL, GUILD_ID):
     return res
 
 
-def update_channel_id(DATABASE_URL, GUILD_ID, CHANNEL_ID):
+def update_profile_id(DATABASE_URL, GUILD_ID, PROFILE_ID):
     """Update channle_id in database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute(
                 """UPDATE reactedrole
-                SET channel_id = %s
+                SET profile_id = %s
                 WHERE guild_id = %s;""",
-                (CHANNEL_ID, GUILD_ID))
+                (PROFILE_ID, GUILD_ID))
 
 
 def update_log_id(DATABASE_URL, GUILD_ID, LOG_ID):
@@ -251,26 +255,37 @@ def update_log_id(DATABASE_URL, GUILD_ID, LOG_ID):
                 (LOG_ID, GUILD_ID))
 
 
-def update_role_id(DATABASE_URL, GUILD_ID, ROLE_ID):
-    """Update role_id in database."""
+def update_freshman_id(DATABASE_URL, GUILD_ID, FRESHMAN_ID):
+    """Update freshman_id in database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute(
                 """UPDATE reactedrole
-                SET role_id = %s
+                SET freshman_id = %s
                 WHERE guild_id = %s;""",
-                (ROLE_ID, GUILD_ID))
+                (FRESHMAN_ID, GUILD_ID))
 
 
-def update_admin_role_id(DATABASE_URL, GUILD_ID, ADMIN_ROLE_ID):
-    """Update admin_role_id in database."""
+def update_senior_id(DATABASE_URL, GUILD_ID, SENIOR_ID):
+    """Update senior_id in database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute(
                 """UPDATE reactedrole
-                SET admin_role_id = %s
+                SET senior_id = %s
                 WHERE guild_id = %s;""",
-                (ADMIN_ROLE_ID, GUILD_ID))
+                (SENIOR_ID, GUILD_ID))
+
+
+def update_admin_id(DATABASE_URL, GUILD_ID, ADMIN_ID):
+    """Update admin_id in database."""
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """UPDATE reactedrole
+                SET admin_id = %s
+                WHERE guild_id = %s;""",
+                (ADMIN_ID, GUILD_ID))
 
 
 def update_prefix(DATABASE_URL, GUILD_ID, PREFIX):
