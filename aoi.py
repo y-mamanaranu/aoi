@@ -181,6 +181,7 @@ async def setprefix(ctx: Context, prefix: str):
     if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
         return
 
+    prefix = str(prefix)
     update_prefix(DATABASE_URL, GUILD_ID, prefix)
     await ctx.channel.send(f"Prefix is changed to `{prefix}`.")
     return
@@ -200,7 +201,11 @@ async def setchannel(ctx: Context, channel_id: str):
     if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
         return
 
-    if not channel_id.isnumeric():
+    if channel_id is None:
+        update_channel_id(DATABASE_URL, GUILD_ID, channel_id)
+        await ctx.channel.send("#Profile is changed "
+                               f"to {channel_id}.")
+    elif not channel_id.isnumeric():
         await ctx.channel.send("Argument `<channel_id>` must be interger.")
     else:
         channel_id = int(channel_id)
@@ -228,7 +233,11 @@ async def setlog(ctx: Context, log_id: str):
     if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
         return
 
-    if not log_id.isnumeric():
+    if log_id is None:
+        update_log_id(DATABASE_URL, GUILD_ID, log_id)
+        await ctx.channel.send("#Log is changed "
+                               f"to {log_id}.")
+    elif not log_id.isnumeric():
         await ctx.channel.send("Argument `<log_id>` must be interger.")
     else:
         log_id = int(log_id)
@@ -256,7 +265,11 @@ async def setrole(ctx: Context, role_id: str):
     if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
         return
 
-    if not role_id.isnumeric():
+    if role_id is None:
+        update_role_id(DATABASE_URL, GUILD_ID, role_id)
+        await ctx.channel.send("@Member is changed "
+                               f"to {role_id}.")
+    elif not role_id.isnumeric():
         await ctx.channel.send("Argument `<role_id>` must be interger.")
     else:
         role_id = int(role_id)
@@ -284,7 +297,11 @@ async def setadmin(ctx: Context, admin_role_id: str):
     if not await check_privilage(DATABASE_URL, GUILD_ID, ctx.message):
         return
 
-    if not admin_role_id.isnumeric():
+    if admin_role_id is None:
+        update_admin_role_id(DATABASE_URL, GUILD_ID, admin_role_id)
+        await ctx.channel.send("@Admin is changed "
+                               f"to {admin_role_id}.")
+    elif not admin_role_id.isnumeric():
         await ctx.channel.send("Argument `<admin_role_id>` must be interger.")
     else:
         admin_role_id = int(admin_role_id)
@@ -457,7 +474,7 @@ async def profile(ctx: Context, user_id: str):
 
 @bot.command()
 async def setlimit(ctx: Context, limit: str):
-    """Change upper limit of voice channel which you join`.
+    """Change upper limit of voice channel which you join to `limit``.
 
     The user limit is change to `limit`.
     Value of `0` to remove limit.
@@ -490,7 +507,7 @@ async def split(ctx: Context, channel_id: str):
             await ctx.channel.send(f"Channel with ID of {channel_id} does not exist.")
         else:
             members = [
-                member for member in ctx.guild.members if not member.bot]
+                member for member in origin.members if not member.bot]
             members = random.sample(members, len(members))
             members1 = members[:len(members) // 2]
             members2 = members[len(members) // 2:]
@@ -514,6 +531,31 @@ async def split(ctx: Context, channel_id: str):
 async def splithere(ctx: Context):
     """Split voice channel member and move half here."""
     await split(ctx, str(ctx.channel.id))
+
+
+@bot.command()
+async def move(ctx: Context, channel_id: str):
+    """Move all voice channel member to `channel_id`."""
+    channel_id = convert_mention_to_channel(channel_id)
+    origin = ctx.author.voice.channel
+
+    if not channel_id.isnumeric():
+        await ctx.channel.send("Argument `<channel_id>` must be interger.")
+    else:
+        channel_id = int(channel_id)
+        channel = get(ctx.guild.voice_channels, id=channel_id)
+        if channel is None:
+            await ctx.channel.send(f"Channel with ID of {channel_id} does not exist.")
+        else:
+            for member in origin.members:
+                await member.move_to(channel)
+    return
+
+
+@bot.command()
+async def movehere(ctx: Context):
+    """Move all voice channel member here."""
+    await move(ctx, str(ctx.channel.id))
 
 
 @ bot.event
