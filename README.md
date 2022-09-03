@@ -53,6 +53,11 @@ If you add a new dependency to Aoi, please update `requirements.txt`.
 poetry export -f requirements.txt --output requirements.txt
 ```
 
+```
+msgfmt aoi.po -o aoi.mo
+git add -f aoi.mo
+```
+
 ## See Also
 - [dpy\_development\_plans\.md](https://gist.github.com/Rapptz/c4324f17a80c94776832430007ad40e6)
 - [Discord Developer Portal — My Applications](https://discord.com/developers/applications)

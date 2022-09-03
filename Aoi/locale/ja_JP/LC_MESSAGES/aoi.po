@@ -11,6 +11,9 @@ msgstr "すべてのメンバーを他のボイスチャンネルに移動しま
 msgid "Move random half of members to another voice channel."
 msgstr "メンバーの半分を他のボイスチャンネルに移動します。"
 
+msgid "Shuffle members with another voice channel."
+msgstr "メンバーを他のボイスチャンネルとシャッフルします。"
+
 msgid "#Voice_Channel: empty for moving here."
 msgstr "#Voice_Channel: 空白の場合はここに移動する。"
 
