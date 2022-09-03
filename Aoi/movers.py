@@ -32,6 +32,8 @@ class Movers(commands.Cog):
         for member in origin.members:
             await member.move_to(voice_channel)
 
+        await interaction.response.send_message(f"All members are move to {convert_channel_to_mention(voice_channel.id)}.")
+
     @app_commands.command()
     @app_commands.describe(voice_channel=_T('#Voice_Channel: empty for here.'))
     async def split(self, interaction: discord.Interaction, voice_channel: discord.VoiceChannel = None):
