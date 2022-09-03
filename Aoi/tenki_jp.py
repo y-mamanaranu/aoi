@@ -30,10 +30,11 @@ def get_image():
     """"""
     options = webdriver.ChromeOptions()
     options.headless = True
+    options.add_argument('--no-sandbox')
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--window-size=800,1000")
     driver = webdriver.Chrome('chromedriver', options=options)
     driver.implicitly_wait(10)
-
-    driver.set_window_size(800, 1000)
 
     url = "https://tenki.jp"
     driver.get(url)
