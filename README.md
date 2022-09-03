@@ -17,40 +17,31 @@ If you are a bot user, please skip this section.
 
 ## Parameters
 
-|   name   |             content              | default |
-| -------- | -------------------------------- | ------- |
-| prefix   | Prefix of command                | `;`     |
-| #Profile | Profile channel                  | `None`  |
-| #Log     | Log channel                      | `None`  |
-| @Freshman  | Role to assign to new member     | `None`  |
-| @Admin   | Role who can use config commands | `None`  |
+|   name    |              content              | default |
+| --------- | --------------------------------- | ------- |
+| prefix    | Prefix of command                 | `;`     |
+| #Profile  | Profile channel                   | `None`  |
+| #Log      | Log channel                       | `None`  |
+| @Freshman | Role to assign to new member      | `None`  |
+| @Senior   | Role who can assign to new member | `None`  |
 
 
 ## Commands
 
-|           command           |                            content                             | @Admin only |
-| --------------------------- | -------------------------------------------------------------- | ----------- |
-| `;adjustment`               | Delete second or subsequent profile of same user.              | YES         |
-| `;bots`                     | List bots.                                                     |             |
-| `;eliminate`                | Delete profile of leaved member.                               | YES         |
-| `;guild`                    | Return name and id of guild.                                   | YES         |
-| `;help`                     | Show help.                                                     |             |
-| `;members`                  | List members.                                                  |             |
-| `;move <profile_id>`        | Move all voice channel member to `profile_id`.                 |             |
-| `;movehere`                 | Move all voice channel member here.                            |             |
-| `;profile <user_id>`        | Show profile of member with id of `user_id`.                   |             |
-| `;roles`                    | List roles.                                                    |             |
-| `;setadmin <admin_id>` | Change ID of @Admin to `admin_id`.                        | YES         |
-| `;setchannel <profile_id>`  | Change ID of #Profile to `profile_id`.                         | YES         |
-| `;setlimit <limit>`         | Change upper limit of voice channel which you join to `limit`. |             |
-| `;setlog <log_id>`          | Change ID of #Log to `log_id`.                                 |             |
-| `;setprefix <prefix>`       | Change prefix to `prefix`.                                     | YES         |
-| `;setfreshman <freshman_id>`        | Change ID of @Freshman to `freshman_id`.                             | YES         |
-| `;split <profile_id>`       | Split voice channel member and move half to `profile_id`.      |             |
-| `;splithere`                | Split voice channel member and move half here.                 |             |
-| `;status`                   | Show current config.                                           |             |
-| `;text_channels`            | List text channels.                                            |             |
-| `;voice_channels`           | List voice channels.                                           |             |
+|           command           |                            content                             | required Previlage |
+| --------------------------- | -------------------------------------------------------------- | ------------------ |
+| `/duplicate`                | Delete second or subsequent profile of same user.              | manage_messages    |
+| `/clear`                    | Delete profile of leaved member.                               | manage_messages    |
+| `/move [<vocie_channel>]`   | Move all member to `vocie_channel`.                            |                    |
+| `/profile <user>`           | Show profile of `user`.                                        |                    |
+| `/setprofile [<profile>]`   | Change #Profile to `profile`.                                  | administrator      |
+| `/limit [<limit>]`          | Change upper limit of voice channel which you join to `limit`. |                    |
+| `/setlog [<log>]`           | Change #Log to `log`.                                          | administrator      |
+| `/setprefix <prefix>`       | Change prefix to `prefix`.                                     | administrator      |
+| `/setfreshman [<freshman>]` | Change @Freshman to `freshman`.                                | manage_roles       |
+| `/setsenior [<senior>]`     | Change @Senior to `senior`.                                    | manage_roles       |
+| `/split [<vocie_channel>]`  | Split voice channel member and move half to `vocie_channel`.   |                    |
+| `/status`                   | Show current config.                                           |                    |
 
 ## Generate `requirements.txt`
 If you add a new dependency to Aoi, please update `requirements.txt`.
