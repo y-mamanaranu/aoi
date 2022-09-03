@@ -31,7 +31,7 @@ If you are a bot user, please skip this section.
 
 |           command           |                            content                             | required Previlage |
 | --------------------------- | -------------------------------------------------------------- | ------------------ |
-| `/clear`                    | Delete profile of leaved member.                               | manage_messages    |
+| `/clean`                    | Delete profile of leaved member.                               | manage_messages    |
 | `/duplicate`                | Delete second or subsequent profile of same user.              | manage_messages    |
 | `/limit [<limit>]`          | Change upper limit of voice channel which you join to `limit`. |                    |
 | `/move [<vocie_channel>]`   | Move all member to `vocie_channel`.                            |                    |
