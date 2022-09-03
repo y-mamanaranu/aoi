@@ -10,7 +10,7 @@ from Aoi import (get_token,
 from Aoi.translator import Translator
 from logging import getLogger, INFO, StreamHandler
 # from logging import DEBUG
-
+from Aoi.tenki_jp import get_delta
 
 # Setup logging
 logger_level = INFO
@@ -59,6 +59,14 @@ bot = Bot(command_prefix=(get_prefix_ctx),
 
 asyncio.run(bot.load_extension("Aoi.profiles"))
 asyncio.run(bot.load_extension("Aoi.movers"))
+asyncio.run(bot.load_extension("Aoi.tenki_jp"))
+
+
+@bot.event
+async def on_ready():
+    delta = get_delta()
+    loop = asyncio.get_running_loop()
+    loop.call_later(delta, bot.cogs["Tenki_JP"].post_tenki.start)
 
 
 @bot.event

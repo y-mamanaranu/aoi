@@ -6,7 +6,7 @@ import re
 DEFAULT_PROFILE_ID = None
 DEFAULT_FRESHMAN_ID = None
 DEFAULT_SENIOR_ID = None
-DEFAULT_ADMIN_ID = None
+DEFAULT_TENKI_ID = None
 DEFAULT_PREFIX = ";"
 DEFAULT_LOG_ID = None
 
@@ -62,29 +62,6 @@ def convert_role_to_mention(freshman_id: str):
     return f"<@&{freshman_id}>"
 
 
-async def check_privilage(DATABASE_URL, GUILD_ID, message):
-    """"Check user hold Admin role."""
-    ADMIN_ID = get_admin_id(DATABASE_URL, GUILD_ID)
-    if ADMIN_ID is not None:
-        role = get(message.guild.roles, id=ADMIN_ID)
-        if role is not None:
-            role = get(message.author.roles, id=ADMIN_ID)
-            if role is None:
-                await message.channel.send("""You don't have privilege to excute this command.""")
-                return False
-            else:
-                return True
-        else:
-            await message.channel.send(f"""ID of admin role of {ADMIN_ID} is set, """
-                                       """but corresponding role is not found. """
-                                       """Config command is allowed to all members.""")
-            return True
-    else:
-        await message.channel.send("""ID of admin role is not set. """
-                                   """Config command is allowed to all members.""")
-        return True
-
-
 def get_token():
     """Get token of Discord bot."""
     return os.environ["TOKEN"]
@@ -114,7 +91,7 @@ def init_db(DATABASE_URL):
                 log_id bigint,
                 freshman_id bigint,
                 senior_id bigint,
-                admin_id bigint,
+                tenki_id bigint,
                 );""")
 
 
@@ -130,7 +107,7 @@ def insert_ids(DATABASE_URL: str,
                 log_id,
                 freshman_id,
                 senior_id,
-                admin_id
+                tenki_id
                 ) VALUES(%s, %s, %s, %s, %s, %s);""",
                         (GUILD_ID,
                          DEFAULT_PREFIX,
@@ -138,7 +115,7 @@ def insert_ids(DATABASE_URL: str,
                          DEFAULT_LOG_ID,
                          DEFAULT_FRESHMAN_ID,
                          DEFAULT_SENIOR_ID,
-                         DEFAULT_ADMIN_ID)
+                         DEFAULT_TENKI_ID)
                         )
             conn.commit()
 
@@ -207,28 +184,27 @@ def get_log_id(DATABASE_URL, GUILD_ID):
     return res[0]
 
 
-def get_admin_id(DATABASE_URL, GUILD_ID):
-    """Get ID of admin role from database."""
-    with psycopg2.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            cur.execute("""SELECT admin_id
-            FROM reactedrole
-            WHERE guild_id = %s;""",
-                        (GUILD_ID,))
-            res = cur.fetchone()
-
-    return res[0]
-
-
-def get_pre_pro_log_fre_sen_adm(DATABASE_URL, GUILD_ID):
+def get_pre_pro_log_fre_sen_ten(DATABASE_URL, GUILD_ID):
     """Get status from database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            cur.execute("""SELECT prefix, profile_id, log_id, freshman_id, senior_id, admin_id
+            cur.execute("""SELECT prefix, profile_id, log_id, freshman_id, senior_id, tenki_id
             FROM reactedrole
             WHERE guild_id = %s;""",
                         (GUILD_ID,))
             res = cur.fetchone()
+
+    return res
+
+
+def get_all_tenki_id(DATABASE_URL):
+    """Get ID of admin role from database."""
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""SELECT tenki_id
+            FROM reactedrole
+            WHERE tenki_id IS NOT NULL;""")
+            res = cur.fetchall()
 
     return res
 
@@ -277,17 +253,6 @@ def update_senior_id(DATABASE_URL, GUILD_ID, SENIOR_ID):
                 (SENIOR_ID, GUILD_ID))
 
 
-def update_admin_id(DATABASE_URL, GUILD_ID, ADMIN_ID):
-    """Update admin_id in database."""
-    with psycopg2.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                """UPDATE reactedrole
-                SET admin_id = %s
-                WHERE guild_id = %s;""",
-                (ADMIN_ID, GUILD_ID))
-
-
 def update_prefix(DATABASE_URL, GUILD_ID, PREFIX):
     """Update prefix in database."""
     with psycopg2.connect(DATABASE_URL) as conn:
@@ -297,3 +262,14 @@ def update_prefix(DATABASE_URL, GUILD_ID, PREFIX):
                 SET prefix = %s
                 WHERE guild_id = %s;""",
                 (PREFIX, GUILD_ID))
+
+
+def update_tenki_id(DATABASE_URL, GUILD_ID, TENKI_ID):
+    """Update tenki_id in database."""
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """UPDATE reactedrole
+                SET tenki_id = %s
+                WHERE guild_id = %s;""",
+                (TENKI_ID, GUILD_ID))

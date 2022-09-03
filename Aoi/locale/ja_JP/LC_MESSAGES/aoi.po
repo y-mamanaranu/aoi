@@ -58,3 +58,12 @@ msgstr "参加しているボイスチャンネルのユーザー上限を変更
 
 msgid "Value of `0` to remove limit: empty for 0."
 msgstr "値が0の場合は、上限がなくなります: 空白にすると0になります。"
+
+msgid "Change #Tenki."
+msgstr "#Tenkiを変更します。"
+
+msgid "Weather forecast channel: empty for disable."
+msgstr "天気予報のチャンネル: 空白にすると無効になります。"
+
+msgid "Post weather forecast of tenki.jp."
+msgstr "tenki.jpの天気予報を表示します。"
