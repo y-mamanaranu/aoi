@@ -10,7 +10,7 @@ from . import (get_database_url,
                convert_user_to_mention,
                convert_channel_to_mention,
                convert_role_to_mention,
-               get_pre_pro_log_fre_sen_adm,
+               get_pre_pro_log_fre_sen_ten,
                get_pro_log_fre_sen,
                update_log_id,
                update_senior_id,
@@ -35,22 +35,28 @@ class Profiles(commands.Cog):
         @Freshman is Role to assign to new member.
         @Senior is Role who can assign to new member.
 
+        #Tenki is weather forecast channel.
+
         PrefixはコマンドのPrefixです。
         #Profileは自己紹介のチャンネルです。
         #Logはログを出力するチャンネルです。
         @Freshmanは新規に付与するロールです。
         @Seniorは新規への付与を許可するロールです。
+
+        #Tenkiは天気予報のチャンネルです。
         """
         GUILD_ID = interaction.guild.id
 
-        PREFIX, PROFILE_ID, LOG_ID, FRESHMAN_ID, SENIOR_ID, ADMIN_ID = \
-            get_pre_pro_log_fre_sen_adm(DATABASE_URL,
+        PREFIX, PROFILE_ID, LOG_ID, FRESHMAN_ID, SENIOR_ID, TENKI_ID = \
+            get_pre_pro_log_fre_sen_ten(DATABASE_URL,
                                         GUILD_ID)
         await interaction.response.send_message(f"""Prefix is `{PREFIX}`.
 #Profile is {convert_channel_to_mention(PROFILE_ID)}.
 #Log is {convert_channel_to_mention(LOG_ID)}.
 @Freshman is {convert_role_to_mention(FRESHMAN_ID)}.
-@Senior is {convert_role_to_mention(SENIOR_ID)}.""")
+@Senior is {convert_role_to_mention(SENIOR_ID)}.
+
+#Tenki is {convert_channel_to_mention(TENKI_ID)}.""")
         return
 
     @app_commands.command()

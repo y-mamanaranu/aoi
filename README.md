@@ -24,24 +24,27 @@ If you are a bot user, please skip this section.
 | #Log      | Log channel                       | `None`  |
 | @Freshman | Role to assign to new member      | `None`  |
 | @Senior   | Role who can assign to new member | `None`  |
+| #Tenki    | Weather forecast channel          | `None`  |
 
 
 ## Commands
 
 |           command           |                            content                             | required Previlage |
 | --------------------------- | -------------------------------------------------------------- | ------------------ |
-| `/duplicate`                | Delete second or subsequent profile of same user.              | manage_messages    |
 | `/clear`                    | Delete profile of leaved member.                               | manage_messages    |
+| `/duplicate`                | Delete second or subsequent profile of same user.              | manage_messages    |
+| `/limit [<limit>]`          | Change upper limit of voice channel which you join to `limit`. |                    |
 | `/move [<vocie_channel>]`   | Move all member to `vocie_channel`.                            |                    |
 | `/profile <user>`           | Show profile of `user`.                                        |                    |
-| `/setprofile [<profile>]`   | Change #Profile to `profile`.                                  | administrator      |
-| `/limit [<limit>]`          | Change upper limit of voice channel which you join to `limit`. |                    |
+| `/setfreshman [<freshman>]` | Change @Freshman to `freshman`.                                | manage_roles       |
 | `/setlog [<log>]`           | Change #Log to `log`.                                          | administrator      |
 | `/setprefix <prefix>`       | Change prefix to `prefix`.                                     | administrator      |
-| `/setfreshman [<freshman>]` | Change @Freshman to `freshman`.                                | manage_roles       |
+| `/setprofile [<profile>]`   | Change #Profile to `profile`.                                  | administrator      |
 | `/setsenior [<senior>]`     | Change @Senior to `senior`.                                    | manage_roles       |
+| `/settenki [<tenki>]`       | Change #Tenki to `tenki`.                                      | administrator      |
 | `/split [<vocie_channel>]`  | Split voice channel member and move half to `vocie_channel`.   |                    |
 | `/status`                   | Show current config.                                           |                    |
+| `/tenki`                    | Post weather forecast of tenki.jp.                             |                    |
 
 ## Generate `requirements.txt`
 If you add a new dependency to Aoi, please update `requirements.txt`.
