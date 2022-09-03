@@ -208,7 +208,7 @@ class Profiles(commands.Cog):
             return
 
     @app_commands.command()
-    async def clear(self, interaction: discord.Interaction):
+    async def clean(self, interaction: discord.Interaction):
         """Delete profile of leaved member.
 
         Previlage to manage messages is required.
@@ -222,6 +222,7 @@ class Profiles(commands.Cog):
             await interaction.response.send_message("Previlage to manage messages is required")
             return
 
+        await interaction.response.defer()
         GUILD_ID = interaction.guild.id
 
         member_cand = ["Message from user following will be deleted."]
@@ -244,7 +245,7 @@ class Profiles(commands.Cog):
                 confirm_content = f"YES, delete in {interaction.guild}."
                 member_cand.append(
                     f"If you want to excute delete, plese type `{confirm_content}`.")
-                await interaction.response.send_message("\n".join(member_cand))
+                await interaction.followup.send("\n".join(member_cand))
 
                 def check(m):
                     """Check if it's the same user and channel."""
@@ -266,10 +267,10 @@ class Profiles(commands.Cog):
                     return
 
             else:
-                await interaction.response.send_message("No message to delete is found.")
+                await interaction.followup.send("No message to delete is found.")
                 return
         else:
-            await interaction.response.send_message("@Profile is not set.")
+            await interaction.followup.send("@Profile is not set.")
             return
 
     @app_commands.command()
