@@ -72,6 +72,45 @@ class Movers(commands.Cog):
         await interaction.response.send_message("\n".join(text))
 
     @app_commands.command()
+    @app_commands.describe(voice_channel=_T('#Voice_Channel: empty for here.'))
+    async def shuffle(self, interaction: discord.Interaction, voice_channel: discord.VoiceChannel = None):
+        """Shuffle members with another voice channel.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            _description_
+        voice_channel : discord.VoiceChannel, optional
+            Voice channel to move.
+            `None` to move to the channel where message create.
+        """
+        origin = interaction.user.voice.channel
+
+        if voice_channel is None:
+            voice_channel = interaction.channel
+
+        members = [
+            member for member in origin.members if not member.bot] + [
+            member for member in voice_channel.members if not member.bot]
+        members = random.sample(members, len(members))
+        members1 = members[:len(members) // 2]
+        members2 = members[len(members) // 2:]
+
+        text = []
+        text.append(
+            f"> Members for {convert_channel_to_mention(origin.id)}")
+        for member in members1:
+            text.append(f"{convert_user_to_mention(member.id)}")
+            await member.move_to(origin)
+        text.append(
+            f"> Members for {convert_channel_to_mention(voice_channel.id)}")
+        for member in members2:
+            text.append(f"{convert_user_to_mention(member.id)}")
+            await member.move_to(voice_channel)
+
+        await interaction.response.send_message("\n".join(text))
+
+    @app_commands.command()
     @app_commands.describe(limit="Value of `0` to remove limit: empty for 0.")
     async def limit(self, interaction: discord.Interaction, limit: int = 0):
         """Change upper limit of voice channel which you join."""
