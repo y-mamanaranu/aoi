@@ -13,7 +13,7 @@ DEFAULT_LOG_ID = None
 
 def convert_mention_to_user(mention: str):
     """Convert mention to user to user_id."""
-    res = re.match(r"^<@(\d+)>$", mention)
+    res = re.match(r"^<@\!?(\d+)>$", mention)
     if res is None:
         return mention
     else:

@@ -1,0 +1,60 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=utf-8\n"
+
+msgid "Show profile of spesific member."
+msgstr "特定のメンバーの自己紹介を表示します。"
+
+msgid "Move all members to another voice channel."
+msgstr "すべてのメンバーを他のボイスチャンネルに移動します。"
+
+msgid "Move random half of members to another voice channel."
+msgstr "メンバーの半分を他のボイスチャンネルに移動します。"
+
+msgid "#Voice_Channel: empty for moving here."
+msgstr "#Voice_Channel: 空白の場合はここに移動する。"
+
+msgid "Delete second or subsequent profile of same user."
+msgstr "同じユーザーの2つ目以降の自己紹介を削除します。"
+
+msgid "Delete profile of leaved member."
+msgstr "居なくなったメンバーの自己紹介を削除します。"
+
+msgid "Show current config."
+msgstr "設定を表示します。"
+
+msgid "Change prefix."
+msgstr "Prefixを変更します。"
+
+msgid "Prefix of command: Default prefix is `;`."
+msgstr "コマンドのprefix: デフォルトのPrefixは`;`です。"
+
+msgid "Change #Profile."
+msgstr "#ProfileのIDを変更します。"
+
+msgid "Profile channel: empty for disable."
+msgstr "自己紹介のチャンネル: 空白にすると無効になります。"
+
+msgid "Change #Log."
+msgstr "#Logを変更します。"
+
+msgid "Log channel: empty for disable."
+msgstr "ログを出力するチャンネル: 空白にすると無効になります。"
+
+msgid "Change @Freshman."
+msgstr "@Freshmanを変更します。"
+
+msgid "Role to assign to new member: empty for disable."
+msgstr "新規に付与するロール: 空白にすると無効になります。"
+
+msgid "Change @Senior."
+msgstr "@Seniorを変更します。"
+
+msgid "Role who can assign to new member: empty for disable."
+msgstr "新規への付与を許可するロール: 空白にすると無効になります。"
+
+msgid "Change upper limit of voice channel which you join."
+msgstr "参加しているボイスチャンネルのユーザー上限を変更します。"
+
+msgid "Value of `0` to remove limit: empty for 0."
+msgstr "値が0の場合は、上限がなくなります: 空白にすると0になります。"
