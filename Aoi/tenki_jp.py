@@ -17,7 +17,7 @@ JST = datetime.timezone(datetime.timedelta(hours=9), name='JST')
 
 def get_delta():
     """"""
-    now = datetime.datetime.now()
+    now = datetime.datetime.now(JST)
     target = datetime.datetime(
         now.year,
         now.month,
