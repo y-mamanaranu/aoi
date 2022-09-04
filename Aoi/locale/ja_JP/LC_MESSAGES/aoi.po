@@ -70,3 +70,21 @@ msgstr "天気予報のチャンネル: 空白にすると無効になります�
 
 msgid "Post weather forecast of tenki.jp."
 msgstr "tenki.jpの天気予報を表示します。"
+
+msgid "Change limit?."
+msgstr "limit?を変更します。"
+
+msgid "Whether activate `/limit`."
+msgstr "`/limit`を有効化するか。"
+
+msgid "Change adjust?."
+msgstr "adjust?を変更します。"
+
+msgid "Wheter activate `on_voice_state_update`."
+msgstr "`on_voice_state_update`を有効化するか。"
+
+msgid "Change :emoji:."
+msgstr ":emoji:を変更します。"
+
+msgid "Emoji to assign role: empty for matching all."
+msgstr "ロールを付与する絵文字: 空白にすると全てにマッチします。"
