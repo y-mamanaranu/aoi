@@ -88,3 +88,6 @@ msgstr ":emoji:を変更します。"
 
 msgid "Emoji to assign role: empty for matching all."
 msgstr "ロールを付与する絵文字: 空白にすると全てにマッチします。"
+
+msgid "Show detail of parameters."
+msgstr "パラメタの詳細を表示します。"

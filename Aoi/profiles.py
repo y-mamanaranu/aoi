@@ -28,29 +28,23 @@ class Profiles(commands.Cog):
         self.bot = bot
 
     @app_commands.command()
+    async def detail(self, interaction: discord.Interaction):
+        """Show detail of parameters."""
+        await interaction.response.send_message("""Prefix is Prefix of command.
+#Profile is Profile channel.
+#Log is Log channel.
+@Freshman is Role to assign to new member.
+@Senior is Role who can assign to new member.
+:emoji: is Emoji to assign role.
+
+#Tenki is weather forecast channel.
+
+limit? is Whether activate `/limit`.
+adjust? is Wheter activate `on_voice_state_update`.""")
+
+    @app_commands.command()
     async def status(self, interaction: discord.Interaction):
-        """Show current config.
-
-        Prefix is Prefix of command.
-        #Profile is Profile channel.
-        #Log is Log channel.
-        @Freshman is Role to assign to new member.
-        @Senior is Role who can assign to new member.
-        :emoji: is Emoji to assign role.
-
-        #Tenki is weather forecast channel.
-
-        limit? is Whether activate `/limit`.
-        adjust? is Wheter activate `on_voice_state_update`.
-
-        PrefixはコマンドのPrefixです。
-        #Profileは自己紹介のチャンネルです。
-        #Logはログを出力するチャンネルです。
-        @Freshmanは新規に付与するロールです。
-        @Seniorは新規への付与を許可するロールです。
-
-        #Tenkiは天気予報のチャンネルです。
-        """
+        """Show current config."""
         GUILD_ID = interaction.guild_id
 
         PREFIX, PROFILE_ID, LOG_ID, FRESHMAN_ID, SENIOR_ID, EMOJI_ID, TENKI_ID, IF_LIMIT, IF_ADJUST = \
