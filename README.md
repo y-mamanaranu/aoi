@@ -17,17 +17,17 @@ If you are a bot user, please skip this section.
 
 ## Parameters
 
-|   name    |                 content                 | default |          comment          |   TODO    |
-| --------- | --------------------------------------- | ------- | ------------------------- | --------- |
-| prefix    | Prefix of command                       | `;`     |                           |           |
-| #Profile  | Profile channel                         | `None`  |                           |           |
-| #Log      | Log channel                             | `None`  |                           |           |
-| @Freshman | Role to assign to new member            | `None`  |                           |           |
-| @Senior   | Role who can assign to new member       | `None`  |                           |           |
-| :emoji:   | Emoji to assign role                    | `None`  | `None` match to any emoji |           |
-| #Tenki    | Weather forecast channel                | `None`  |                           |           |
-| limit?    | Whether activate `/limit`               | `True`  |                           | implement |
-| adjust?   | Wheter activate `on_voice_state_update` | `True`  |                           | implement |
+|   name    |                 content                 | default |          comment          | TODO |
+| --------- | --------------------------------------- | ------- | ------------------------- | ---- |
+| prefix    | Prefix of command                       | `;`     |                           |      |
+| #Profile  | Profile channel                         | `None`  |                           |      |
+| #Log      | Log channel                             | `None`  |                           |      |
+| @Freshman | Role to assign to new member            | `None`  |                           |      |
+| @Senior   | Role who can assign to new member       | `None`  |                           |      |
+| :emoji:   | Emoji to assign role                    | `None`  | `None` match to any emoji |      |
+| #Tenki    | Weather forecast channel                | `None`  |                           |      |
+| limit?    | Whether activate `/limit`               | `True`  |                           |      |
+| adjust?   | Wheter activate `on_voice_state_update` | `True`  |                           |      |
 
 ## Commands
 
