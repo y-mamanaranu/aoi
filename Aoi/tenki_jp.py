@@ -12,6 +12,8 @@ from selenium.webdriver.common.by import By
 
 DATABASE_URL = get_database_url()
 
+JST = datetime.timezone(datetime.timedelta(hours=9), name='JST')
+
 
 def get_delta():
     """"""
@@ -22,7 +24,8 @@ def get_delta():
         now.day + int(now.hour >= 5),
         5,
         0,
-        0)
+        0,
+        tzinfo=JST)
     return (target.timestamp() - now.timestamp())
 
 
