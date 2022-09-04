@@ -119,7 +119,7 @@ class Movers(commands.Cog):
         await interaction.response.send_message("\n".join(text))
 
     @app_commands.command()
-    @app_commands.describe(limit="Value of `0` to remove limit: empty for 0.")
+    @app_commands.describe(limit=_T("Value of `0` to remove limit: empty for 0."))
     async def limit(self, interaction: discord.Interaction, limit: int = 0):
         """Change upper limit of voice channel which you join."""
         channel = interaction.user.voice.channel
