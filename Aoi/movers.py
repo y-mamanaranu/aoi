@@ -5,6 +5,8 @@ from discord.app_commands import locale_str as _T
 from . import (convert_user_to_mention,
                get_database_url,
                update_if_limit,
+               get_if_adjust,
+               get_if_limit,
                update_if_adjust,
                convert_channel_to_mention)
 import random
@@ -120,15 +122,18 @@ class Movers(commands.Cog):
     @app_commands.describe(limit="Value of `0` to remove limit: empty for 0.")
     async def limit(self, interaction: discord.Interaction, limit: int = 0):
         """Change upper limit of voice channel which you join."""
-
         channel = interaction.user.voice.channel
+        GUILD_ID = interaction.guild_id
 
         if channel is None:
-            await interaction.channel.send("You do not join voice channel.")
+            await interaction.response.send_message("You do not join voice channel.")
             return
-        else:
+        elif get_if_limit(DATABASE_URL, GUILD_ID):
             await channel.edit(user_limit=limit)
             await interaction.response.send_message(f"Upper limit is changed to {limit}.")
+        else:
+            await interaction.response.send_message("Need limit? changed to `True`.")
+            return
 
     @app_commands.command()
     @app_commands.describe(enable=_T('Whether activate `/limit`.'))
@@ -165,13 +170,17 @@ class Movers(commands.Cog):
         return
 
     @commands.Cog.listener()
-    async def on_voice_state_update(self, member, before, after):
+    async def on_voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
         """Run on member join or leave voice channel."""
         if member.bot:
             if before.channel is not None and before.channel.user_limit != 0:
-                await before.channel.edit(user_limit=before.channel.user_limit - 1)
+                GUILD_ID = before.channel.guild.id
+                if get_if_adjust(DATABASE_URL, GUILD_ID):
+                    await before.channel.edit(user_limit=before.channel.user_limit - 1)
             if after.channel is not None and after.channel.user_limit != 0:
-                await after.channel.edit(user_limit=after.channel.user_limit + 1)
+                GUILD_ID = after.channel.guild.id
+                if get_if_adjust(DATABASE_URL, GUILD_ID):
+                    await after.channel.edit(user_limit=after.channel.user_limit + 1)
 
 
 async def setup(bot):

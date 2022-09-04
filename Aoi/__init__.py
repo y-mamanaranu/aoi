@@ -195,6 +195,32 @@ def get_log_id(DATABASE_URL, GUILD_ID):
     return res[0]
 
 
+def get_if_limit(DATABASE_URL, GUILD_ID):
+    """Get if_limit from database."""
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""SELECT if_limit
+            FROM reactedrole
+            WHERE guild_id = %s;""",
+                        (GUILD_ID,))
+            res = cur.fetchone()
+
+    return res[0]
+
+
+def get_if_adjust(DATABASE_URL, GUILD_ID):
+    """Get if_adjust from database."""
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""SELECT if_adjust
+            FROM reactedrole
+            WHERE guild_id = %s;""",
+                        (GUILD_ID,))
+            res = cur.fetchone()
+
+    return res[0]
+
+
 def get_pre_pro_log_fre_sen_emo_ten_lim_adj(DATABASE_URL, GUILD_ID):
     """Get status from database."""
     with psycopg2.connect(DATABASE_URL) as conn:

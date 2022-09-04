@@ -52,6 +52,8 @@ If you are a bot user, please skip this section.
 | `/status`                    | Show current config.                                           |                    |                 |      |
 | `/tenki`                     | Post weather forecast of tenki.jp.                             |                    |                 |      |
 
+Commands whose name starts with "/set" change parameters.
+
 ## Passive Commands
 
 |        command        |                                             content                                              |                    to disable                    | TODO |
