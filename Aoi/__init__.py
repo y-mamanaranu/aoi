@@ -1,4 +1,3 @@
-from discord.utils import get
 import os
 import psycopg2
 import re
@@ -9,6 +8,9 @@ DEFAULT_SENIOR_ID = None
 DEFAULT_TENKI_ID = None
 DEFAULT_PREFIX = ";"
 DEFAULT_LOG_ID = None
+DEFAULT_EMOJI_ID = None
+DEFAULT_IF_LIMIT = True
+DEFAULT_IF_ADJUST = True
 
 
 def convert_mention_to_user(mention: str):
@@ -91,7 +93,10 @@ def init_db(DATABASE_URL):
                 log_id bigint,
                 freshman_id bigint,
                 senior_id bigint,
+                emoji_id text,
                 tenki_id bigint,
+                if_limit boolean DEFAULT true,
+                if_adjust boolean DEFAULT true,
                 );""")
 
 
@@ -107,7 +112,10 @@ def insert_ids(DATABASE_URL: str,
                 log_id,
                 freshman_id,
                 senior_id,
-                tenki_id
+                emoji_id,
+                tenki_id,
+                if_limit,
+                if_adjust,
                 ) VALUES(%s, %s, %s, %s, %s, %s);""",
                         (GUILD_ID,
                          DEFAULT_PREFIX,
@@ -115,7 +123,10 @@ def insert_ids(DATABASE_URL: str,
                          DEFAULT_LOG_ID,
                          DEFAULT_FRESHMAN_ID,
                          DEFAULT_SENIOR_ID,
-                         DEFAULT_TENKI_ID)
+                         DEFAULT_EMOJI_ID,
+                         DEFAULT_TENKI_ID,
+                         DEFAULT_IF_LIMIT,
+                         DEFAULT_IF_ADJUST)
                         )
             conn.commit()
 
@@ -132,11 +143,11 @@ def remove_ids(DATABASE_URL: str,
             conn.commit()
 
 
-def get_pro_log_fre_sen(DATABASE_URL, GUILD_ID):
+def get_pro_log_fre_sen_emo(DATABASE_URL, GUILD_ID):
     """Get ids from database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            cur.execute("""SELECT profile_id, log_id, freshman_id, senior_id
+            cur.execute("""SELECT profile_id, log_id, freshman_id, senior_id, emoji_id
             FROM reactedrole
             WHERE guild_id = %s;""",
                         (GUILD_ID,))
@@ -159,7 +170,7 @@ def get_prefix(DATABASE_URL, GUILD_ID):
 
 
 def get_profile_id(DATABASE_URL, GUILD_ID):
-    """Get ID of admin role from database."""
+    """Get ID of #Profile from database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute("""SELECT profile_id
@@ -172,7 +183,7 @@ def get_profile_id(DATABASE_URL, GUILD_ID):
 
 
 def get_log_id(DATABASE_URL, GUILD_ID):
-    """Get ID of admin role from database."""
+    """Get ID of #Log from database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute("""SELECT log_id
@@ -184,11 +195,11 @@ def get_log_id(DATABASE_URL, GUILD_ID):
     return res[0]
 
 
-def get_pre_pro_log_fre_sen_ten(DATABASE_URL, GUILD_ID):
+def get_pre_pro_log_fre_sen_emo_ten_lim_adj(DATABASE_URL, GUILD_ID):
     """Get status from database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            cur.execute("""SELECT prefix, profile_id, log_id, freshman_id, senior_id, tenki_id
+            cur.execute("""SELECT prefix, profile_id, log_id, freshman_id, senior_id, emoji_id, tenki_id, if_limit, if_adjust
             FROM reactedrole
             WHERE guild_id = %s;""",
                         (GUILD_ID,))
@@ -198,7 +209,7 @@ def get_pre_pro_log_fre_sen_ten(DATABASE_URL, GUILD_ID):
 
 
 def get_all_tenki_id(DATABASE_URL):
-    """Get ID of admin role from database."""
+    """Get ID of #Tenki from database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute("""SELECT tenki_id
@@ -251,6 +262,39 @@ def update_senior_id(DATABASE_URL, GUILD_ID, SENIOR_ID):
                 SET senior_id = %s
                 WHERE guild_id = %s;""",
                 (SENIOR_ID, GUILD_ID))
+
+
+def update_emoji_id(DATABASE_URL, GUILD_ID, EMOJI_ID):
+    """Update emoji_id in database."""
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """UPDATE reactedrole
+                SET emoji_id = %s
+                WHERE guild_id = %s;""",
+                (EMOJI_ID, GUILD_ID))
+
+
+def update_if_limit(DATABASE_URL, GUILD_ID, IF_LIMIT):
+    """Update if_limit in database."""
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """UPDATE reactedrole
+                SET if_limit = %s
+                WHERE guild_id = %s;""",
+                (IF_LIMIT, GUILD_ID))
+
+
+def update_if_adjust(DATABASE_URL, GUILD_ID, IF_ADJUST):
+    """Update if_adjust in database."""
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """UPDATE reactedrole
+                SET if_adjust = %s
+                WHERE guild_id = %s;""",
+                (IF_ADJUST, GUILD_ID))
 
 
 def update_prefix(DATABASE_URL, GUILD_ID, PREFIX):

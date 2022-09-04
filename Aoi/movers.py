@@ -3,8 +3,14 @@ from discord import app_commands
 import discord
 from discord.app_commands import locale_str as _T
 from . import (convert_user_to_mention,
+               get_database_url,
+               update_if_limit,
+               update_if_adjust,
                convert_channel_to_mention)
 import random
+
+
+DATABASE_URL = get_database_url()
 
 
 class Movers(commands.Cog):
@@ -123,6 +129,40 @@ class Movers(commands.Cog):
         else:
             await channel.edit(user_limit=limit)
             await interaction.response.send_message(f"Upper limit is changed to {limit}.")
+
+    @app_commands.command()
+    @app_commands.describe(enable=_T('Whether activate `/limit`.'))
+    async def setlimit(self, interaction: discord.Integration, enable: bool):
+        """Change limit?.
+
+        Previlage to manage channels is required.
+        """
+        if not interaction.user.guild_permissions.manage_channels:
+            await interaction.response.send_message("Previlage to manage channels is required.")
+            return
+
+        GUILD_ID = interaction.guild_id
+
+        update_if_limit(DATABASE_URL, GUILD_ID, enable)
+        await interaction.response.send_message(f"limit? is changed to `{enable}`.")
+        return
+
+    @app_commands.command()
+    @app_commands.describe(enable=_T('Wheter activate `on_voice_state_update`.'))
+    async def setadjust(self, interaction: discord.Integration, enable: bool):
+        """Change adjust?.
+
+        Previlage to manage channels is required.
+        """
+        if not interaction.user.guild_permissions.manage_channels:
+            await interaction.response.send_message("Previlage to manage channels is required.")
+            return
+
+        GUILD_ID = interaction.guild_id
+
+        update_if_adjust(DATABASE_URL, GUILD_ID, enable)
+        await interaction.response.send_message(f"adjust? is changed to `{enable}`.")
+        return
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):

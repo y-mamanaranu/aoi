@@ -192,6 +192,17 @@ python-versions = ">=3.6.0"
 requests = "*"
 
 [[package]]
+name = "emoji"
+version = "2.0.0"
+description = "Emoji for Python"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.extras]
+dev = ["pytest", "coverage", "coveralls"]
+
+[[package]]
 name = "entrypoints"
 version = "0.4"
 description = "Discover and load entry points from installed packages."
@@ -987,7 +998,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "9881229b1854ad12da5532c03287fe0efb5253eb7dfa6c75afd34d50415106c8"
+content-hash = "75f150161c9e76a58ba2416737c6f0ebd89064dfcb09685b65e9c99588c54aa0"
 
 [metadata.files]
 aiohttp = [
@@ -1209,6 +1220,9 @@ decorator = [
 discordwebhook = [
     {file = "discordwebhook-1.0.3-py3-none-any.whl", hash = "sha256:0dddc400d631c57795cae03939aa37163299d2d7e3361036fa508836326c7ea6"},
     {file = "discordwebhook-1.0.3.tar.gz", hash = "sha256:b2a89cc322e036c36f694f23a02023e79d6916f5b6be127de2733b7b1f93445c"},
+]
+emoji = [
+    {file = "emoji-2.0.0.tar.gz", hash = "sha256:297fac7ec9e86f7b602792c28eb6f04819ba67ab88a34c56afcde52243a9a105"},
 ]
 entrypoints = [
     {file = "entrypoints-0.4-py3-none-any.whl", hash = "sha256:f174b5ff827504fd3cd97cc3f8649f3693f51538c7e4bdf3ef002c8429d42f9f"},
