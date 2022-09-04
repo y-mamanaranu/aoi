@@ -2,16 +2,18 @@ from discord.ext import commands
 from discord import app_commands
 import discord
 import asyncio
+from emoji import demojize
 from discord.app_commands import locale_str as _T
 from . import (get_database_url,
                update_profile_id,
                update_prefix,
+               update_emoji_id,
                update_freshman_id,
                convert_user_to_mention,
                convert_channel_to_mention,
                convert_role_to_mention,
-               get_pre_pro_log_fre_sen_ten,
-               get_pro_log_fre_sen,
+               get_pre_pro_log_fre_sen_emo_ten_lim_adj,
+               get_pro_log_fre_sen_emo,
                update_log_id,
                update_senior_id,
                get_profile_id)
@@ -34,8 +36,12 @@ class Profiles(commands.Cog):
         #Log is Log channel.
         @Freshman is Role to assign to new member.
         @Senior is Role who can assign to new member.
+        :emoji: is Emoji to assign role.
 
         #Tenki is weather forecast channel.
+
+        limit? is Whether activate `/limit`.
+        adjust? is Wheter activate `on_voice_state_update`.
 
         PrefixはコマンドのPrefixです。
         #Profileは自己紹介のチャンネルです。
@@ -45,18 +51,22 @@ class Profiles(commands.Cog):
 
         #Tenkiは天気予報のチャンネルです。
         """
-        GUILD_ID = interaction.guild.id
+        GUILD_ID = interaction.guild_id
 
-        PREFIX, PROFILE_ID, LOG_ID, FRESHMAN_ID, SENIOR_ID, TENKI_ID = \
-            get_pre_pro_log_fre_sen_ten(DATABASE_URL,
-                                        GUILD_ID)
+        PREFIX, PROFILE_ID, LOG_ID, FRESHMAN_ID, SENIOR_ID, EMOJI_ID, TENKI_ID, IF_LIMIT, IF_ADJUST = \
+            get_pre_pro_log_fre_sen_emo_ten_lim_adj(DATABASE_URL,
+                                                    GUILD_ID)
         await interaction.response.send_message(f"""Prefix is `{PREFIX}`.
 #Profile is {convert_channel_to_mention(PROFILE_ID)}.
 #Log is {convert_channel_to_mention(LOG_ID)}.
 @Freshman is {convert_role_to_mention(FRESHMAN_ID)}.
 @Senior is {convert_role_to_mention(SENIOR_ID)}.
+:emoji: is {EMOJI_ID}.
 
-#Tenki is {convert_channel_to_mention(TENKI_ID)}.""")
+#Tenki is {convert_channel_to_mention(TENKI_ID)}.
+
+limit? is {IF_LIMIT}.
+adjust? is {IF_ADJUST}.""")
         return
 
     @app_commands.command()
@@ -70,7 +80,7 @@ class Profiles(commands.Cog):
             await interaction.response.send_message("Previlage of administrator is required.")
             return
 
-        GUILD_ID = interaction.guild.id
+        GUILD_ID = interaction.guild_id
 
         prefix = str(prefix)
         update_prefix(DATABASE_URL, GUILD_ID, prefix)
@@ -88,7 +98,7 @@ class Profiles(commands.Cog):
             await interaction.response.send_message("Previlage of administrator is required.")
             return
 
-        GUILD_ID = interaction.guild.id
+        GUILD_ID = interaction.guild_id
 
         if profile is None:
             update_profile_id(DATABASE_URL, GUILD_ID, profile)
@@ -111,7 +121,7 @@ class Profiles(commands.Cog):
             await interaction.response.send_message("Previlage of administrator is required.")
             return
 
-        GUILD_ID = interaction.guild.id
+        GUILD_ID = interaction.guild_id
 
         if log is None:
             update_log_id(DATABASE_URL, GUILD_ID, log)
@@ -134,7 +144,7 @@ class Profiles(commands.Cog):
             await interaction.response.send_message("Previlage to manage roles is required.")
             return
 
-        GUILD_ID = interaction.guild.id
+        GUILD_ID = interaction.guild_id
 
         if freshman is None:
             update_freshman_id(DATABASE_URL, GUILD_ID, freshman)
@@ -158,7 +168,7 @@ class Profiles(commands.Cog):
             await interaction.response.send_message("Previlage to manage roles is required.")
             return
 
-        GUILD_ID = interaction.guild.id
+        GUILD_ID = interaction.guild_id
 
         if senior is None:
             update_senior_id(DATABASE_URL, GUILD_ID, senior)
@@ -168,6 +178,30 @@ class Profiles(commands.Cog):
             update_senior_id(DATABASE_URL, GUILD_ID, senior.id)
             await interaction.response.send_message("@Senior is changed "
                                                     f"to {convert_role_to_mention(senior.id)}.")
+        return
+
+    @app_commands.command()
+    @app_commands.describe(emoji=_T('Emoji to assign role: empty for matching all.'))
+    async def setemoji(self, interaction: discord.Integration, emoji: str = None):
+        """Change :emoji:.
+
+        Previlage of manage roles is required.
+        """
+        if not interaction.user.guild_permissions.manage_roles:
+            await interaction.response.send_message("Previlage to manage roles is required.")
+            return
+
+        GUILD_ID = interaction.guild_id
+
+        if emoji is None:
+            update_emoji_id(DATABASE_URL, GUILD_ID, emoji)
+            await interaction.response.send_message(":emoji: is changed "
+                                                    f"to {emoji}.")
+        else:
+            emoji_id = demojize(emoji)
+            update_emoji_id(DATABASE_URL, GUILD_ID, emoji_id)
+            await interaction.response.send_message(":emoji: is changed "
+                                                    f"to {emoji_id}.")
         return
 
     @app_commands.command()
@@ -223,7 +257,7 @@ class Profiles(commands.Cog):
             return
 
         await interaction.response.defer()
-        GUILD_ID = interaction.guild.id
+        GUILD_ID = interaction.guild_id
 
         member_cand = ["Message from user following will be deleted."]
         message_cand = []
@@ -338,27 +372,26 @@ class Profiles(commands.Cog):
             return
 
     @ commands.Cog.listener()
-    async def on_raw_reaction_add(self, payload):
+    async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
         """Run on reaction is made.
 
         When a member with `@Senior` reacts on `#Profiles`,
         `@Freshman` is given to the person who sent the message.
         """
-
         GUILD_ID = payload.guild_id
-        PROFILE_ID, LOG_ID, FRESHMAN_ID, SENIOR_ID = get_pro_log_fre_sen(DATABASE_URL,
-                                                                         GUILD_ID)
+        PROFILE_ID, LOG_ID, FRESHMAN_ID, SENIOR_ID, EMOJI_ID = get_pro_log_fre_sen_emo(DATABASE_URL,
+                                                                                       GUILD_ID)
         if None in (PROFILE_ID,
                     FRESHMAN_ID,
                     SENIOR_ID) or payload.channel_id != PROFILE_ID:
             return
 
-        FRESHMAN = get(payload.member.guild.roles, id=FRESHMAN_ID)
-        if FRESHMAN is None:
+        emoji_id = payload.emoji.id or demojize(payload.emoji.name)
+        if (EMOJI_ID is not None) and (emoji_id != EMOJI_ID):
             return
 
-        SENIOR = get(payload.member.roles, id=SENIOR_ID)
-        if SENIOR is None:
+        FRESHMAN = get(payload.member.guild.roles, id=FRESHMAN_ID)
+        if FRESHMAN is None:
             return
 
         channel = self.bot.get_channel(PROFILE_ID)
@@ -367,6 +400,11 @@ class Profiles(commands.Cog):
         member, = await message.guild.query_members(user_ids=[message.author.id])
 
         if FRESHMAN in member.roles:
+            return
+
+        SENIOR = get(payload.member.roles, id=SENIOR_ID)
+        if SENIOR is None:
+            await message.remove_reaction(payload.emoji, payload.member)
             return
 
         await member.add_roles(FRESHMAN)

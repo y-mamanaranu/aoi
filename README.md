@@ -17,34 +17,50 @@ If you are a bot user, please skip this section.
 
 ## Parameters
 
-|   name    |              content              | default |
-| --------- | --------------------------------- | ------- |
-| prefix    | Prefix of command                 | `;`     |
-| #Profile  | Profile channel                   | `None`  |
-| #Log      | Log channel                       | `None`  |
-| @Freshman | Role to assign to new member      | `None`  |
-| @Senior   | Role who can assign to new member | `None`  |
-| #Tenki    | Weather forecast channel          | `None`  |
-
+|   name    |                 content                 | default |          comment          | TODO |
+| --------- | --------------------------------------- | ------- | ------------------------- | ---- |
+| prefix    | Prefix of command                       | `;`     |                           |      |
+| #Profile  | Profile channel                         | `None`  |                           |      |
+| #Log      | Log channel                             | `None`  |                           |      |
+| @Freshman | Role to assign to new member            | `None`  |                           |      |
+| @Senior   | Role who can assign to new member       | `None`  |                           |      |
+| :emoji:   | Emoji to assign role                    | `None`  | `None` match to any emoji |      |
+| #Tenki    | Weather forecast channel                | `None`  |                           |      |
+| limit?    | Whether activate `/limit`               | `True`  |                           |      |
+| adjust?   | Wheter activate `on_voice_state_update` | `True`  |                           |      |
 
 ## Commands
 
-|           command           |                            content                             | required Previlage |
-| --------------------------- | -------------------------------------------------------------- | ------------------ |
-| `/clean`                    | Delete profile of leaved member.                               | manage_messages    |
-| `/duplicate`                | Delete second or subsequent profile of same user.              | manage_messages    |
-| `/limit [<limit>]`          | Change upper limit of voice channel which you join to `limit`. |                    |
-| `/move [<vocie_channel>]`   | Move all member to `vocie_channel`.                            |                    |
-| `/profile <user>`           | Show profile of `user`.                                        |                    |
-| `/setfreshman [<freshman>]` | Change @Freshman to `freshman`.                                | manage_roles       |
-| `/setlog [<log>]`           | Change #Log to `log`.                                          | administrator      |
-| `/setprefix <prefix>`       | Change prefix to `prefix`.                                     | administrator      |
-| `/setprofile [<profile>]`   | Change #Profile to `profile`.                                  | administrator      |
-| `/setsenior [<senior>]`     | Change @Senior to `senior`.                                    | manage_roles       |
-| `/settenki [<tenki>]`       | Change #Tenki to `tenki`.                                      | administrator      |
-| `/split [<vocie_channel>]`  | Split voice channel member and move half to `vocie_channel`.   |                    |
-| `/status`                   | Show current config.                                           |                    |
-| `/tenki`                    | Post weather forecast of tenki.jp.                             |                    |
+|           command            |                            content                             | required previlage |   to disable    | TODO |
+| ---------------------------- | -------------------------------------------------------------- | ------------------ | --------------- | ---- |
+| `/clean`                     | Delete profile of leaved member.                               | manage_messages    |                 |      |
+| `/duplicate`                 | Delete second or subsequent profile of same user.              | manage_messages    |                 |      |
+| `/limit [<limit>]`           | Change upper limit of voice channel which you join to `limit`. |                    | limit? is False |      |
+| `/move [<vocie_channel>]`    | Move all member to `vocie_channel`.                            |                    |                 |      |
+| `/profile <user>`            | Show profile of `user`.                                        |                    |                 |      |
+| `/setemoji [<emoji>]`        | Change :emoji: to `emoji`.                                     | manage_roles       |                 |      |
+| `/setfreshman [<freshman>]`  | Change @Freshman to `freshman`.                                | manage_roles       |                 |      |
+| `/setlimit <enable>`         | Change limit? to `<enable>`                                    | manage_channels    |                 |      |
+| `/setadjust <enable>`        | Change adjust? to `<enable>`                                   | manage_channels    |                 |      |
+| `/setlog [<log>]`            | Change #Log to `log`.                                          | administrator      |                 |      |
+| `/setprefix <prefix>`        | Change prefix to `prefix`.                                     | administrator      |                 |      |
+| `/setprofile [<profile>]`    | Change #Profile to `profile`.                                  | administrator      |                 |      |
+| `/setsenior [<senior>]`      | Change @Senior to `senior`.                                    | manage_roles       |                 |      |
+| `/settenki [<tenki>]`        | Change #Tenki to `tenki`.                                      | administrator      |                 |      |
+| `/shuffle [<vocie_channel>]` | Shuffle members with `vocie_channel`.                          |                    |                 |      |
+| `/split [<vocie_channel>]`   | Split voice channel member and move half to `vocie_channel`.   |                    |                 |      |
+| `/status`                    | Show current config.                                           |                    |                 |      |
+| `/tenki`                     | Post weather forecast of tenki.jp.                             |                    |                 |      |
+
+Commands whose name starts with "/set" change parameters.
+
+## Passive Commands
+
+|        command        |                                             content                                              |                    to disable                    | TODO |
+| --------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------ | ---- |
+| on_raw_reaction_add   | When @Senior adds :emoji: to a message in #Profile, the author of the message receives @Freshman | Any of @Freshman, @Senior and #Profile is `None` |      |
+| post_tenki            | Run `/tenki` on 5:00 JST                                                                         | #Tenki is `None`                                 |      |
+| on_voice_state_update | When Bot join/leave vocie channel, increase/decrease the user limit                              | adjust? is False                                 |      |
 
 ## Generate `requirements.txt`
 If you add a new dependency to Aoi, please update `requirements.txt`.

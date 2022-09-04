@@ -15,17 +15,18 @@ DATABASE_URL = get_database_url()
 JST = datetime.timezone(datetime.timedelta(hours=9), name='JST')
 
 
-def get_delta():
+def get_delta(tzinfo: datetime.timezone = JST):
     """"""
-    now = datetime.datetime.now(JST)
-    target = datetime.datetime(
-        now.year,
-        now.month,
-        now.day + int(now.hour >= 5),
-        5,
-        0,
-        0,
-        tzinfo=JST)
+    now = datetime.datetime.now(tzinfo)
+    target = datetime.datetime(now.year,
+                               now.month,
+                               now.day + int(now.hour >= 5),
+                               5,
+                               0,
+                               0,
+                               tzinfo=tzinfo)
+    print(f"Now: {now}.")
+    print(f"Target: {target}.")
     return (target.timestamp() - now.timestamp())
 
 
@@ -90,7 +91,7 @@ class Tenki_JP(commands.Cog):
             await interaction.response.send_message("Previlage of administrator is required.")
             return
 
-        GUILD_ID = interaction.guild.id
+        GUILD_ID = interaction.guild_id
 
         if tenki is None:
             update_tenki_id(DATABASE_URL, GUILD_ID, tenki)
