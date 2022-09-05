@@ -1,15 +1,20 @@
-from discord.ext import commands
 from discord import app_commands
-import discord
 from discord.app_commands import locale_str as _T
-from . import (convert_user_to_mention,
-               get_database_url,
-               update_if_limit,
-               get_if_adjust,
-               get_if_limit,
-               update_if_adjust,
-               convert_channel_to_mention)
+from discord.ext import commands
+import discord
 import random
+
+from . import (
+    convert_channel_to_mention,
+    convert_user_to_mention,
+    get_database_url,
+)
+from .database import (
+    get_if_adjust,
+    get_if_limit,
+    update_if_adjust,
+    update_if_limit,
+)
 
 
 DATABASE_URL = get_database_url()
