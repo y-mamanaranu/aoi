@@ -11,6 +11,7 @@ import io
 from . import (
     convert_channel_to_mention,
     get_database_url,
+    help_command,
 )
 from .database import (
     get_all_tenki_id,
@@ -76,8 +77,17 @@ class Tenki_JP(commands.Cog):
             await tenki.send(file=image, embed=embed)
 
     @app_commands.command()
-    async def tenki(self, interaction: discord.Interaction):
-        """Post weather forecast of tenki.jp."""
+    @help_command()
+    async def tenki(self, interaction: discord.Interaction, help: bool = False):
+        """Post weather forecast of tenki.jp.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            _description_
+        help : bool, optional
+            Wether to show help instead, by default False
+        """
         await interaction.response.defer()
         image = get_image()
 
@@ -88,11 +98,26 @@ class Tenki_JP(commands.Cog):
         await interaction.followup.send(file=image, embed=embed)
 
     @app_commands.command()
-    @app_commands.describe(tenki=_T('Weather forecast channel: empty for disable.'))
-    async def settenki(self, interaction: discord.Interaction, tenki: discord.TextChannel = None):
+    @app_commands.describe(tenki=_T('Weather forecast channel, empty for disable.'))
+    @help_command()
+    async def settenki(self,
+                       interaction: discord.Interaction,
+                       tenki: discord.TextChannel = None,
+                       help: bool = False):
         """Change #Tenki.
 
         Previlage of administrator is required.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            _description_
+        tenki : discord.TextChannel, optional
+            Channel to set as #Tenki, by default None
+            #Tenki is weather forecast channel.
+            If #Tenki is not None, post wheter forecat of tenki.jp to #Tenki on 5:00 JST.
+        help : bool, optional
+            Wether to show help instead, by default False
         """
         if not interaction.user.guild_permissions.administrator:
             await interaction.response.send_message("Previlage of administrator is required.")

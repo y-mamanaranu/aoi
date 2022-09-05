@@ -1,5 +1,27 @@
+import imp
 import os
 import re
+import pydoc
+import inspect
+from functools import wraps
+import discord
+
+
+def help_command():
+    def _help_command(func):
+        params = inspect.signature(func).parameters
+        i = list(params.keys()).index("interaction")
+
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            if kwargs.get("help"):
+                interaction: discord.Interaction = args[i]
+                help = pydoc.render_doc(func)
+                await interaction.response.send_message(help)
+            else:
+                return await func(*args, **kwargs)
+        return wrapper
+    return _help_command
 
 
 def convert_mention_to_user(mention: str):

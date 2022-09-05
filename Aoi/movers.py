@@ -8,6 +8,7 @@ from . import (
     convert_channel_to_mention,
     convert_user_to_mention,
     get_database_url,
+    help_command,
 )
 from .database import (
     get_if_adjust,
@@ -25,8 +26,9 @@ class Movers(commands.Cog):
         self.bot = bot
 
     @app_commands.command()
-    @app_commands.describe(voice_channel=_T('#Voice_Channel: empty for here.'))
-    async def move(self, interaction: discord.Interaction, voice_channel: discord.VoiceChannel = None):
+    @app_commands.describe(voice_channel=_T('#Voice_Channel, empty for here.'))
+    @help_command()
+    async def move(self, interaction: discord.Interaction, voice_channel: discord.VoiceChannel = None, help: bool = False):
         """Move all members to another voice channel.
 
         Parameters
@@ -36,6 +38,8 @@ class Movers(commands.Cog):
         channel : discord.VoiceChannel, optional
             Voice channel to move.
             `None` to move to the channel where message create.
+        help : bool, optional
+            Wether to show help instead, by default False
         """
         origin = interaction.user.voice.channel
 
@@ -48,8 +52,9 @@ class Movers(commands.Cog):
         await interaction.response.send_message(f"All members are move to {convert_channel_to_mention(voice_channel.id)}.")
 
     @app_commands.command()
-    @app_commands.describe(voice_channel=_T('#Voice_Channel: empty for here.'))
-    async def split(self, interaction: discord.Interaction, voice_channel: discord.VoiceChannel = None):
+    @app_commands.describe(voice_channel=_T('#Voice_Channel, empty for here.'))
+    @help_command()
+    async def split(self, interaction: discord.Interaction, voice_channel: discord.VoiceChannel = None, help: bool = False):
         """Move random half of members to another voice channel.
 
         Parameters
@@ -59,6 +64,8 @@ class Movers(commands.Cog):
         voice_channel : discord.VoiceChannel, optional
             Voice channel to move.
             `None` to move to the channel where message create.
+        help : bool, optional
+            Wether to show help instead, by default False
         """
         origin = interaction.user.voice.channel
 
@@ -85,8 +92,9 @@ class Movers(commands.Cog):
         await interaction.response.send_message("\n".join(text))
 
     @app_commands.command()
-    @app_commands.describe(voice_channel=_T('#Voice_Channel: empty for here.'))
-    async def shuffle(self, interaction: discord.Interaction, voice_channel: discord.VoiceChannel = None):
+    @app_commands.describe(voice_channel=_T('#Voice_Channel, empty for here.'))
+    @help_command()
+    async def shuffle(self, interaction: discord.Interaction, voice_channel: discord.VoiceChannel = None, help: bool = False):
         """Shuffle members with another voice channel.
 
         Parameters
@@ -96,6 +104,8 @@ class Movers(commands.Cog):
         voice_channel : discord.VoiceChannel, optional
             Voice channel to move.
             `None` to move to the channel where message create.
+        help : bool, optional
+            Wether to show help instead, by default False
         """
         origin = interaction.user.voice.channel
 
@@ -124,9 +134,20 @@ class Movers(commands.Cog):
         await interaction.response.send_message("\n".join(text))
 
     @app_commands.command()
-    @app_commands.describe(limit=_T("Value of `0` to remove limit: empty for 0."))
-    async def limit(self, interaction: discord.Interaction, limit: int = 0):
-        """Change upper limit of voice channel which you join."""
+    @app_commands.describe(limit=_T("Value of `0` to remove limit, empty for 0."))
+    @help_command()
+    async def limit(self, interaction: discord.Interaction, limit: int = 0, help: bool = False):
+        """Change upper limit of voice channel which you join.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            _description_
+        limit : int, optional
+            _description_, by default 0
+        help : bool, optional
+            Wether to show help instead, by default False
+        """
         channel = interaction.user.voice.channel
         GUILD_ID = interaction.guild_id
 
@@ -142,10 +163,20 @@ class Movers(commands.Cog):
 
     @app_commands.command()
     @app_commands.describe(enable=_T('Whether activate `/limit`.'))
-    async def setlimit(self, interaction: discord.Integration, enable: bool):
+    @help_command()
+    async def setlimit(self, interaction: discord.Integration, enable: bool, help: bool = False):
         """Change limit?.
 
         Previlage to manage channels is required.
+
+        Parameters
+        ----------
+        interaction : discord.Integration
+            _description_
+        enable : bool
+            _description_
+        help : bool, optional
+            Wether to show help instead, by default False
         """
         if not interaction.user.guild_permissions.manage_channels:
             await interaction.response.send_message("Previlage to manage channels is required.")
@@ -159,10 +190,20 @@ class Movers(commands.Cog):
 
     @app_commands.command()
     @app_commands.describe(enable=_T('Wheter activate `on_voice_state_update`.'))
-    async def setadjust(self, interaction: discord.Integration, enable: bool):
+    @help_command()
+    async def setadjust(self, interaction: discord.Integration, enable: bool, help: bool = False):
         """Change adjust?.
 
         Previlage to manage channels is required.
+
+        Parameters
+        ----------
+        interaction : discord.Integration
+            _description_
+        enable : bool
+            _description_
+        help : bool, optional
+            Wether to show help instead, by default False
         """
         if not interaction.user.guild_permissions.manage_channels:
             await interaction.response.send_message("Previlage to manage channels is required.")

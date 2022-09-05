@@ -11,6 +11,7 @@ from . import (
     convert_role_to_mention,
     convert_user_to_mention,
     get_database_url,
+    help_command,
 )
 from .database import (
     get_pre_pro_log_fre_sen_emo_ten_lim_adj,
@@ -32,7 +33,8 @@ class Profiles(commands.Cog):
         self.bot = bot
 
     @app_commands.command()
-    async def detail(self, interaction: discord.Interaction):
+    @help_command()
+    async def detail(self, interaction: discord.Interaction, help: bool = False):
         """Show detail of parameters."""
         await interaction.response.send_message("""Prefix is Prefix of command.
 #Profile is Profile channel.
@@ -47,7 +49,8 @@ limit? is Whether activate `/limit`.
 adjust? is Wheter activate `on_voice_state_update`.""")
 
     @app_commands.command()
-    async def status(self, interaction: discord.Interaction):
+    @help_command()
+    async def status(self, interaction: discord.Interaction, help: bool = False):
         """Show current config."""
         GUILD_ID = interaction.guild_id
 
@@ -68,8 +71,9 @@ adjust? is {IF_ADJUST}.""")
         return
 
     @app_commands.command()
-    @app_commands.describe(prefix=_T('Prefix of command: Default prefix is `;`.'))
-    async def setprefix(self, interaction: discord.Integration, prefix: str):
+    @app_commands.describe(prefix=_T('Prefix of command, Default prefix is `;`.'))
+    @help_command()
+    async def setprefix(self, interaction: discord.Integration, prefix: str, help: bool = False):
         """Change prefix.
 
         Previlage of administrator is required.
@@ -86,8 +90,9 @@ adjust? is {IF_ADJUST}.""")
         return
 
     @app_commands.command()
-    @app_commands.describe(profile=_T('Profile channel: empty for disable.'))
-    async def setprofile(self, interaction: discord.Integration, profile: discord.TextChannel = None):
+    @app_commands.describe(profile=_T('Profile channel, empty for disable.'))
+    @help_command()
+    async def setprofile(self, interaction: discord.Integration, profile: discord.TextChannel = None, help: bool = False):
         """Change #Profile.
 
         Previlage of administrator is required.
@@ -109,8 +114,9 @@ adjust? is {IF_ADJUST}.""")
         return
 
     @app_commands.command()
-    @app_commands.describe(log=_T('Log channel: empty for disable.'))
-    async def setlog(self, interaction: discord.Integration, log: discord.TextChannel = None):
+    @app_commands.describe(log=_T('Log channel, empty for disable.'))
+    @help_command()
+    async def setlog(self, interaction: discord.Integration, log: discord.TextChannel = None, help: bool = False):
         """Change #Log.
 
         Previlage of administrator is required.
@@ -132,8 +138,9 @@ adjust? is {IF_ADJUST}.""")
         return
 
     @app_commands.command()
-    @app_commands.describe(freshman=_T('Role to assign to new member: empty for disable.'))
-    async def setfreshman(self, interaction: discord.Integration, freshman: discord.Role = None):
+    @app_commands.describe(freshman=_T('Role to assign to new member, empty for disable.'))
+    @help_command()
+    async def setfreshman(self, interaction: discord.Integration, freshman: discord.Role = None, help: bool = False):
         """Change @Freshman.
 
         Previlage to manage roles is required.
@@ -156,8 +163,9 @@ adjust? is {IF_ADJUST}.""")
 
     @app_commands.command()
     @app_commands.describe(
-        senior=_T('Role who can assign to new member: empty for disable.'))
-    async def setsenior(self, interaction: discord.Integration, senior: discord.Role = None):
+        senior=_T('Role who can assign to new member, empty for disable.'))
+    @help_command()
+    async def setsenior(self, interaction: discord.Integration, senior: discord.Role = None, help: bool = False):
         """Change @Senior.
 
         Previlage to manage roles is required.
@@ -179,8 +187,9 @@ adjust? is {IF_ADJUST}.""")
         return
 
     @app_commands.command()
-    @app_commands.describe(emoji=_T('Emoji to assign role: empty for matching all.'))
-    async def setemoji(self, interaction: discord.Integration, emoji: str = None):
+    @app_commands.describe(emoji=_T('Emoji to assign role, empty for matching all.'))
+    @help_command()
+    async def setemoji(self, interaction: discord.Integration, emoji: str = None, help: bool = False):
         """Change :emoji:.
 
         Previlage of manage roles is required.
@@ -204,7 +213,8 @@ adjust? is {IF_ADJUST}.""")
 
     @app_commands.command()
     @app_commands.describe(user=_T('@User'))
-    async def profile(self, interaction: discord.Interaction, user: discord.User):
+    @help_command()
+    async def profile(self, interaction: discord.Interaction, user: discord.User, help: bool = False):
         """Show profile of spesific member.
 
         Parameters
@@ -240,7 +250,8 @@ adjust? is {IF_ADJUST}.""")
             return
 
     @app_commands.command()
-    async def clean(self, interaction: discord.Interaction):
+    @help_command()
+    async def clean(self, interaction: discord.Interaction, help: bool = False):
         """Delete profile of leaved member.
 
         Previlage to manage messages is required.
@@ -306,7 +317,8 @@ adjust? is {IF_ADJUST}.""")
             return
 
     @app_commands.command()
-    async def duplicate(self, interaction: discord.Interaction):
+    @help_command()
+    async def duplicate(self, interaction: discord.Interaction, help: bool = False):
         """Delete second or subsequent profile of same user.
 
         Previlage to manage messages is required.
