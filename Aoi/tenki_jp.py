@@ -89,7 +89,7 @@ class Tenki_JP(commands.Cog):
 
     @app_commands.command()
     @app_commands.describe(tenki=_T('Weather forecast channel: empty for disable.'))
-    async def settenki(self, interaction: discord.Integration, tenki: discord.TextChannel = None):
+    async def settenki(self, interaction: discord.Interaction, tenki: discord.TextChannel = None):
         """Change #Tenki.
 
         Previlage of administrator is required.

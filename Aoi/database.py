@@ -3,7 +3,6 @@ import psycopg2
 
 def init_db(DATABASE_URL):
     """Initialize database."""
-    # table一覧を取得
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute("""SELECT table_name
