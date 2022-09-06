@@ -1,8 +1,8 @@
-import gettext
-from pathlib import Path
 from discord import app_commands
-import discord
+from pathlib import Path
 from typing import Optional
+import discord
+import gettext
 
 
 def get_LANG(locale: str):

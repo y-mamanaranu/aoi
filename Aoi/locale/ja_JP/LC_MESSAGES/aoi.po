@@ -14,8 +14,8 @@ msgstr "メンバーの半分を他のボイスチャンネルに移動します
 msgid "Shuffle members with another voice channel."
 msgstr "メンバーを他のボイスチャンネルとシャッフルします。"
 
-msgid "#Voice_Channel: empty for moving here."
-msgstr "#Voice_Channel: 空白の場合はここに移動する。"
+msgid "#Voice_Channel, empty for moving here."
+msgstr "#Voice_Channel、空白の場合はここに移動する。"
 
 msgid "Delete second or subsequent profile of same user."
 msgstr "同じユーザーの2つ目以降の自己紹介を削除します。"
@@ -29,44 +29,44 @@ msgstr "設定を表示します。"
 msgid "Change prefix."
 msgstr "Prefixを変更します。"
 
-msgid "Prefix of command: Default prefix is `;`."
-msgstr "コマンドのprefix: デフォルトのPrefixは`;`です。"
+msgid "Prefix of command, Default prefix is `;`."
+msgstr "コマンドのprefix、デフォルトのPrefixは`;`です。"
 
 msgid "Change #Profile."
 msgstr "#ProfileのIDを変更します。"
 
-msgid "Profile channel: empty for disable."
-msgstr "自己紹介のチャンネル: 空白にすると無効になります。"
+msgid "Profile channel, empty for disable."
+msgstr "自己紹介のチャンネル、空白にすると無効になります。"
 
 msgid "Change #Log."
 msgstr "#Logを変更します。"
 
-msgid "Log channel: empty for disable."
-msgstr "ログを出力するチャンネル: 空白にすると無効になります。"
+msgid "Log channel, empty for disable."
+msgstr "ログを出力するチャンネル、空白にすると無効になります。"
 
 msgid "Change @Freshman."
 msgstr "@Freshmanを変更します。"
 
-msgid "Role to assign to new member: empty for disable."
-msgstr "新規に付与するロール: 空白にすると無効になります。"
+msgid "Role to assign to new member, empty for disable."
+msgstr "新規に付与するロール、空白にすると無効になります。"
 
 msgid "Change @Senior."
 msgstr "@Seniorを変更します。"
 
-msgid "Role who can assign to new member: empty for disable."
-msgstr "新規への付与を許可するロール: 空白にすると無効になります。"
+msgid "Role who can assign to new member, empty for disable."
+msgstr "新規への付与を許可するロール、空白にすると無効になります。"
 
 msgid "Change upper limit of voice channel which you join."
 msgstr "参加しているボイスチャンネルのユーザー上限を変更します。"
 
-msgid "Value of `0` to remove limit: empty for 0."
-msgstr "値が0の場合は、上限がなくなります: 空白にすると0になります。"
+msgid "Value of `0` to remove limit, empty for 0."
+msgstr "値が0の場合は、上限がなくなります、空白にすると0になります。"
 
 msgid "Change #Tenki."
 msgstr "#Tenkiを変更します。"
 
-msgid "Weather forecast channel: empty for disable."
-msgstr "天気予報のチャンネル: 空白にすると無効になります。"
+msgid "Weather forecast channel, empty for disable."
+msgstr "天気予報のチャンネル、空白にすると無効になります。"
 
 msgid "Post weather forecast of tenki.jp."
 msgstr "tenki.jpの天気予報を表示します。"
@@ -86,5 +86,8 @@ msgstr "`on_voice_state_update`を有効化するか。"
 msgid "Change :emoji:."
 msgstr ":emoji:を変更します。"
 
-msgid "Emoji to assign role: empty for matching all."
-msgstr "ロールを付与する絵文字: 空白にすると全てにマッチします。"
+msgid "Emoji to assign role, empty for matching all."
+msgstr "ロールを付与する絵文字、空白にすると全てにマッチします。"
+
+msgid "Show detail of parameters."
+msgstr "パラメタの詳細を表示します。"

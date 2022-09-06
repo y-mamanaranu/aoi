@@ -1,12 +1,16 @@
 import asyncio
 import discord
 from discord.ext import commands
-from Aoi import (get_token,
-                 get_database_url,
-                 init_db,
-                 get_prefix,
-                 remove_ids,
-                 insert_ids,)
+from Aoi import (
+    get_token,
+    get_database_url,
+)
+from Aoi.database import (
+    init_db,
+    get_prefix,
+    remove_ids,
+    insert_ids,
+)
 from Aoi.translator import Translator
 from logging import getLogger, INFO, StreamHandler
 # from logging import DEBUG
@@ -60,6 +64,7 @@ bot = Bot(command_prefix=(get_prefix_ctx),
 asyncio.run(bot.load_extension("Aoi.profiles"))
 asyncio.run(bot.load_extension("Aoi.movers"))
 asyncio.run(bot.load_extension("Aoi.tenki_jp"))
+asyncio.run(bot.load_extension("Aoi.twitter"))
 
 
 @bot.event
