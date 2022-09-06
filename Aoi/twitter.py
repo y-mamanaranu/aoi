@@ -1,16 +1,14 @@
+import threading
+from bottle import Bottle, ServerAdapter, request
 import jinja2
 from discord import app_commands
-from discord.app_commands import locale_str as _T
 from discord.ext import commands
-from discord.ext import tasks
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-import datetime
 import discord
-import io
+import os
 import tweepy
 import asyncio
 import unicodedata
+import time
 
 from . import (
     get_database_url,
@@ -21,11 +19,58 @@ from . import (
 from .database import (
     get_tt_tat_tats,
     update_twitter_template,
+    update_tat_tats,
 )
 
 DATABASE_URL = get_database_url()
 CONSUMER_KEY = get_twitter_consumer_key()
 CONSUMER_SECRET = get_twitter_consumer_secret()
+
+
+class MyWSGIRefServer(ServerAdapter):
+    server = None
+
+    def run(self, handler):
+        from wsgiref.simple_server import make_server, WSGIRequestHandler
+        if self.quiet:
+            class QuietHandler(WSGIRequestHandler):
+                def log_request(*args, **kw): pass
+            self.options['handler_class'] = QuietHandler
+        self.server = make_server(
+            self.host, self.port, handler, **self.options)
+        self.server.serve_forever()
+
+    def stop(self):
+        self.server.server_close()
+        self.server.shutdown()
+
+
+class AuthorizeApp():
+    server = None
+    app = None
+    oauth_verifier = None
+
+    def __init__(self, oauth_token):
+        self.oauth_token = oauth_token
+
+    def get_authorize(self):
+        self.server = MyWSGIRefServer(port=int(os.environ.get("PORT", 5000)))
+        self.app = Bottle()
+
+        @self.app.route('/', method='GET')
+        def authorize():
+            oauth_token = request.query.get('oauth_token')
+            oauth_verifier = request.query.get('oauth_verifier')
+
+            if self.oauth_verifier or \
+                    oauth_token != self.oauth_token or \
+                    None in [oauth_token, oauth_verifier]:
+                return 'Invalid Request'
+            else:
+                self.oauth_verifier = oauth_verifier
+                return 'Authorized'
+
+        self.app.run(server=self.server, reloder=False)
 
 
 def get_east_asian_width_count(text):
@@ -163,9 +208,46 @@ class Twitter(commands.Cog):
             await interaction.response.send_message("Previlage of administrator is required.")
             return
 
+        GUILD_ID = interaction.guild_id
+
+        if clear is True:
+            update_tat_tats(DATABASE_URL,
+                            GUILD_ID,
+                            None,
+                            None)
+            await interaction.response.send_message("Clear Authorization.")
+            return
+
         auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
         redirect_url = auth.get_authorization_url()
-        await interaction.response.send_message(f"On develop.\n{redirect_url}")
+        await interaction.response.send_message(redirect_url)
+
+        print("Authorize server start.")
+        oauth_token = auth.request_token["oauth_token"]
+        app = AuthorizeApp(oauth_token)
+        thread = threading.Thread(target=app.get_authorize)
+        thread.start()
+        criteria = time.time() + 30
+        while not app.oauth_verifier and time.time() < criteria:
+            pass
+        app.server.stop()
+        thread.join()
+        print("Authorize server stop.")
+
+        oauth_verifier = app.oauth_verifier
+
+        if oauth_token is None:
+            await interaction.followup.send("authtwitter is canceled with timeout.")
+            return
+
+        access_token, access_token_secret = auth.get_access_token(
+            oauth_verifier)
+        update_tat_tats(DATABASE_URL,
+                        GUILD_ID,
+                        access_token,
+                        access_token_secret)
+
+        await interaction.followup.send("Authorization success.")
 
 
 async def setup(bot):

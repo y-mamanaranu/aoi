@@ -278,3 +278,18 @@ def update_twitter_template(DATABASE_URL, GUILD_ID, TWITTER_TEMPLATE):
                 SET twitter_template = %s
                 WHERE guild_id = %s;""",
                 (TWITTER_TEMPLATE, GUILD_ID))
+
+
+def update_tat_tats(DATABASE_URL,
+                    GUILD_ID,
+                    TWITTER_ACCESS_TOKEN,
+                    TWITTER_ACCESS_TOKEN_SECRET):
+    """Update twitter_access_token and twitter_access_token_secret in database."""
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """UPDATE reactedrole
+                SET twitter_access_token = %s,
+                twitter_access_token_secret = %s
+                WHERE guild_id = %s;""",
+                (TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET, GUILD_ID))
