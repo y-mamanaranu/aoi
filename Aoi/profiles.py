@@ -1,3 +1,4 @@
+import imp
 from discord import app_commands
 from discord.app_commands import locale_str as _T
 from discord.ext import commands
@@ -5,6 +6,7 @@ from discord.utils import get
 from emoji import demojize
 import asyncio
 import discord
+import random
 
 from . import (
     convert_channel_to_mention,
@@ -26,6 +28,13 @@ from .database import (
 )
 
 DATABASE_URL = get_database_url()
+
+
+def create_embed(message: discord.Message) -> discord.Embed:
+    embed = discord.Embed(description=message.content)
+    embed.set_author(name=message.author.nick or message.author.name,
+                     icon_url=message.author.avatar)
+    return embed
 
 
 class Profiles(commands.Cog):
@@ -248,6 +257,54 @@ adjust? is {IF_ADJUST}.""")
         else:
             await interaction.response.send_message("No profile is found.")
             return
+
+    @app_commands.command()
+    @app_commands.describe(user=_T('@User'), channel=_T('#TextChannel'))
+    @help_command()
+    async def random(self,
+                     interaction: discord.Interaction,
+                     user: discord.User = None,
+                     channel: discord.TextChannel = None,
+                     num: int = 1,
+                     help: bool = False):
+        """Show message randomly.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            _description_
+        user : discord.User, optional
+            User to show., by default None
+            IF `None`, matching to all user.
+        channel : discord.TextChannel, optional
+            Channel where message is taken from, by default None
+            If `None`, the channel where command used.
+        num : int, optional
+            Number of message to show, by default 1
+        help : bool, optional
+            _description_, by default False
+        """
+
+        if channel is None:
+            channel = interaction.channel
+
+        messages = [message async for message in channel.history(limit=200)]
+
+        if user is not None:
+            def func(message): return message.author == user
+            messages = [val for val in filter(func, messages)]
+
+        NUM = len(messages)
+        if NUM == 0:
+            await interaction.response.send_message(
+                "No message is found.", ephemeral=True)
+            return
+        elif NUM > num:
+            messages = random.sample(messages, num)
+
+        await interaction.response.send_message(embed=create_embed(messages[0]), ephemeral=True)
+        for message in messages[1:]:
+            await interaction.followup.send(embed=create_embed(message), ephemeral=True)
 
     @app_commands.command()
     @help_command()
