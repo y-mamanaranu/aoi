@@ -46,11 +46,13 @@ def get_image():
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--window-size=800,1000")
     driver = webdriver.Chrome('chromedriver', options=options)
-    driver.implicitly_wait(10)
+    # driver.implicitly_wait(10)
 
     url = "https://tenki.jp"
     driver.get(url)
     img = driver.find_element(By.ID, "forecast-map-wrap").screenshot_as_png
+
+    # driver.close()
 
     f = io.BytesIO(img)
     f.name = "tenki.png"

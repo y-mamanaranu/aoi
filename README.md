@@ -17,59 +17,67 @@ If you are a bot user, please skip this section.
 
 ## Parameters
 
-|   name    |                 content                 | default |             DB              |          comment          |   TODO    |
-| --------- | --------------------------------------- | ------- | --------------------------- | ------------------------- | --------- |
-|           |                                         |         | guild_id                    |                           |           |
-| prefix    | Prefix of command                       | `;`     | prefix                      |                           |           |
-| #Profile  | Profile channel                         | `None`  | profile_id                  |                           |           |
-| #Log      | Log channel                             | `None`  | log_id                      |                           |           |
-| @Freshman | Role to assign to new member            | `None`  | freshman_id                 |                           |           |
-| @Senior   | Role who can assign to new member       | `None`  | senior_id                   |                           |           |
-| :emoji:   | Emoji to assign role                    | `None`  | emoji_id                    | `None` match to any emoji |           |
-| #Tenki    | Weather forecast channel                | `None`  | tenki_id                    |                           |           |
-| limit?    | Whether activate `/limit`               | `False` | if_limit                    |                           |           |
-| adjust?   | Wheter activate `on_voice_state_update` | `False` | if_adjust                   |                           |           |
-| move?     |                                         |         |                             |                           | implement |
-|           |                                         | `None`  | twitter_template            |                           |           |
-|           |                                         | `None`  | twitter_access_token        | Not accsesible            |           |
-|           |                                         | `None`  | twitter_access_token_secret | Not accsesible            |           |
+|     name      |                 content                 | default |             DB              |          comment          |      TODO       |
+| ------------- | --------------------------------------- | ------- | --------------------------- | ------------------------- | --------------- |
+| -             |                                         |         | guild_id                    |                           |                 |
+| prefix        | Prefix of command                       | `;`     | prefix                      |                           |                 |
+| #Profile      | Profile channel                         | `None`  | profile_id                  |                           |                 |
+| #Log          | Log channel                             | `None`  | log_id                      |                           |                 |
+| @Freshman     | Role to assign to new member            | `None`  | freshman_id                 |                           |                 |
+| @Senior       | Role who can assign to new member       | `None`  | senior_id                   |                           |                 |
+| :emoji:       | Emoji to assign role                    | `None`  | emoji_id                    | `None` match to any emoji |                 |
+| #Tenki        | Weather forecast channel                | `None`  | tenki_id                    |                           |                 |
+| limit?        | Whether activate `/limit`               | `False` | if_limit                    |                           |                 |
+| adjust?       | Wheter activate `on_voice_state_update` | `False` | if_adjust                   |                           |                 |
+| move?         |                                         |         |                             |                           | implement,False |
+| create_voice? |                                         |         |                             |                           | implement,False |
+| create_text?  |                                         |         |                             |                           | implement,False |
+| template      |                                         | `None`  | twitter_template            |                           |                 |
+| -             |                                         | `None`  | twitter_access_token        | Not accsesible            |                 |
+| -             |                                         | `None`  | twitter_access_token_secret | Not accsesible            |                 |
 
 ## Commands
 
-|           command            |                            content                             | required previlage |    to disable    | default |   TODO    |
-| ---------------------------- | -------------------------------------------------------------- | ------------------ | ---------------- | ------- | --------- |
-| `/authtwitter`               |                                                                | administrator      |                  |         |           |
-| `/clean`                     | Delete profile of leaved member.                               | manage_messages    | #Profile is None | disable |           |
-| `/detail`                    |                                                                |                    |                  |         |           |
-| `/duplicate`                 | Delete second or subsequent profile of same user.              | manage_messages    | #Profile is None | disable |           |
-| `/limit [<limit>]`           | Change upper limit of voice channel which you join to `limit`. |                    | limit? is False  | disable |           |
-| `/move [<vocie_channel>]`    | Move all member to `vocie_channel`.                            |                    |                  |         | move?     |
-| `/profile <user>`            | Show profile of `user`.                                        |                    | #Profile is None | disable |           |
-| `/random`                    |                                                                |                    |                  |         |           |
-| `/setemoji [<emoji>]`        | Change :emoji: to `emoji`.                                     | manage_roles       |                  |         |           |
-| `/setfreshman [<freshman>]`  | Change @Freshman to `freshman`.                                | manage_roles       |                  |         |           |
-| `/setlimit <enable>`         | Change limit? to `<enable>`                                    | manage_channels    |                  |         |           |
-| `/setadjust <enable>`        | Change adjust? to `<enable>`                                   | manage_channels    |                  |         |           |
-| `/setlog [<log>]`            | Change #Log to `log`.                                          | administrator      |                  |         |           |
-| `/setmove <move>`            |                                                                |                    |                  |         | implement |
-| `/setprefix <prefix>`        | Change prefix to `prefix`.                                     | administrator      |                  |         |           |
-| `/setprofile [<profile>]`    | Change #Profile to `profile`.                                  | administrator      |                  |         |           |
-| `/setsenior [<senior>]`      | Change @Senior to `senior`.                                    | manage_roles       |                  |         |           |
-| `/settenki [<tenki>]`        | Change #Tenki to `tenki`.                                      | administrator      |                  |         |           |
-| `/shuffle [<vocie_channel>]` | Shuffle members with `vocie_channel`.                          |                    |                  |         | move?     |
-| `/split [<vocie_channel>]`   | Split voice channel member and move half to `vocie_channel`.   |                    |                  |         | move?     |
-| `/status`                    | Show current config.                                           |                    |                  |         |           |
-| `/tenki`                     | Post weather forecast of tenki.jp.                             |                    |                  |         |           |
+|              command              |                            content                             | required previlage |     to disable     | default |   TODO    |
+| --------------------------------- | -------------------------------------------------------------- | ------------------ | ------------------ | ------- | --------- |
+| `/authtwitter`                    |                                                                | administrator      |                    |         |           |
+| `/clean`                          | Delete profile of leaved member.                               | manage_messages    | #Profile is `None` | disable |           |
+| `/detail`                         |                                                                |                    |                    |         |           |
+| `/duplicate`                      | Delete second or subsequent profile of same user.              | manage_messages    | #Profile is `None` | disable |           |
+| `/limit [<limit>]`                | Change upper limit of voice channel which you join to `limit`. |                    | limit? is `False`  | disable |           |
+| `/move [<vocie_channel>]`         | Move all member to `vocie_channel`.                            |                    |                    |         | move?     |
+| `/profile <user>`                 | Show profile of `user`.                                        |                    | #Profile is `None` | disable |           |
+| `/random`                         |                                                                |                    |                    |         |           |
+| `/rename <name>`                  |                                                                |                    |                    |         | implement |
+| `/setadjust <enable>`             | Change adjust? to `<enable>`                                   | manage_channels    |                    |         |           |
+| `/setcreate_text <create_text> `  |                                                                |                    |                    |         | implement |
+| `/setcreate_voice <create_voice>` |                                                                |                    |                    |         | implement |
+| `/setemoji [<emoji>]`             | Change :emoji: to `emoji`.                                     | manage_roles       |                    |         |           |
+| `/setfreshman [<freshman>]`       | Change @Freshman to `freshman`.                                | manage_roles       |                    |         |           |
+| `/setlimit <enable>`              | Change limit? to `<enable>`                                    | manage_channels    |                    |         |           |
+| `/setlog [<log>]`                 | Change #Log to `log`.                                          | administrator      |                    |         |           |
+| `/setmove <move>`                 |                                                                |                    |                    |         | implement |
+| `/setprefix <prefix>`             | Change prefix to `prefix`.                                     | administrator      |                    |         |           |
+| `/setprofile [<profile>]`         | Change #Profile to `profile`.                                  | administrator      |                    |         |           |
+| `/setsenior [<senior>]`           | Change @Senior to `senior`.                                    | manage_roles       |                    |         |           |
+| `/settenki [<tenki>]`             | Change #Tenki to `tenki`.                                      | administrator      |                    |         |           |
+| `/settwitter`                     |                                                                | administrator      |                    |         |           |
+| `/shuffle [<vocie_channel>]`      | Shuffle members with `vocie_channel`.                          |                    |                    |         | move?     |
+| `/split [<vocie_channel>]`        | Split voice channel member and move half to `vocie_channel`.   |                    |                    |         | move?     |
+| `/status`                         | Show current config.                                           |                    |                    |         |           |
+| `/tenki`                          | Post weather forecast of tenki.jp.                             |                    |                    |         |           |
+| `/tweet`                          |                                                                |                    |                    |         |           |
 
 Commands whose name starts with "/set" change parameters.
 
 ## Passive Commands
 
-|        command        |                                             content                                              |                    to disable                    | default | TODO |
-| --------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------ | ------- | ---- |
-| on_raw_reaction_add   | When @Senior adds :emoji: to a message in #Profile, the author of the message receives @Freshman | Any of @Freshman, @Senior and #Profile is `None` | disable |      |
-| post_tenki            | Run `/tenki` on 5:00 JST                                                                         | #Tenki is `None`                                 | disable |      |
-| on_voice_state_update | When Bot join/leave vocie channel, increase/decrease the user limit                              | adjust? is False                                 | disable |      |
+|        command        |                                             content                                              |                    to disable                    | default | TODO |     |
+| --------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------ | ------- | ---- | --- |
+| on_raw_reaction_add   | When @Senior adds :emoji: to a message in #Profile, the author of the message receives @Freshman | Any of @Freshman, @Senior and #Profile is `None` | disable |      |     |
+| post_tenki            | Run `/tenki` on 5:00 JST                                                                         | #Tenki is `None`                                 | disable |      |     |
+| on_voice_state_update | When Bot join/leave vocie channel, increase/decrease the user limit                              | adjust? is `False`                               | disable |      |     |
+|                       | Create voice channel automatically and if create_text? create text channel                       | create_voice? is `False`                         | disable |      |     |
 
 ## Generate `requirements.txt`
 If you add a new dependency to Aoi, please update `requirements.txt`.

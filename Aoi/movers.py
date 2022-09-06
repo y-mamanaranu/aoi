@@ -1,8 +1,11 @@
+from multiprocessing.connection import wait
+from unicodedata import name
 from discord import app_commands
 from discord.app_commands import locale_str as _T
 from discord.ext import commands
 import discord
 import random
+from discord.utils import get
 
 from . import (
     convert_channel_to_mention,
@@ -16,6 +19,14 @@ from .database import (
     update_if_adjust,
     update_if_limit,
 )
+
+
+def get_if_create_voice(DATABASE_URL, GUILD_ID):
+    return False
+
+
+def get_if_create_text(DATABASE_URL, GUILD_ID):
+    return False
 
 
 DATABASE_URL = get_database_url()
@@ -218,15 +229,97 @@ class Movers(commands.Cog):
     @commands.Cog.listener()
     async def on_voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
         """Run on member join or leave voice channel."""
-        if member.bot:
-            if before.channel is not None and before.channel.user_limit != 0:
-                GUILD_ID = before.channel.guild.id
-                if get_if_adjust(DATABASE_URL, GUILD_ID):
-                    await before.channel.edit(user_limit=before.channel.user_limit - 1)
-            if after.channel is not None and after.channel.user_limit != 0:
-                GUILD_ID = after.channel.guild.id
-                if get_if_adjust(DATABASE_URL, GUILD_ID):
-                    await after.channel.edit(user_limit=after.channel.user_limit + 1)
+        # On leave
+        if before.channel is not None:
+            GUILD_ID = before.channel.guild.id
+            # Adjust on Bot
+            if member.bot and before.channel.user_limit != 0 and get_if_adjust(DATABASE_URL,
+                                                                               GUILD_ID):
+                await before.channel.edit(user_limit=before.channel.user_limit - 1)
+            # Destroy or message
+            if get_if_create_voice(DATABASE_URL, GUILD_ID) and \
+                not before.channel.name.endswith("_") and \
+                    before.channel.name.count("/"):
+                if_create_text = get_if_create_text(DATABASE_URL, GUILD_ID)
+                if if_create_text:
+                    text_chann = get(before.channel.guild.text_channels,
+                                     topic=f"Aoi - {before.channel.id}")
+                    await text_chann.set_permissions(member,
+                                                     overwrite=None)
+                    await before.channel.set_permissions(member,
+                                                         overwrite=None)
+                else:
+                    text_chann = before.channel
+                    await text_chann.set_permissions(member,
+                                                     overwrite=None)
+
+                embed = discord.Embed()
+                embed.set_author(name=f"{member.display_name} - left",
+                                 icon_url=member.display_avatar)
+                await text_chann.send(embed=embed)
+
+                if len(before.channel.members) == 0:
+                    await before.channel.delete()
+                    if if_create_text:
+                        await text_chann.delete()
+
+        # On join
+        if after.channel is not None:
+            GUILD_ID = after.channel.guild.id
+            # Adjust on Bot
+            if member.bot and after.channel.user_limit != 0 and get_if_adjust(DATABASE_URL,
+                                                                              GUILD_ID):
+                await after.channel.edit(user_limit=after.channel.user_limit + 1)
+            # Create or message
+            if get_if_create_voice(DATABASE_URL, GUILD_ID) and \
+                    not after.channel.name.endswith("_"):
+                if_create_text = get_if_create_text(DATABASE_URL, GUILD_ID)
+                if after.channel.name.count("/"):
+                    if if_create_text:
+                        text_chann = get(after.channel.guild.text_channels,
+                                         topic=f"Aoi - {after.channel.id}")
+                        await text_chann.set_permissions(member,
+                                                         overwrite=discord.PermissionOverwrite(read_messages=True))
+                    else:
+                        text_chann = after.channel
+
+                    if len(after.channel.members) == 1:
+                        await after.channel.set_permissions(member,
+                                                            manage_channels=True,
+                                                            move_members=True)
+                        embed = discord.Embed(
+                            description=after.channel.mention)
+                        embed.set_author(name=f"{member.display_name} - create",
+                                         icon_url=member.display_avatar)
+                        await text_chann.send(embed=embed)
+                    else:
+                        embed = discord.Embed()
+                        embed.set_author(name=f"{member.display_name} - joined",
+                                         icon_url=member.display_avatar)
+                        await text_chann.send(embed=embed)
+
+                else:
+                    if len(after.channel.members) == 1:
+                        i = 1
+                        while get(after.channel.guild.voice_channels,
+                                  name=f"{after.channel.name} / {i}"):
+                            i += 1
+                        new_name = f"{after.channel.name} / {i}"
+                        new_chan = await after.channel.clone(name=new_name)
+
+                        if if_create_text:
+                            overwrites = {
+                                after.channel.guild.default_role: discord.PermissionOverwrite(
+                                    read_messages=False),
+                                member: discord.PermissionOverwrite(
+                                    read_messages=True),
+                            }
+                            await after.channel.guild.create_text_channel(name=new_name.replace(" / ", "-"),
+                                                                          topic=f"Aoi - {new_chan.id}",
+                                                                          overwrites=overwrites)
+
+                        for member in after.channel.members:
+                            await member.move_to(new_chan)
 
 
 async def setup(bot):
