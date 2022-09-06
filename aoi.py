@@ -64,6 +64,7 @@ bot = Bot(command_prefix=(get_prefix_ctx),
 asyncio.run(bot.load_extension("Aoi.profiles"))
 asyncio.run(bot.load_extension("Aoi.movers"))
 asyncio.run(bot.load_extension("Aoi.tenki_jp"))
+asyncio.run(bot.load_extension("Aoi.twitter"))
 
 
 @bot.event

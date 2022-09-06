@@ -132,6 +132,19 @@ def get_if_adjust(DATABASE_URL, GUILD_ID):
     return res[0]
 
 
+def get_tt_tat_tats(DATABASE_URL, GUILD_ID):
+    """Get twitter_template, twitter_access_token and twitter_access_token_secret from database."""
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""SELECT twitter_template, twitter_access_token, twitter_access_token_secret
+            FROM reactedrole
+            WHERE guild_id = %s;""",
+                        (GUILD_ID,))
+            res = cur.fetchone()
+
+    return res
+
+
 def get_pre_pro_log_fre_sen_emo_ten_lim_adj(DATABASE_URL, GUILD_ID):
     """Get status from database."""
     with psycopg2.connect(DATABASE_URL) as conn:
@@ -254,3 +267,14 @@ def update_tenki_id(DATABASE_URL, GUILD_ID, TENKI_ID):
                 SET tenki_id = %s
                 WHERE guild_id = %s;""",
                 (TENKI_ID, GUILD_ID))
+
+
+def update_twitter_template(DATABASE_URL, GUILD_ID, TWITTER_TEMPLATE):
+    """Update twitter_template in database."""
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """UPDATE reactedrole
+                SET twitter_template = %s
+                WHERE guild_id = %s;""",
+                (TWITTER_TEMPLATE, GUILD_ID))
