@@ -23,6 +23,9 @@ def init_db(DATABASE_URL):
                 tenki_id bigint,
                 if_limit boolean DEFAULT true,
                 if_adjust boolean DEFAULT true,
+                twitter_template text,
+                twitter_access_token text,
+                twitter_access_token_secret text,
                 );""")
 
 

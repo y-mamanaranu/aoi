@@ -83,3 +83,13 @@ def get_token():
 def get_database_url():
     """Get database URL of Heroku Postgres."""
     return os.environ["DATABASE_URL"]
+
+
+def get_twitter_consumer_key():
+    """Get consumer_key of Twitter bot."""
+    return os.environ["TWITTER_CONSUMER_KEY"]
+
+
+def get_twitter_consumer_secret():
+    """Get twitter_consumer_secret of Twitter bot."""
+    return os.environ["TWITTER_CONSUMER_SECRET"]
