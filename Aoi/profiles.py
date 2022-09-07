@@ -1,4 +1,3 @@
-import imp
 from discord import app_commands
 from discord.app_commands import locale_str as _T
 from discord.ext import commands
@@ -20,12 +19,6 @@ from .database import (
     get_pre_pro_log_fre_sen_emo_ten_lim_adj,
     get_pro_log_fre_sen_emo,
     get_profile_id,
-    update_emoji_id,
-    update_freshman_id,
-    update_log_id,
-    update_prefix,
-    update_profile_id,
-    update_senior_id,
 )
 
 DATABASE_URL = get_database_url()
@@ -78,129 +71,6 @@ adjust? is Wheter activate `on_voice_state_update`.""")
 
 limit? is {IF_LIMIT}.
 adjust? is {IF_ADJUST}.""")
-        return
-
-    @app_commands.command()
-    @app_commands.describe(prefix=_T('Prefix of command, Default prefix is `;`.'))
-    @help_command()
-    @has_permission(administrator=True)
-    async def setprefix(self, interaction: discord.Integration, prefix: str, help: bool = False):
-        """Change prefix.
-
-        Previlage of administrator is required.
-        """
-        GUILD_ID = interaction.guild_id
-
-        prefix = str(prefix)
-        update_prefix(DATABASE_URL, GUILD_ID, prefix)
-        await interaction.response.send_message(f"Prefix is changed to `{prefix}`.")
-        return
-
-    @app_commands.command()
-    @app_commands.describe(profile=_T('Profile channel, empty for disable.'))
-    @help_command()
-    @has_permission(administrator=True)
-    async def setprofile(self, interaction: discord.Integration, profile: discord.TextChannel = None, help: bool = False):
-        """Change #Profile.
-
-        Previlage of administrator is required.
-        """
-        GUILD_ID = interaction.guild_id
-
-        if profile is None:
-            update_profile_id(DATABASE_URL, GUILD_ID, profile)
-            await interaction.response.send_message("#Profile is changed "
-                                                    f"to {profile}.")
-        else:
-            update_profile_id(DATABASE_URL, GUILD_ID, profile.id)
-            await interaction.response.send_message("#Profile is changed "
-                                                    f"to {convert_channel_to_mention(profile.id)}.")
-        return
-
-    @app_commands.command()
-    @app_commands.describe(log=_T('Log channel, empty for disable.'))
-    @help_command()
-    @has_permission(administrator=True)
-    async def setlog(self, interaction: discord.Integration, log: discord.TextChannel = None, help: bool = False):
-        """Change #Log.
-
-        Previlage of administrator is required.
-        """
-        GUILD_ID = interaction.guild_id
-
-        if log is None:
-            update_log_id(DATABASE_URL, GUILD_ID, log)
-            await interaction.response.send_message("#Log is changed "
-                                                    f"to {log}.")
-        else:
-            update_log_id(DATABASE_URL, GUILD_ID, log.id)
-            await interaction.response.send_message("#Log is changed "
-                                                    f"to {convert_channel_to_mention(log.id)}.")
-        return
-
-    @app_commands.command()
-    @app_commands.describe(freshman=_T('Role to assign to new member, empty for disable.'))
-    @help_command()
-    @has_permission(manage_messages=True)
-    async def setfreshman(self, interaction: discord.Integration, freshman: discord.Role = None, help: bool = False):
-        """Change @Freshman.
-
-        Previlage to manage roles is required.
-        """
-        GUILD_ID = interaction.guild_id
-
-        if freshman is None:
-            update_freshman_id(DATABASE_URL, GUILD_ID, freshman)
-            await interaction.response.send_message("@Freshman is changed "
-                                                    f"to {freshman}.")
-        else:
-            update_freshman_id(DATABASE_URL, GUILD_ID, freshman.id)
-            await interaction.response.send_message("@Freshman is changed "
-                                                    f"to {convert_role_to_mention(freshman.id)}.")
-        return
-
-    @app_commands.command()
-    @app_commands.describe(
-        senior=_T('Role who can assign to new member, empty for disable.'))
-    @help_command()
-    @has_permission(manage_messages=True)
-    async def setsenior(self, interaction: discord.Integration, senior: discord.Role = None, help: bool = False):
-        """Change @Senior.
-
-        Previlage to manage roles is required.
-        """
-        GUILD_ID = interaction.guild_id
-
-        if senior is None:
-            update_senior_id(DATABASE_URL, GUILD_ID, senior)
-            await interaction.response.send_message("@Senior is changed "
-                                                    f"to {senior}.")
-        else:
-            update_senior_id(DATABASE_URL, GUILD_ID, senior.id)
-            await interaction.response.send_message("@Senior is changed "
-                                                    f"to {convert_role_to_mention(senior.id)}.")
-        return
-
-    @app_commands.command()
-    @app_commands.describe(emoji=_T('Emoji to assign role, empty for matching all.'))
-    @help_command()
-    @has_permission(manage_roles=True)
-    async def setemoji(self, interaction: discord.Integration, emoji: str = None, help: bool = False):
-        """Change :emoji:.
-
-        Previlage of manage roles is required.
-        """
-        GUILD_ID = interaction.guild_id
-
-        if emoji is None:
-            update_emoji_id(DATABASE_URL, GUILD_ID, emoji)
-            await interaction.response.send_message(":emoji: is changed "
-                                                    f"to {emoji}.")
-        else:
-            emoji_id = demojize(emoji)
-            update_emoji_id(DATABASE_URL, GUILD_ID, emoji_id)
-            await interaction.response.send_message(":emoji: is changed "
-                                                    f"to {emoji_id}.")
         return
 
     @app_commands.command()

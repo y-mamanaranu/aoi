@@ -1,4 +1,3 @@
-import imp
 import os
 import re
 import pydoc
@@ -29,12 +28,12 @@ def has_permission(**kwargs):
         params = inspect.signature(func).parameters
         i = list(params.keys()).index("interaction")
         required = kwargs
-        permission = discord.Permissions(**kwargs)
 
         @wraps(func)
         async def wrapper(*args, **kwargs):
             interaction: discord.Interaction = args[i]
-            if not interaction.user.guild_permissions.is_subset(permission):
+            actual = dict(iter(interaction.user.guild_permissions))
+            if not all([actual[key] for key in required.keys()]):
                 return await interaction.response.send_message(f"Previlage is required: {', '.join(required.keys())}.")
             else:
                 return await func(*args, **kwargs)

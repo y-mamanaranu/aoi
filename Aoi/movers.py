@@ -1,5 +1,3 @@
-from multiprocessing.connection import wait
-from unicodedata import name
 from discord import app_commands
 from discord.app_commands import locale_str as _T
 from discord.ext import commands
@@ -12,13 +10,10 @@ from . import (
     convert_user_to_mention,
     get_database_url,
     help_command,
-    has_permission,
 )
 from .database import (
     get_if_adjust,
     get_if_limit,
-    update_if_adjust,
-    update_if_limit,
 )
 
 
@@ -172,54 +167,6 @@ class Movers(commands.Cog):
         else:
             await interaction.response.send_message("Need limit? changed to `True`.")
             return
-
-    @app_commands.command()
-    @app_commands.describe(enable=_T('Whether activate `/limit`.'))
-    @help_command()
-    @has_permission(manage_channels=True)
-    async def setlimit(self, interaction: discord.Integration, enable: bool, help: bool = False):
-        """Change limit?.
-
-        Previlage to manage channels is required.
-
-        Parameters
-        ----------
-        interaction : discord.Integration
-            _description_
-        enable : bool
-            _description_
-        help : bool, optional
-            Wether to show help instead, by default False
-        """
-        GUILD_ID = interaction.guild_id
-
-        update_if_limit(DATABASE_URL, GUILD_ID, enable)
-        await interaction.response.send_message(f"limit? is changed to `{enable}`.")
-        return
-
-    @app_commands.command()
-    @app_commands.describe(enable=_T('Wheter activate `on_voice_state_update`.'))
-    @help_command()
-    @has_permission(manage_channels=True)
-    async def setadjust(self, interaction: discord.Integration, enable: bool, help: bool = False):
-        """Change adjust?.
-
-        Previlage to manage channels is required.
-
-        Parameters
-        ----------
-        interaction : discord.Integration
-            _description_
-        enable : bool
-            _description_
-        help : bool, optional
-            Wether to show help instead, by default False
-        """
-        GUILD_ID = interaction.guild_id
-
-        update_if_adjust(DATABASE_URL, GUILD_ID, enable)
-        await interaction.response.send_message(f"adjust? is changed to `{enable}`.")
-        return
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):

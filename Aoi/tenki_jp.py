@@ -10,14 +10,11 @@ import io
 from PIL import Image
 
 from . import (
-    convert_channel_to_mention,
     get_database_url,
     help_command,
-    has_permission,
 )
 from .database import (
     get_all_tenki_id,
-    update_tenki_id,
 )
 
 DATABASE_URL = get_database_url()
@@ -171,41 +168,6 @@ class Tenki_JP(commands.Cog):
         await get_image(interaction=interaction,
                         select=select,
                         week=week)
-
-    @app_commands.command()
-    @app_commands.describe(tenki=_T('Weather forecast channel, empty for disable.'))
-    @help_command()
-    @has_permission(administrator=True)
-    async def settenki(self,
-                       interaction: discord.Interaction,
-                       tenki: discord.TextChannel = None,
-                       help: bool = False):
-        """Change #Tenki.
-
-        Previlage of administrator is required.
-
-        Parameters
-        ----------
-        interaction : discord.Interaction
-            _description_
-        tenki : discord.TextChannel, optional
-            Channel to set as #Tenki, by default None
-            #Tenki is weather forecast channel.
-            If #Tenki is not None, post wheter forecat of tenki.jp to #Tenki on 5:00 JST.
-        help : bool, optional
-            Wether to show help instead, by default False
-        """
-        GUILD_ID = interaction.guild_id
-
-        if tenki is None:
-            update_tenki_id(DATABASE_URL, GUILD_ID, tenki)
-            await interaction.response.send_message("#Tenki is changed "
-                                                    f"to {tenki}.")
-        else:
-            update_tenki_id(DATABASE_URL, GUILD_ID, tenki.id)
-            await interaction.response.send_message("#Tenki is changed "
-                                                    f"to {convert_channel_to_mention(tenki.id)}.")
-        return
 
 
 async def setup(bot):
