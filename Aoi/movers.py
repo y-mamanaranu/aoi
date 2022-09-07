@@ -18,11 +18,11 @@ from .database import (
 
 
 def get_if_create_voice(DATABASE_URL, GUILD_ID):
-    return False
+    return True
 
 
 def get_if_create_text(DATABASE_URL, GUILD_ID):
-    return False
+    return True
 
 
 DATABASE_URL = get_database_url()
@@ -220,14 +220,14 @@ class Movers(commands.Cog):
                     if if_create_text:
                         text_chann = get(after.channel.guild.text_channels,
                                          topic=f"Aoi - {after.channel.id}")
-                        await text_chann.set_permissions(member,
-                                                         overwrite=discord.PermissionOverwrite(read_messages=True))
+                        if len(after.channel.members) > 1:
+                            await text_chann.set_permissions(member,
+                                                             overwrite=discord.PermissionOverwrite(read_messages=True))
                     else:
                         text_chann = after.channel
 
                     if len(after.channel.members) == 1:
                         await after.channel.set_permissions(member,
-                                                            manage_channels=True,
                                                             move_members=True)
                         embed = discord.Embed(
                             description=after.channel.mention)
@@ -256,9 +256,10 @@ class Movers(commands.Cog):
                                 member: discord.PermissionOverwrite(
                                     read_messages=True),
                             }
-                            await after.channel.guild.create_text_channel(name=new_name.replace(" / ", "-"),
-                                                                          topic=f"Aoi - {new_chan.id}",
-                                                                          overwrites=overwrites)
+                            text_chann = await after.channel.guild.create_text_channel(name=new_name.replace(" / ", "-"),
+                                                                                       topic=f"Aoi - {new_chan.id}",
+                                                                                       overwrites=overwrites)
+                            await new_chan.send(f"Please use {text_chann.mention}")
 
                         for member in after.channel.members:
                             await member.move_to(new_chan)
