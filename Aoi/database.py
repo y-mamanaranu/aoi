@@ -23,6 +23,9 @@ def init_db(DATABASE_URL):
                 tenki_id bigint,
                 if_limit boolean DEFAULT false,
                 if_adjust boolean DEFAULT false,
+                if_move boolean DEFAULT false,
+                if_create_voice boolean DEFAULT false,
+                if_create_text boolean DEFAULT false,
                 twitter_template text,
                 twitter_access_token text,
                 twitter_access_token_secret text,
@@ -52,6 +55,22 @@ def remove_ids(DATABASE_URL: str,
                         (GUILD_ID, )
                         )
             conn.commit()
+
+
+def get_twitter_status(DATABASE_URL, GUILD_ID):
+    """Get twitter authorize status."""
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""SELECT twitter_access_token, twitter_access_token_secret
+            FROM reactedrole
+            WHERE guild_id = %s;""",
+                        (GUILD_ID,))
+            res = cur.fetchone()
+
+    if None in res:
+        return "not Authorized"
+    else:
+        return "Authorized"
 
 
 def get_pro_log_fre_sen_emo(DATABASE_URL, GUILD_ID):
@@ -106,7 +125,7 @@ def get_log_id(DATABASE_URL, GUILD_ID):
     return res[0]
 
 
-def get_if_limit(DATABASE_URL, GUILD_ID):
+def get_if_limit(DATABASE_URL, GUILD_ID) -> bool:
     """Get if_limit from database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -119,7 +138,7 @@ def get_if_limit(DATABASE_URL, GUILD_ID):
     return res[0]
 
 
-def get_if_adjust(DATABASE_URL, GUILD_ID):
+def get_if_adjust(DATABASE_URL, GUILD_ID) -> bool:
     """Get if_adjust from database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -130,6 +149,32 @@ def get_if_adjust(DATABASE_URL, GUILD_ID):
             res = cur.fetchone()
 
     return res[0]
+
+
+def get_if_move(DATABASE_URL, GUILD_ID) -> bool:
+    """Get if_move from database."""
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""SELECT if_move
+            FROM reactedrole
+            WHERE guild_id = %s;""",
+                        (GUILD_ID,))
+            res = cur.fetchone()
+
+    return res[0]
+
+
+def get_icv_ict(DATABASE_URL, GUILD_ID):
+    """Get ID of if_create_voice and if_create_text from database."""
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""SELECT if_create_voice, if_create_text
+            FROM reactedrole
+            WHERE guild_id = %s;""",
+                        (GUILD_ID,))
+            res = cur.fetchone()
+
+    return res
 
 
 def get_tt_tat_tats(DATABASE_URL, GUILD_ID):
@@ -145,11 +190,24 @@ def get_tt_tat_tats(DATABASE_URL, GUILD_ID):
     return res
 
 
-def get_pre_pro_log_fre_sen_emo_ten_lim_adj(DATABASE_URL, GUILD_ID):
+def get_pre_pro_log_fre_sen_emo_ten_lim_adj_mov_icv_ict_tt(DATABASE_URL,
+                                                           GUILD_ID):
     """Get status from database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            cur.execute("""SELECT prefix, profile_id, log_id, freshman_id, senior_id, emoji_id, tenki_id, if_limit, if_adjust
+            cur.execute("""SELECT prefix,
+            profile_id,
+            log_id,
+            freshman_id,
+            senior_id,
+            emoji_id,
+            tenki_id,
+            if_limit,
+            if_adjust,
+            if_move,
+            if_create_voice,
+            if_create_text,
+            twitter_template
             FROM reactedrole
             WHERE guild_id = %s;""",
                         (GUILD_ID,))
@@ -225,6 +283,17 @@ def update_emoji_id(DATABASE_URL, GUILD_ID, EMOJI_ID):
                 (EMOJI_ID, GUILD_ID))
 
 
+def update_if_move(DATABASE_URL, GUILD_ID, IF_MOVE):
+    """Update if_move in database."""
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """UPDATE reactedrole
+                SET if_move = %s
+                WHERE guild_id = %s;""",
+                (IF_MOVE, GUILD_ID))
+
+
 def update_if_limit(DATABASE_URL, GUILD_ID, IF_LIMIT):
     """Update if_limit in database."""
     with psycopg2.connect(DATABASE_URL) as conn:
@@ -234,6 +303,28 @@ def update_if_limit(DATABASE_URL, GUILD_ID, IF_LIMIT):
                 SET if_limit = %s
                 WHERE guild_id = %s;""",
                 (IF_LIMIT, GUILD_ID))
+
+
+def update_if_create_text(DATABASE_URL, GUILD_ID, IF_CREATE_TEXT):
+    """Update if_create_text in database."""
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """UPDATE reactedrole
+                SET if_create_text = %s
+                WHERE guild_id = %s;""",
+                (IF_CREATE_TEXT, GUILD_ID))
+
+
+def update_if_create_voice(DATABASE_URL, GUILD_ID, IF_CREATE_VOICE):
+    """Update if_create_voice in database."""
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """UPDATE reactedrole
+                SET if_create_voice = %s
+                WHERE guild_id = %s;""",
+                (IF_CREATE_VOICE, GUILD_ID))
 
 
 def update_if_adjust(DATABASE_URL, GUILD_ID, IF_ADJUST):

@@ -6,8 +6,6 @@ import asyncio
 from emoji import demojize
 
 from . import (
-    convert_channel_to_mention,
-    convert_role_to_mention,
     get_database_url,
     has_permission,
     help_command,
@@ -21,8 +19,11 @@ from .database import (
     update_prefix,
     update_profile_id,
     update_senior_id,
+    update_if_create_text,
+    update_if_create_voice,
     update_tenki_id,
     update_twitter_template,
+    update_if_move,
 )
 
 DATABASE_URL = get_database_url()
@@ -31,6 +32,78 @@ DATABASE_URL = get_database_url()
 class Setter(commands.GroupCog, name="set"):
     def __init__(self, bot):
         self.bot = bot
+
+    @app_commands.command()
+    @app_commands.describe(enable=_T('Wheter enable move commands.'))
+    @help_command()
+    @has_permission(move_members=True)
+    async def move(self, interaction: discord.Integration, enable: bool, help: bool = False):
+        """Change move?.
+
+        Previlage to move members is required.
+
+        Parameters
+        ----------
+        interaction : discord.Integration
+            _description_
+        enable : bool
+            _description_
+        help : bool, optional
+            Wether to show help instead, by default False
+        """
+        GUILD_ID = interaction.guild_id
+
+        update_if_move(DATABASE_URL, GUILD_ID, enable)
+        await interaction.response.send_message(f"move? is changed to `{enable}`.")
+        return
+
+    @app_commands.command()
+    @app_commands.describe(enable=_T('Wheter create text channel.'))
+    @help_command()
+    @has_permission(manage_channels=True)
+    async def create_text(self, interaction: discord.Integration, enable: bool, help: bool = False):
+        """Change create_text?.
+
+        Previlage to manage channels is required.
+
+        Parameters
+        ----------
+        interaction : discord.Integration
+            _description_
+        enable : bool
+            _description_
+        help : bool, optional
+            Wether to show help instead, by default False
+        """
+        GUILD_ID = interaction.guild_id
+
+        update_if_create_text(DATABASE_URL, GUILD_ID, enable)
+        await interaction.response.send_message(f"create_text? is changed to `{enable}`.")
+        return
+
+    @app_commands.command()
+    @app_commands.describe(enable=_T('Wheter create voice channel.'))
+    @help_command()
+    @has_permission(manage_channels=True)
+    async def create_voice(self, interaction: discord.Integration, enable: bool, help: bool = False):
+        """Change create_voice?.
+
+        Previlage to manage channels is required.
+
+        Parameters
+        ----------
+        interaction : discord.Integration
+            _description_
+        enable : bool
+            _description_
+        help : bool, optional
+            Wether to show help instead, by default False
+        """
+        GUILD_ID = interaction.guild_id
+
+        update_if_create_voice(DATABASE_URL, GUILD_ID, enable)
+        await interaction.response.send_message(f"create_voice? is changed to `{enable}`.")
+        return
 
     @app_commands.command()
     @app_commands.describe(enable=_T('Whether activate `/limit`.'))
@@ -114,7 +187,7 @@ class Setter(commands.GroupCog, name="set"):
         else:
             update_profile_id(DATABASE_URL, GUILD_ID, profile.id)
             await interaction.response.send_message("#Profile is changed "
-                                                    f"to {convert_channel_to_mention(profile.id)}.")
+                                                    f"to {profile.mention}.")
         return
 
     @app_commands.command()
@@ -135,7 +208,7 @@ class Setter(commands.GroupCog, name="set"):
         else:
             update_log_id(DATABASE_URL, GUILD_ID, log.id)
             await interaction.response.send_message("#Log is changed "
-                                                    f"to {convert_channel_to_mention(log.id)}.")
+                                                    f"to {log.mention}.")
         return
 
     @app_commands.command()
@@ -156,7 +229,7 @@ class Setter(commands.GroupCog, name="set"):
         else:
             update_freshman_id(DATABASE_URL, GUILD_ID, freshman.id)
             await interaction.response.send_message("@Freshman is changed "
-                                                    f"to {convert_role_to_mention(freshman.id)}.")
+                                                    f"to {freshman.mention}.")
         return
 
     @app_commands.command()
@@ -178,7 +251,7 @@ class Setter(commands.GroupCog, name="set"):
         else:
             update_senior_id(DATABASE_URL, GUILD_ID, senior.id)
             await interaction.response.send_message("@Senior is changed "
-                                                    f"to {convert_role_to_mention(senior.id)}.")
+                                                    f"to {senior.mention}.")
         return
 
     @app_commands.command()
@@ -235,7 +308,7 @@ class Setter(commands.GroupCog, name="set"):
         else:
             update_tenki_id(DATABASE_URL, GUILD_ID, tenki.id)
             await interaction.response.send_message("#Tenki is changed "
-                                                    f"to {convert_channel_to_mention(tenki.id)}.")
+                                                    f"to {tenki.mention}.")
         return
 
     @app_commands.command()
@@ -281,8 +354,9 @@ class Setter(commands.GroupCog, name="set"):
             template = response.content
 
             update_twitter_template(DATABASE_URL, GUILD_ID, template)
-            await interaction.followup.send("twitter_template is changed "
-                                            f"to following:\n{template}.")
+            embed = discord.Embed(description=template)
+            await interaction.followup.send("twitter_template is changed to following.",
+                                            embed=embed)
         return
 
 

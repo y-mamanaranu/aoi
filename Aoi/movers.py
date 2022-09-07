@@ -1,28 +1,22 @@
+from time import time
 from discord import app_commands
 from discord.app_commands import locale_str as _T
 from discord.ext import commands
 import discord
 import random
 from discord.utils import get
+import time
 
 from . import (
-    convert_channel_to_mention,
-    convert_user_to_mention,
     get_database_url,
     help_command,
 )
 from .database import (
     get_if_adjust,
     get_if_limit,
+    get_icv_ict,
+    get_if_move,
 )
-
-
-def get_if_create_voice(DATABASE_URL, GUILD_ID):
-    return True
-
-
-def get_if_create_text(DATABASE_URL, GUILD_ID):
-    return True
 
 
 DATABASE_URL = get_database_url()
@@ -48,15 +42,24 @@ class Movers(commands.Cog):
         help : bool, optional
             Wether to show help instead, by default False
         """
+        GUILD_ID = interaction.guild_id
+        if not get_if_move(DATABASE_URL, GUILD_ID):
+            await interaction.response.send_message("Change move? to `True` to use this command.")
+            return
+
+        await interaction.response.defer()
         origin = interaction.user.voice.channel
 
         if voice_channel is None:
             voice_channel = interaction.channel
 
+        pioneer: discord.Member = origin.members[0]
+        await pioneer.move_to(voice_channel)
+        voice_channel = pioneer.voice.channel
         for member in origin.members:
             await member.move_to(voice_channel)
 
-        await interaction.response.send_message(f"All members are move to {convert_channel_to_mention(voice_channel.id)}.")
+        await interaction.followup.send(f"All members are move to {voice_channel.mention}.")
 
     @app_commands.command()
     @app_commands.describe(voice_channel=_T('#Voice_Channel, empty for here.'))
@@ -74,6 +77,11 @@ class Movers(commands.Cog):
         help : bool, optional
             Wether to show help instead, by default False
         """
+        GUILD_ID = interaction.guild_id
+        if not get_if_move(DATABASE_URL, GUILD_ID):
+            await interaction.response.send_message("Change move? to `True` to use this command.")
+            return
+
         origin = interaction.user.voice.channel
 
         if voice_channel is None:
@@ -87,13 +95,18 @@ class Movers(commands.Cog):
 
         text = []
         text.append(
-            f"> Members for {convert_channel_to_mention(origin.id)}")
+            f"> Members for {origin.mention}")
         for member in members1:
-            text.append(f"{convert_user_to_mention(member.id)}")
+            text.append(f"{member.mention}")
+
+        pioneer: discord.Member = members2[0]
+        await pioneer.move_to(voice_channel)
+        voice_channel = pioneer.voice.channel
         text.append(
-            f"> Members for {convert_channel_to_mention(voice_channel.id)}")
-        for member in members2:
-            text.append(f"{convert_user_to_mention(member.id)}")
+            f"> Members for {voice_channel.mention}")
+        text.append(f"{pioneer.mention}")
+        for member in members2[1:]:
+            text.append(f"{member.mention}")
             await member.move_to(voice_channel)
 
         await interaction.response.send_message("\n".join(text))
@@ -114,6 +127,11 @@ class Movers(commands.Cog):
         help : bool, optional
             Wether to show help instead, by default False
         """
+        GUILD_ID = interaction.guild_id
+        if not get_if_move(DATABASE_URL, GUILD_ID):
+            await interaction.response.send_message("Change move? to `True` to use this command.")
+            return
+
         origin = interaction.user.voice.channel
 
         if voice_channel is None:
@@ -127,15 +145,24 @@ class Movers(commands.Cog):
         members2 = members[len(members) // 2:]
 
         text = []
+        pioneer1: discord.Member = members1[0]
+        pioneer2: discord.Member = members2[0]
+        await pioneer1.move_to(origin)
+        await pioneer2.move_to(voice_channel)
+        origin = pioneer1.voice.channel
+        voice_channel = pioneer2.voice.channel
+
         text.append(
-            f"> Members for {convert_channel_to_mention(origin.id)}")
-        for member in members1:
-            text.append(f"{convert_user_to_mention(member.id)}")
+            f"> Members for {origin.mention}")
+        text.append(f"{pioneer1.mention}")
+        for member in members1[1:]:
+            text.append(f"{member.mention}")
             await member.move_to(origin)
         text.append(
-            f"> Members for {convert_channel_to_mention(voice_channel.id)}")
-        for member in members2:
-            text.append(f"{convert_user_to_mention(member.id)}")
+            f"> Members for {voice_channel.mention}")
+        text.append(f"{pioneer2.mention}")
+        for member in members2[1:]:
+            text.append(f"{member.mention}")
             await member.move_to(voice_channel)
 
         await interaction.response.send_message("\n".join(text))
@@ -168,21 +195,61 @@ class Movers(commands.Cog):
             await interaction.response.send_message("Need limit? changed to `True`.")
             return
 
+    @app_commands.command()
+    @app_commands.describe(name=_T("New name."))
+    @help_command()
+    async def rename(self, interaction: discord.Interaction, name: str, help: bool = False):
+        """Rename auto created channel.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            _description_
+        name : str
+            _description_
+        help : bool, optional
+            Wether to show help instead, by default False
+        """
+        channel = interaction.user.voice.channel
+        GUILD_ID = interaction.guild_id
+
+        if channel is None:
+            await interaction.response.send_message("You do not join voice channel.")
+            return
+
+        if_create_voice, if_create_text = get_icv_ict(DATABASE_URL, GUILD_ID)
+
+        if not if_create_voice or not channel.name.count("/"):
+            await interaction.response.send_message("`/rename` is only valid for automatically created channel.")
+            return
+
+        await interaction.response.defer()
+        _, owner = channel.name.split("/")
+        await channel.edit(name=f"{name} / {owner}")
+        if if_create_text:
+            text_chann = get(interaction.guild.text_channels,
+                             topic=f"Aoi - {channel.id}")
+            await text_chann.edit(name=f"{name}-{owner}")
+        await interaction.followup.send(f"{channel.mention} is renamed.")
+
     @commands.Cog.listener()
     async def on_voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
         """Run on member join or leave voice channel."""
+
         # On leave
         if before.channel is not None:
             GUILD_ID = before.channel.guild.id
+            if_create_voice, if_create_text = get_icv_ict(DATABASE_URL,
+                                                          GUILD_ID)
             # Adjust on Bot
             if member.bot and before.channel.user_limit != 0 and get_if_adjust(DATABASE_URL,
                                                                                GUILD_ID):
                 await before.channel.edit(user_limit=before.channel.user_limit - 1)
             # Destroy or message
-            if get_if_create_voice(DATABASE_URL, GUILD_ID) and \
+            if if_create_voice and \
                 not before.channel.name.endswith("_") and \
                     before.channel.name.count("/"):
-                if_create_text = get_if_create_text(DATABASE_URL, GUILD_ID)
+                if_create_text = if_create_text
                 if if_create_text:
                     text_chann = get(before.channel.guild.text_channels,
                                      topic=f"Aoi - {before.channel.id}")
@@ -208,14 +275,16 @@ class Movers(commands.Cog):
         # On join
         if after.channel is not None:
             GUILD_ID = after.channel.guild.id
+            if_create_voice, if_create_text = get_icv_ict(DATABASE_URL,
+                                                          GUILD_ID)
             # Adjust on Bot
             if member.bot and after.channel.user_limit != 0 and get_if_adjust(DATABASE_URL,
                                                                               GUILD_ID):
                 await after.channel.edit(user_limit=after.channel.user_limit + 1)
             # Create or message
-            if get_if_create_voice(DATABASE_URL, GUILD_ID) and \
+            if if_create_voice and \
                     not after.channel.name.endswith("_"):
-                if_create_text = get_if_create_text(DATABASE_URL, GUILD_ID)
+                if_create_text = if_create_text
                 if after.channel.name.count("/"):
                     if if_create_text:
                         text_chann = get(after.channel.guild.text_channels,
@@ -242,11 +311,9 @@ class Movers(commands.Cog):
 
                 else:
                     if len(after.channel.members) == 1:
-                        i = 1
-                        while get(after.channel.guild.voice_channels,
-                                  name=f"{after.channel.name} / {i}"):
-                            i += 1
-                        new_name = f"{after.channel.name} / {i}"
+                        name = after.channel.name.replace('/', '')
+                        owner = member.display_name.replace('/', '')
+                        new_name = f"{name} / {owner}"
                         new_chan = await after.channel.clone(name=new_name)
 
                         if if_create_text:
@@ -256,9 +323,10 @@ class Movers(commands.Cog):
                                 member: discord.PermissionOverwrite(
                                     read_messages=True),
                             }
-                            text_chann = await after.channel.guild.create_text_channel(name=new_name.replace(" / ", "-"),
+                            text_chann = await after.channel.guild.create_text_channel(name=f"{name}-{owner}",
                                                                                        topic=f"Aoi - {new_chan.id}",
-                                                                                       overwrites=overwrites)
+                                                                                       overwrites=overwrites,
+                                                                                       category=new_chan.category)
                             await new_chan.send(f"Please use {text_chann.mention}")
 
                         for member in after.channel.members:

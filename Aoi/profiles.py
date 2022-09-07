@@ -10,15 +10,15 @@ import random
 from . import (
     convert_channel_to_mention,
     convert_role_to_mention,
-    convert_user_to_mention,
     get_database_url,
     help_command,
     has_permission,
 )
 from .database import (
-    get_pre_pro_log_fre_sen_emo_ten_lim_adj,
+    get_pre_pro_log_fre_sen_emo_ten_lim_adj_mov_icv_ict_tt,
     get_pro_log_fre_sen_emo,
     get_profile_id,
+    get_twitter_status,
 )
 
 DATABASE_URL = get_database_url()
@@ -49,7 +49,13 @@ class Profiles(commands.Cog):
 #Tenki is weather forecast channel.
 
 limit? is Whether activate `/limit`.
-adjust? is Wheter activate `on_voice_state_update`.""")
+adjust? is Wheter activate `on_voice_state_update`.
+move?.
+create_voice?.
+create_text?.
+
+twitter account.
+twitter template""")
 
     @app_commands.command()
     @help_command()
@@ -57,10 +63,25 @@ adjust? is Wheter activate `on_voice_state_update`.""")
         """Show current config."""
         GUILD_ID = interaction.guild_id
 
-        PREFIX, PROFILE_ID, LOG_ID, FRESHMAN_ID, SENIOR_ID, EMOJI_ID, TENKI_ID, IF_LIMIT, IF_ADJUST = \
-            get_pre_pro_log_fre_sen_emo_ten_lim_adj(DATABASE_URL,
-                                                    GUILD_ID)
-        await interaction.response.send_message(f"""Prefix is `{PREFIX}`.
+        PREFIX, \
+            PROFILE_ID, \
+            LOG_ID, \
+            FRESHMAN_ID, \
+            SENIOR_ID, \
+            EMOJI_ID, \
+            TENKI_ID, \
+            IF_LIMIT, \
+            IF_ADJUST, \
+            IF_MOVE, \
+            IF_CREATE_VOICE, \
+            IF_CREATE_TEXT, \
+            TEMPLATE = \
+            get_pre_pro_log_fre_sen_emo_ten_lim_adj_mov_icv_ict_tt(DATABASE_URL,
+                                                                   GUILD_ID)
+        await interaction.response.defer()
+        AUTH = get_twitter_status(DATABASE_URL, GUILD_ID)
+        embed = discord.Embed(description=TEMPLATE)
+        await interaction.followup.send(f"""Prefix is `{PREFIX}`.
 #Profile is {convert_channel_to_mention(PROFILE_ID)}.
 #Log is {convert_channel_to_mention(LOG_ID)}.
 @Freshman is {convert_role_to_mention(FRESHMAN_ID)}.
@@ -70,8 +91,13 @@ adjust? is Wheter activate `on_voice_state_update`.""")
 #Tenki is {convert_channel_to_mention(TENKI_ID)}.
 
 limit? is {IF_LIMIT}.
-adjust? is {IF_ADJUST}.""")
-        return
+adjust? is {IF_ADJUST}.
+move? is {IF_MOVE}.
+create_voice? is {IF_CREATE_VOICE}.
+create_text? is {IF_CREATE_TEXT}.
+
+twitter account is {AUTH}.""",
+                                        embed=embed)
 
     @app_commands.command()
     @app_commands.describe(user=_T('@User'))
@@ -178,8 +204,10 @@ adjust? is {IF_ADJUST}.""")
         member_cand = ["Message from user following will be deleted."]
         message_cand = []
         PROFILE_ID = get_profile_id(DATABASE_URL, GUILD_ID)
+
         if PROFILE_ID is not None:
             channel = self.bot.get_channel(PROFILE_ID)
+            m: discord.Message
             async for m in channel.history(limit=200, oldest_first=True):
                 # skip if author is bot
                 if m.author.bot:
@@ -188,7 +216,7 @@ adjust? is {IF_ADJUST}.""")
                 # check if author is member
                 res = await m.guild.query_members(user_ids=[m.author.id])
                 if len(res) == 0:
-                    member_cand.append(convert_user_to_mention(m.author.id))
+                    member_cand.append(m.author.mention)
                     message_cand.append(m)
 
             if len(member_cand) > 1:
@@ -311,6 +339,7 @@ adjust? is {IF_ADJUST}.""")
         channel = self.bot.get_channel(PROFILE_ID)
         message_id = payload.message_id
         message = await channel.fetch_message(message_id)
+        member: discord.Member
         member, = await message.guild.query_members(user_ids=[message.author.id])
 
         if FRESHMAN in member.roles:
@@ -327,9 +356,9 @@ adjust? is {IF_ADJUST}.""")
             return
 
         channel = self.bot.get_channel(LOG_ID)
-        await channel.send(f"{convert_user_to_mention(payload.member.id)} "
-                           f"add {convert_role_to_mention(FRESHMAN_ID)} "
-                           f"to {convert_user_to_mention(member.id)} via Aoi.")
+        await channel.send(f"{payload.member.mention} "
+                           f"add {FRESHMAN.mention} "
+                           f"to {member.mention} via Aoi.")
 
 
 async def setup(bot):

@@ -103,10 +103,10 @@ def get_database_url():
 
 
 def get_twitter_consumer_key():
-    """Get consumer_key of Twitter bot."""
+    """Get consumer_key of Twitter."""
     return os.environ["TWITTER_CONSUMER_KEY"]
 
 
 def get_twitter_consumer_secret():
-    """Get twitter_consumer_secret of Twitter bot."""
+    """Get twitter_consumer_secret of Twitter."""
     return os.environ["TWITTER_CONSUMER_SECRET"]
