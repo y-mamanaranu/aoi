@@ -24,6 +24,24 @@ def help_command():
     return _help_command
 
 
+def has_permission(**kwargs):
+    def _has_permission(func):
+        params = inspect.signature(func).parameters
+        i = list(params.keys()).index("interaction")
+        required = kwargs
+        permission = discord.Permissions(**kwargs)
+
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            interaction: discord.Interaction = args[i]
+            if not interaction.user.guild_permissions.is_subset(permission):
+                return await interaction.response.send_message(f"Previlage is required: {', '.join(required.keys())}.")
+            else:
+                return await func(*args, **kwargs)
+        return wrapper
+    return _has_permission
+
+
 def convert_mention_to_user(mention: str):
     """Convert mention to user to user_id."""
     res = re.match(r"^<@\!?(\d+)>$", mention)

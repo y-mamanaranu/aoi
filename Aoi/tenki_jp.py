@@ -13,6 +13,7 @@ from . import (
     convert_channel_to_mention,
     get_database_url,
     help_command,
+    has_permission,
 )
 from .database import (
     get_all_tenki_id,
@@ -174,6 +175,7 @@ class Tenki_JP(commands.Cog):
     @app_commands.command()
     @app_commands.describe(tenki=_T('Weather forecast channel, empty for disable.'))
     @help_command()
+    @has_permission(administrator=True)
     async def settenki(self,
                        interaction: discord.Interaction,
                        tenki: discord.TextChannel = None,
@@ -193,10 +195,6 @@ class Tenki_JP(commands.Cog):
         help : bool, optional
             Wether to show help instead, by default False
         """
-        if not interaction.user.guild_permissions.administrator:
-            await interaction.response.send_message("Previlage of administrator is required.")
-            return
-
         GUILD_ID = interaction.guild_id
 
         if tenki is None:

@@ -14,6 +14,7 @@ from . import (
     convert_user_to_mention,
     get_database_url,
     help_command,
+    has_permission,
 )
 from .database import (
     get_pre_pro_log_fre_sen_emo_ten_lim_adj,
@@ -82,15 +83,12 @@ adjust? is {IF_ADJUST}.""")
     @app_commands.command()
     @app_commands.describe(prefix=_T('Prefix of command, Default prefix is `;`.'))
     @help_command()
+    @has_permission(administrator=True)
     async def setprefix(self, interaction: discord.Integration, prefix: str, help: bool = False):
         """Change prefix.
 
         Previlage of administrator is required.
         """
-        if not interaction.user.guild_permissions.administrator:
-            await interaction.response.send_message("Previlage of administrator is required.")
-            return
-
         GUILD_ID = interaction.guild_id
 
         prefix = str(prefix)
@@ -101,15 +99,12 @@ adjust? is {IF_ADJUST}.""")
     @app_commands.command()
     @app_commands.describe(profile=_T('Profile channel, empty for disable.'))
     @help_command()
+    @has_permission(administrator=True)
     async def setprofile(self, interaction: discord.Integration, profile: discord.TextChannel = None, help: bool = False):
         """Change #Profile.
 
         Previlage of administrator is required.
         """
-        if not interaction.user.guild_permissions.administrator:
-            await interaction.response.send_message("Previlage of administrator is required.")
-            return
-
         GUILD_ID = interaction.guild_id
 
         if profile is None:
@@ -125,15 +120,12 @@ adjust? is {IF_ADJUST}.""")
     @app_commands.command()
     @app_commands.describe(log=_T('Log channel, empty for disable.'))
     @help_command()
+    @has_permission(administrator=True)
     async def setlog(self, interaction: discord.Integration, log: discord.TextChannel = None, help: bool = False):
         """Change #Log.
 
         Previlage of administrator is required.
         """
-        if not interaction.user.guild_permissions.administrator:
-            await interaction.response.send_message("Previlage of administrator is required.")
-            return
-
         GUILD_ID = interaction.guild_id
 
         if log is None:
@@ -149,15 +141,12 @@ adjust? is {IF_ADJUST}.""")
     @app_commands.command()
     @app_commands.describe(freshman=_T('Role to assign to new member, empty for disable.'))
     @help_command()
+    @has_permission(manage_messages=True)
     async def setfreshman(self, interaction: discord.Integration, freshman: discord.Role = None, help: bool = False):
         """Change @Freshman.
 
         Previlage to manage roles is required.
         """
-        if not interaction.user.guild_permissions.manage_roles:
-            await interaction.response.send_message("Previlage to manage roles is required.")
-            return
-
         GUILD_ID = interaction.guild_id
 
         if freshman is None:
@@ -174,15 +163,12 @@ adjust? is {IF_ADJUST}.""")
     @app_commands.describe(
         senior=_T('Role who can assign to new member, empty for disable.'))
     @help_command()
+    @has_permission(manage_messages=True)
     async def setsenior(self, interaction: discord.Integration, senior: discord.Role = None, help: bool = False):
         """Change @Senior.
 
         Previlage to manage roles is required.
         """
-        if not interaction.user.guild_permissions.manage_roles:
-            await interaction.response.send_message("Previlage to manage roles is required.")
-            return
-
         GUILD_ID = interaction.guild_id
 
         if senior is None:
@@ -198,15 +184,12 @@ adjust? is {IF_ADJUST}.""")
     @app_commands.command()
     @app_commands.describe(emoji=_T('Emoji to assign role, empty for matching all.'))
     @help_command()
+    @has_permission(manage_roles=True)
     async def setemoji(self, interaction: discord.Integration, emoji: str = None, help: bool = False):
         """Change :emoji:.
 
         Previlage of manage roles is required.
         """
-        if not interaction.user.guild_permissions.manage_roles:
-            await interaction.response.send_message("Previlage to manage roles is required.")
-            return
-
         GUILD_ID = interaction.guild_id
 
         if emoji is None:
@@ -308,6 +291,7 @@ adjust? is {IF_ADJUST}.""")
 
     @app_commands.command()
     @help_command()
+    @has_permission(manage_messages=True)
     async def clean(self, interaction: discord.Interaction, help: bool = False):
         """Delete profile of leaved member.
 
@@ -318,10 +302,6 @@ adjust? is {IF_ADJUST}.""")
         interaction : discord.Interaction
             _description_
         """
-        if not interaction.user.guild_permissions.manage_messages:
-            await interaction.response.send_message("Previlage to manage messages is required")
-            return
-
         await interaction.response.defer()
         GUILD_ID = interaction.guild_id
 
@@ -375,6 +355,7 @@ adjust? is {IF_ADJUST}.""")
 
     @app_commands.command()
     @help_command()
+    @has_permission(manage_messages=True)
     async def duplicate(self, interaction: discord.Interaction, help: bool = False):
         """Delete second or subsequent profile of same user.
 
@@ -385,10 +366,6 @@ adjust? is {IF_ADJUST}.""")
         interaction : discord.Interaction
             _description_
         """
-        if not interaction.user.guild_permissions.manage_messages:
-            await interaction.response.send_message("Previlage to manage messages is required")
-            return
-
         GUILD_ID = interaction.guild_id
 
         memberlist = []

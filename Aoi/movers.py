@@ -12,6 +12,7 @@ from . import (
     convert_user_to_mention,
     get_database_url,
     help_command,
+    has_permission,
 )
 from .database import (
     get_if_adjust,
@@ -175,6 +176,7 @@ class Movers(commands.Cog):
     @app_commands.command()
     @app_commands.describe(enable=_T('Whether activate `/limit`.'))
     @help_command()
+    @has_permission(manage_channels=True)
     async def setlimit(self, interaction: discord.Integration, enable: bool, help: bool = False):
         """Change limit?.
 
@@ -189,10 +191,6 @@ class Movers(commands.Cog):
         help : bool, optional
             Wether to show help instead, by default False
         """
-        if not interaction.user.guild_permissions.manage_channels:
-            await interaction.response.send_message("Previlage to manage channels is required.")
-            return
-
         GUILD_ID = interaction.guild_id
 
         update_if_limit(DATABASE_URL, GUILD_ID, enable)
@@ -202,6 +200,7 @@ class Movers(commands.Cog):
     @app_commands.command()
     @app_commands.describe(enable=_T('Wheter activate `on_voice_state_update`.'))
     @help_command()
+    @has_permission(manage_channels=True)
     async def setadjust(self, interaction: discord.Integration, enable: bool, help: bool = False):
         """Change adjust?.
 
@@ -216,10 +215,6 @@ class Movers(commands.Cog):
         help : bool, optional
             Wether to show help instead, by default False
         """
-        if not interaction.user.guild_permissions.manage_channels:
-            await interaction.response.send_message("Previlage to manage channels is required.")
-            return
-
         GUILD_ID = interaction.guild_id
 
         update_if_adjust(DATABASE_URL, GUILD_ID, enable)

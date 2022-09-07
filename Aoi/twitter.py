@@ -20,6 +20,7 @@ from .database import (
     get_tt_tat_tats,
     update_twitter_template,
     update_tat_tats,
+    has_permission,
 )
 
 DATABASE_URL = get_database_url()
@@ -137,6 +138,7 @@ class Twitter(commands.Cog):
 
     @app_commands.command()
     @help_command()
+    @has_permission(administrator=True)
     async def settwitter(self, interaction: discord.Interaction, clear: bool = False, help: bool = False):
         """Change template for tweet.
 
@@ -154,10 +156,6 @@ class Twitter(commands.Cog):
         help : bool, optional
             _description_, by default False
         """
-        if not interaction.user.guild_permissions.administrator:
-            await interaction.response.send_message("Previlage of administrator is required.")
-            return
-
         GUILD_ID = interaction.guild_id
 
         if clear:
@@ -187,6 +185,7 @@ class Twitter(commands.Cog):
 
     @app_commands.command()
     @help_command()
+    @has_permission(administrator=True)
     async def authtwitter(self,
                           interaction: discord.Interaction,
                           clear: bool = False,
@@ -204,10 +203,6 @@ class Twitter(commands.Cog):
         help : bool, optional
             _description_, by default False
         """
-        if not interaction.user.guild_permissions.administrator:
-            await interaction.response.send_message("Previlage of administrator is required.")
-            return
-
         GUILD_ID = interaction.guild_id
 
         if clear is True:
