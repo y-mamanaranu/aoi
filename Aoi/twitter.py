@@ -6,7 +6,6 @@ from discord.ext import commands
 import discord
 import os
 import tweepy
-import asyncio
 import unicodedata
 import time
 
@@ -15,10 +14,10 @@ from . import (
     help_command,
     get_twitter_consumer_key,
     get_twitter_consumer_secret,
+    has_permission,
 )
 from .database import (
     get_tt_tat_tats,
-    update_twitter_template,
     update_tat_tats,
 )
 
@@ -137,56 +136,7 @@ class Twitter(commands.Cog):
 
     @app_commands.command()
     @help_command()
-    async def settwitter(self, interaction: discord.Interaction, clear: bool = False, help: bool = False):
-        """Change template for tweet.
-
-        Previlage of administrator is required.
-
-        > /settwitter
-        > <Template of tweet passed to jinja2.Template>
-
-        Parameters
-        ----------
-        interaction : discord.Interaction
-            _description_
-        clear : str, by default False
-            Wether to clear template.
-        help : bool, optional
-            _description_, by default False
-        """
-        if not interaction.user.guild_permissions.administrator:
-            await interaction.response.send_message("Previlage of administrator is required.")
-            return
-
-        GUILD_ID = interaction.guild_id
-
-        if clear:
-            template = None
-
-            update_twitter_template(DATABASE_URL, GUILD_ID, template)
-            await interaction.response.send_message("twitter_template is changed "
-                                                    f"to {template}.")
-        else:
-            await interaction.response.send_message("Input template as jinja2.Template.")
-
-            def check(m):
-                """Check if it's the same user and channel."""
-                return m.author == interaction.user and m.channel == interaction.channel
-
-            try:
-                response = await self.bot.wait_for('message', check=check, timeout=30.0)
-            except asyncio.TimeoutError:
-                await interaction.followup.send("settwitter is canceled with timeout.")
-                return
-            template = response.content
-
-            update_twitter_template(DATABASE_URL, GUILD_ID, template)
-            await interaction.followup.send("twitter_template is changed "
-                                            f"to following:\n{template}.")
-        return
-
-    @app_commands.command()
-    @help_command()
+    @has_permission(administrator=True)
     async def authtwitter(self,
                           interaction: discord.Interaction,
                           clear: bool = False,
@@ -204,10 +154,6 @@ class Twitter(commands.Cog):
         help : bool, optional
             _description_, by default False
         """
-        if not interaction.user.guild_permissions.administrator:
-            await interaction.response.send_message("Previlage of administrator is required.")
-            return
-
         GUILD_ID = interaction.guild_id
 
         if clear is True:

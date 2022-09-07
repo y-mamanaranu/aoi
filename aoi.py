@@ -65,6 +65,7 @@ asyncio.run(bot.load_extension("Aoi.profiles"))
 asyncio.run(bot.load_extension("Aoi.movers"))
 asyncio.run(bot.load_extension("Aoi.tenki_jp"))
 asyncio.run(bot.load_extension("Aoi.twitter"))
+asyncio.run(bot.load_extension("Aoi.setter"))
 
 
 @bot.event

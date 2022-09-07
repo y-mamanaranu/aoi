@@ -1,4 +1,3 @@
-import imp
 import os
 import re
 import pydoc
@@ -22,6 +21,24 @@ def help_command():
                 return await func(*args, **kwargs)
         return wrapper
     return _help_command
+
+
+def has_permission(**kwargs):
+    def _has_permission(func):
+        params = inspect.signature(func).parameters
+        i = list(params.keys()).index("interaction")
+        required = kwargs
+
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            interaction: discord.Interaction = args[i]
+            actual = dict(iter(interaction.user.guild_permissions))
+            if not all([actual[key] for key in required.keys()]):
+                return await interaction.response.send_message(f"Previlage is required: {', '.join(required.keys())}.")
+            else:
+                return await func(*args, **kwargs)
+        return wrapper
+    return _has_permission
 
 
 def convert_mention_to_user(mention: str):
@@ -86,10 +103,10 @@ def get_database_url():
 
 
 def get_twitter_consumer_key():
-    """Get consumer_key of Twitter bot."""
+    """Get consumer_key of Twitter."""
     return os.environ["TWITTER_CONSUMER_KEY"]
 
 
 def get_twitter_consumer_secret():
-    """Get twitter_consumer_secret of Twitter bot."""
+    """Get twitter_consumer_secret of Twitter."""
     return os.environ["TWITTER_CONSUMER_SECRET"]

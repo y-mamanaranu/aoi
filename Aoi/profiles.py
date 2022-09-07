@@ -1,4 +1,3 @@
-import imp
 from discord import app_commands
 from discord.app_commands import locale_str as _T
 from discord.ext import commands
@@ -11,20 +10,15 @@ import random
 from . import (
     convert_channel_to_mention,
     convert_role_to_mention,
-    convert_user_to_mention,
     get_database_url,
     help_command,
+    has_permission,
 )
 from .database import (
-    get_pre_pro_log_fre_sen_emo_ten_lim_adj,
+    get_pre_pro_log_fre_sen_emo_ten_lim_adj_mov_icv_ict_tt,
     get_pro_log_fre_sen_emo,
     get_profile_id,
-    update_emoji_id,
-    update_freshman_id,
-    update_log_id,
-    update_prefix,
-    update_profile_id,
-    update_senior_id,
+    get_twitter_status,
 )
 
 DATABASE_URL = get_database_url()
@@ -55,7 +49,13 @@ class Profiles(commands.Cog):
 #Tenki is weather forecast channel.
 
 limit? is Whether activate `/limit`.
-adjust? is Wheter activate `on_voice_state_update`.""")
+adjust? is Wheter activate `on_voice_state_update`.
+move?.
+create_voice?.
+create_text?.
+
+twitter account.
+twitter template""")
 
     @app_commands.command()
     @help_command()
@@ -63,10 +63,25 @@ adjust? is Wheter activate `on_voice_state_update`.""")
         """Show current config."""
         GUILD_ID = interaction.guild_id
 
-        PREFIX, PROFILE_ID, LOG_ID, FRESHMAN_ID, SENIOR_ID, EMOJI_ID, TENKI_ID, IF_LIMIT, IF_ADJUST = \
-            get_pre_pro_log_fre_sen_emo_ten_lim_adj(DATABASE_URL,
-                                                    GUILD_ID)
-        await interaction.response.send_message(f"""Prefix is `{PREFIX}`.
+        PREFIX, \
+            PROFILE_ID, \
+            LOG_ID, \
+            FRESHMAN_ID, \
+            SENIOR_ID, \
+            EMOJI_ID, \
+            TENKI_ID, \
+            IF_LIMIT, \
+            IF_ADJUST, \
+            IF_MOVE, \
+            IF_CREATE_VOICE, \
+            IF_CREATE_TEXT, \
+            TEMPLATE = \
+            get_pre_pro_log_fre_sen_emo_ten_lim_adj_mov_icv_ict_tt(DATABASE_URL,
+                                                                   GUILD_ID)
+        await interaction.response.defer()
+        AUTH = get_twitter_status(DATABASE_URL, GUILD_ID)
+        embed = discord.Embed(description=TEMPLATE)
+        await interaction.followup.send(f"""Prefix is `{PREFIX}`.
 #Profile is {convert_channel_to_mention(PROFILE_ID)}.
 #Log is {convert_channel_to_mention(LOG_ID)}.
 @Freshman is {convert_role_to_mention(FRESHMAN_ID)}.
@@ -76,149 +91,13 @@ adjust? is Wheter activate `on_voice_state_update`.""")
 #Tenki is {convert_channel_to_mention(TENKI_ID)}.
 
 limit? is {IF_LIMIT}.
-adjust? is {IF_ADJUST}.""")
-        return
+adjust? is {IF_ADJUST}.
+move? is {IF_MOVE}.
+create_voice? is {IF_CREATE_VOICE}.
+create_text? is {IF_CREATE_TEXT}.
 
-    @app_commands.command()
-    @app_commands.describe(prefix=_T('Prefix of command, Default prefix is `;`.'))
-    @help_command()
-    async def setprefix(self, interaction: discord.Integration, prefix: str, help: bool = False):
-        """Change prefix.
-
-        Previlage of administrator is required.
-        """
-        if not interaction.user.guild_permissions.administrator:
-            await interaction.response.send_message("Previlage of administrator is required.")
-            return
-
-        GUILD_ID = interaction.guild_id
-
-        prefix = str(prefix)
-        update_prefix(DATABASE_URL, GUILD_ID, prefix)
-        await interaction.response.send_message(f"Prefix is changed to `{prefix}`.")
-        return
-
-    @app_commands.command()
-    @app_commands.describe(profile=_T('Profile channel, empty for disable.'))
-    @help_command()
-    async def setprofile(self, interaction: discord.Integration, profile: discord.TextChannel = None, help: bool = False):
-        """Change #Profile.
-
-        Previlage of administrator is required.
-        """
-        if not interaction.user.guild_permissions.administrator:
-            await interaction.response.send_message("Previlage of administrator is required.")
-            return
-
-        GUILD_ID = interaction.guild_id
-
-        if profile is None:
-            update_profile_id(DATABASE_URL, GUILD_ID, profile)
-            await interaction.response.send_message("#Profile is changed "
-                                                    f"to {profile}.")
-        else:
-            update_profile_id(DATABASE_URL, GUILD_ID, profile.id)
-            await interaction.response.send_message("#Profile is changed "
-                                                    f"to {convert_channel_to_mention(profile.id)}.")
-        return
-
-    @app_commands.command()
-    @app_commands.describe(log=_T('Log channel, empty for disable.'))
-    @help_command()
-    async def setlog(self, interaction: discord.Integration, log: discord.TextChannel = None, help: bool = False):
-        """Change #Log.
-
-        Previlage of administrator is required.
-        """
-        if not interaction.user.guild_permissions.administrator:
-            await interaction.response.send_message("Previlage of administrator is required.")
-            return
-
-        GUILD_ID = interaction.guild_id
-
-        if log is None:
-            update_log_id(DATABASE_URL, GUILD_ID, log)
-            await interaction.response.send_message("#Log is changed "
-                                                    f"to {log}.")
-        else:
-            update_log_id(DATABASE_URL, GUILD_ID, log.id)
-            await interaction.response.send_message("#Log is changed "
-                                                    f"to {convert_channel_to_mention(log.id)}.")
-        return
-
-    @app_commands.command()
-    @app_commands.describe(freshman=_T('Role to assign to new member, empty for disable.'))
-    @help_command()
-    async def setfreshman(self, interaction: discord.Integration, freshman: discord.Role = None, help: bool = False):
-        """Change @Freshman.
-
-        Previlage to manage roles is required.
-        """
-        if not interaction.user.guild_permissions.manage_roles:
-            await interaction.response.send_message("Previlage to manage roles is required.")
-            return
-
-        GUILD_ID = interaction.guild_id
-
-        if freshman is None:
-            update_freshman_id(DATABASE_URL, GUILD_ID, freshman)
-            await interaction.response.send_message("@Freshman is changed "
-                                                    f"to {freshman}.")
-        else:
-            update_freshman_id(DATABASE_URL, GUILD_ID, freshman.id)
-            await interaction.response.send_message("@Freshman is changed "
-                                                    f"to {convert_role_to_mention(freshman.id)}.")
-        return
-
-    @app_commands.command()
-    @app_commands.describe(
-        senior=_T('Role who can assign to new member, empty for disable.'))
-    @help_command()
-    async def setsenior(self, interaction: discord.Integration, senior: discord.Role = None, help: bool = False):
-        """Change @Senior.
-
-        Previlage to manage roles is required.
-        """
-        if not interaction.user.guild_permissions.manage_roles:
-            await interaction.response.send_message("Previlage to manage roles is required.")
-            return
-
-        GUILD_ID = interaction.guild_id
-
-        if senior is None:
-            update_senior_id(DATABASE_URL, GUILD_ID, senior)
-            await interaction.response.send_message("@Senior is changed "
-                                                    f"to {senior}.")
-        else:
-            update_senior_id(DATABASE_URL, GUILD_ID, senior.id)
-            await interaction.response.send_message("@Senior is changed "
-                                                    f"to {convert_role_to_mention(senior.id)}.")
-        return
-
-    @app_commands.command()
-    @app_commands.describe(emoji=_T('Emoji to assign role, empty for matching all.'))
-    @help_command()
-    async def setemoji(self, interaction: discord.Integration, emoji: str = None, help: bool = False):
-        """Change :emoji:.
-
-        Previlage of manage roles is required.
-        """
-        if not interaction.user.guild_permissions.manage_roles:
-            await interaction.response.send_message("Previlage to manage roles is required.")
-            return
-
-        GUILD_ID = interaction.guild_id
-
-        if emoji is None:
-            update_emoji_id(DATABASE_URL, GUILD_ID, emoji)
-            await interaction.response.send_message(":emoji: is changed "
-                                                    f"to {emoji}.")
-        else:
-            emoji_id = demojize(emoji)
-            update_emoji_id(DATABASE_URL, GUILD_ID, emoji_id)
-            await interaction.response.send_message(":emoji: is changed "
-                                                    f"to {emoji_id}.")
-        return
+twitter account is {AUTH}.""",
+                                        embed=embed)
 
     @app_commands.command()
     @app_commands.describe(user=_T('@User'))
@@ -308,6 +187,7 @@ adjust? is {IF_ADJUST}.""")
 
     @app_commands.command()
     @help_command()
+    @has_permission(manage_messages=True)
     async def clean(self, interaction: discord.Interaction, help: bool = False):
         """Delete profile of leaved member.
 
@@ -318,18 +198,16 @@ adjust? is {IF_ADJUST}.""")
         interaction : discord.Interaction
             _description_
         """
-        if not interaction.user.guild_permissions.manage_messages:
-            await interaction.response.send_message("Previlage to manage messages is required")
-            return
-
         await interaction.response.defer()
         GUILD_ID = interaction.guild_id
 
         member_cand = ["Message from user following will be deleted."]
         message_cand = []
         PROFILE_ID = get_profile_id(DATABASE_URL, GUILD_ID)
+
         if PROFILE_ID is not None:
             channel = self.bot.get_channel(PROFILE_ID)
+            m: discord.Message
             async for m in channel.history(limit=200, oldest_first=True):
                 # skip if author is bot
                 if m.author.bot:
@@ -338,7 +216,7 @@ adjust? is {IF_ADJUST}.""")
                 # check if author is member
                 res = await m.guild.query_members(user_ids=[m.author.id])
                 if len(res) == 0:
-                    member_cand.append(convert_user_to_mention(m.author.id))
+                    member_cand.append(m.author.mention)
                     message_cand.append(m)
 
             if len(member_cand) > 1:
@@ -375,6 +253,7 @@ adjust? is {IF_ADJUST}.""")
 
     @app_commands.command()
     @help_command()
+    @has_permission(manage_messages=True)
     async def duplicate(self, interaction: discord.Interaction, help: bool = False):
         """Delete second or subsequent profile of same user.
 
@@ -385,10 +264,6 @@ adjust? is {IF_ADJUST}.""")
         interaction : discord.Interaction
             _description_
         """
-        if not interaction.user.guild_permissions.manage_messages:
-            await interaction.response.send_message("Previlage to manage messages is required")
-            return
-
         GUILD_ID = interaction.guild_id
 
         memberlist = []
@@ -464,6 +339,7 @@ adjust? is {IF_ADJUST}.""")
         channel = self.bot.get_channel(PROFILE_ID)
         message_id = payload.message_id
         message = await channel.fetch_message(message_id)
+        member: discord.Member
         member, = await message.guild.query_members(user_ids=[message.author.id])
 
         if FRESHMAN in member.roles:
@@ -480,9 +356,9 @@ adjust? is {IF_ADJUST}.""")
             return
 
         channel = self.bot.get_channel(LOG_ID)
-        await channel.send(f"{convert_user_to_mention(payload.member.id)} "
-                           f"add {convert_role_to_mention(FRESHMAN_ID)} "
-                           f"to {convert_user_to_mention(member.id)} via Aoi.")
+        await channel.send(f"{payload.member.mention} "
+                           f"add {FRESHMAN.mention} "
+                           f"to {member.mention} via Aoi.")
 
 
 async def setup(bot):
