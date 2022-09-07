@@ -1,8 +1,8 @@
+from unicodedata import name
 from discord import app_commands
 from discord.app_commands import locale_str as _T
 from discord.ext import commands
 import discord
-import asyncio
 from emoji import demojize
 
 from . import (
@@ -340,24 +340,22 @@ class Setter(commands.GroupCog, name="set"):
             await interaction.response.send_message("twitter_template is changed "
                                                     f"to {template}.")
         else:
-            await interaction.response.send_message("Input template as jinja2.Template.")
+            class UI(discord.ui.Modal, title="twitter_template"):
+                template = discord.ui.TextInput(
+                    label='template',
+                    style=discord.TextStyle.long,
+                    placeholder='Input template as jinja2.Template.',
+                )
 
-            def check(m):
-                """Check if it's the same user and channel."""
-                return m.author == interaction.user and m.channel == interaction.channel
+                async def on_submit(self, interaction: discord.Interaction):
+                    update_twitter_template(DATABASE_URL,
+                                            GUILD_ID,
+                                            self.template.value)
+                    embed = discord.Embed(description=self.template.value)
+                    await interaction.response.send_message("twitter_template is changed to following.",
+                                                            embed=embed)
 
-            try:
-                response = await self.bot.wait_for('message', check=check, timeout=30.0)
-            except asyncio.TimeoutError:
-                await interaction.followup.send("settwitter is canceled with timeout.")
-                return
-            template = response.content
-
-            update_twitter_template(DATABASE_URL, GUILD_ID, template)
-            embed = discord.Embed(description=template)
-            await interaction.followup.send("twitter_template is changed to following.",
-                                            embed=embed)
-        return
+            await interaction.response.send_modal(UI())
 
 
 async def setup(bot):

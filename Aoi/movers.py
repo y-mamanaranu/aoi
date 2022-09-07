@@ -235,6 +235,8 @@ class Movers(commands.Cog):
     @commands.Cog.listener()
     async def on_voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
         """Run on member join or leave voice channel."""
+        if before.channel == after.channel:
+            return
 
         # On leave
         if before.channel is not None:
