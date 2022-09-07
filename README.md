@@ -77,7 +77,11 @@ Commands whose name starts with "/set" change parameters.
 | on_raw_reaction_add   | When @Senior adds :emoji: to a message in #Profile, the author of the message receives @Freshman | Any of @Freshman, @Senior and #Profile is `None` | disable |      |     |
 | post_tenki            | Run `/tenki` on 5:00 JST                                                                         | #Tenki is `None`                                 | disable |      |     |
 | on_voice_state_update | When Bot join/leave vocie channel, increase/decrease the user limit                              | adjust? is `False`                               | disable |      |     |
-|                       | Create voice channel automatically and if create_text? create text channel                       | create_voice? is `False`                         | disable |      |     |
+|                       | Automatically create voice channel and if create_text? create text channel in addition           | create_voice? is `False`                         | disable |      |     |
+
+If you use automatic voice channel creation, please be careful of the name of voice channels.
+* `/` is a sign of an automatically created channel.
+* `_` is a sign of a channel to ignore.
 
 ## Generate `requirements.txt`
 If you add a new dependency to Aoi, please update `requirements.txt`.

@@ -7,6 +7,7 @@ from selenium.webdriver.common.by import By
 import datetime
 import discord
 import io
+from PIL import Image
 
 from . import (
     convert_channel_to_mention,
@@ -38,25 +39,92 @@ def get_delta(tzinfo: datetime.timezone = JST):
     return (target.timestamp() - now.timestamp())
 
 
-def get_image():
+async def get_image(interaction: discord.Interaction = None,
+                    select: bool = False,
+                    week: bool = False):
     """"""
     options = webdriver.ChromeOptions()
     options.headless = True
     options.add_argument('--no-sandbox')
     options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--window-size=800,1000")
+    if not week:
+        options.add_argument("--window-size=800,1000")
+    else:
+        options.add_argument("--window-size=700,2200")
     driver = webdriver.Chrome('chromedriver', options=options)
-    # driver.implicitly_wait(10)
 
-    url = "https://tenki.jp"
-    driver.get(url)
-    img = driver.find_element(By.ID, "forecast-map-wrap").screenshot_as_png
+    if not week:
+        url = "https://tenki.jp"
+        driver.get(url)
 
-    # driver.close()
+        if select and interaction:
+            res = driver.find_element(By.ID,
+                                      "forecast-public-date-entries").find_elements(By.TAG_NAME, "a")
 
-    f = io.BytesIO(img)
-    f.name = "tenki.png"
-    return discord.File(f)
+            class HogeList(discord.ui.View):
+                def __init__(self, args: list):
+                    super().__init__()
+                    self.add_item(HugaList(args))
+
+            class HugaList(discord.ui.Select):
+                def __init__(self, args):
+                    self.args = args
+                    options = []
+                    for item in args:
+                        options.append(
+                            discord.SelectOption(
+                                label=item, description=''))
+
+                    super().__init__(placeholder='', min_values=1, max_values=1, options=options)
+
+                async def callback(self, interaction: discord.Interaction):
+                    i = self.args.index(self.values[0])
+                    driver.execute_script('arguments[0].click();', res[i])
+                    img = driver.find_element(By.ID,
+                                              "forecast-map-wrap").screenshot_as_png
+                    fp = io.BytesIO(img)
+                    fp.name = "tenki.png"
+                    image = discord.File(fp)
+
+                    embed = discord.Embed()
+                    embed.set_author(name="tenki.jp",
+                                     url="https://tenki.jp",
+                                     icon_url="http://static.tenki.jp/images/icon/logo/icon_tenkijp_640_640.png")
+                    await interaction.response.send_message(file=image, embed=embed)
+
+            await interaction.followup.send(view=HogeList([val.text for val in res]))
+            return
+        else:
+            img = driver.find_element(By.ID,
+                                      "forecast-map-wrap").screenshot_as_png
+            fp = io.BytesIO(img)
+    else:
+        url = "https://tenki.jp/week"
+        driver.get(url)
+
+        res = driver.find_elements(By.CLASS_NAME, "week-thisweek-table")
+        img0 = Image.open(io.BytesIO(res[0].screenshot_as_png))
+        img1 = Image.open(io.BytesIO(res[1].screenshot_as_png))
+
+        img = Image.new('RGB', (max(img0.width, img1.width),
+                        img0.height + img1.height))
+        img.paste(img0, (0, 0))
+        img.paste(img1, (0, img0.height))
+
+        fp = io.BytesIO()
+        img.save(fp, format="png")
+        fp.seek(0)
+
+    fp.name = "tenki.png"
+    image = discord.File(fp)
+    if interaction is None:
+        return image
+    else:
+        embed = discord.Embed()
+        embed.set_author(name="tenki.jp",
+                         url="https://tenki.jp",
+                         icon_url="http://static.tenki.jp/images/icon/logo/icon_tenkijp_640_640.png")
+        await interaction.followup.send(file=image, embed=embed)
 
 
 class Tenki_JP(commands.Cog):
@@ -66,7 +134,7 @@ class Tenki_JP(commands.Cog):
     @tasks.loop(hours=24)
     async def post_tenki(self):
         """"""
-        image = get_image()
+        image = await get_image()
         embed = discord.Embed()
         embed.set_author(name="tenki.jp",
                          url="https://tenki.jp",
@@ -80,24 +148,28 @@ class Tenki_JP(commands.Cog):
 
     @app_commands.command()
     @help_command()
-    async def tenki(self, interaction: discord.Interaction, help: bool = False):
+    async def tenki(self,
+                    interaction: discord.Interaction,
+                    select: bool = False,
+                    week: bool = False,
+                    help: bool = False):
         """Post weather forecast of tenki.jp.
 
         Parameters
         ----------
         interaction : discord.Interaction
             _description_
+        select : bool, optional
+            Wheter to select day to show, by default False
+        week : bool, optional
+            Wheter to show weekly forecast instead, by default False
         help : bool, optional
             Wether to show help instead, by default False
         """
         await interaction.response.defer()
-        image = get_image()
-
-        embed = discord.Embed()
-        embed.set_author(name="tenki.jp",
-                         url="https://tenki.jp",
-                         icon_url="http://static.tenki.jp/images/icon/logo/icon_tenkijp_640_640.png")
-        await interaction.followup.send(file=image, embed=embed)
+        await get_image(interaction=interaction,
+                        select=select,
+                        week=week)
 
     @app_commands.command()
     @app_commands.describe(tenki=_T('Weather forecast channel, empty for disable.'))
