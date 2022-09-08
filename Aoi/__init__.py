@@ -15,8 +15,8 @@ def help_command():
         async def wrapper(*args, **kwargs):
             if kwargs.get("help"):
                 interaction: discord.Interaction = args[i]
-                help = pydoc.render_doc(func)
-                await interaction.response.send_message(help)
+                embed = discord.Embed(description=pydoc.render_doc(func))
+                await interaction.response.send_message(embed=embed)
             else:
                 return await func(*args, **kwargs)
         return wrapper
@@ -34,7 +34,8 @@ def has_permission(**kwargs):
             interaction: discord.Interaction = args[i]
             actual = dict(iter(interaction.user.guild_permissions))
             if not all([actual[key] for key in required.keys()]):
-                return await interaction.response.send_message(f"Previlage is required: {', '.join(required.keys())}.")
+                return await interaction.response.send_message(f"Previlage is required: {', '.join(required.keys())}.",
+                                                               ephemeral=True)
             else:
                 return await func(*args, **kwargs)
         return wrapper
