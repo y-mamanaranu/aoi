@@ -6,6 +6,8 @@ from emoji import demojize
 import asyncio
 import discord
 import random
+import re
+import numpy as np
 
 from . import (
     convert_channel_to_mention,
@@ -29,6 +31,20 @@ def create_embed(message: discord.Message) -> discord.Embed:
     embed.set_author(name=message.author.nick or message.author.name,
                      icon_url=message.author.avatar)
     return embed
+
+
+def calc_level(sec: int) -> int:
+    """Level `n` requires `2**(n-1)` hours."""
+    hour = np.clip(sec // 3600, 0.5, None)
+    return int(1 + np.log2(hour) // 1)
+
+
+def calc_hour(level: int) -> int:
+    """Level `n` requires `2**(n-1)` hours."""
+    if level <= 0:
+        return 0
+    else:
+        return 2**(level - 1)
 
 
 class Profiles(commands.Cog):
@@ -163,6 +179,7 @@ twitter account is {AUTH}.""",
         help : bool, optional
             _description_, by default False
         """
+        await interaction.response.defer()
 
         if channel is None:
             channel = interaction.channel
@@ -181,9 +198,14 @@ twitter account is {AUTH}.""",
         elif NUM > num:
             messages = random.sample(messages, num)
 
-        await interaction.response.send_message(embed=create_embed(messages[0]), ephemeral=True)
-        for message in messages[1:]:
-            await interaction.followup.send(embed=create_embed(message), ephemeral=True)
+        def extract_url(message):
+            return "\n".join(re.findall(
+                "https?://[0-9a-zA-Z/:%#\\$&\\?\\(\\)~\\.=\\+\\-]+", message))
+
+        message: discord.Message
+        for message in messages:
+            await interaction.followup.send(extract_url(message.content),
+                                            embed=create_embed(message), ephemeral=False)
 
     @app_commands.command()
     @help_command()

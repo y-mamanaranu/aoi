@@ -29,6 +29,16 @@ def init_db(DATABASE_URL):
                 twitter_template text,
                 twitter_access_token text,
                 twitter_access_token_secret text,
+                if_level boolean DEFAULT false,
+                );""")
+
+            if ('user_table',) not in res:
+                cur.execute("""CREATE TABLE user_table (
+                guild_id bigint NOT NULL,
+                member_id bigint NOT NULL,
+                last_join bigint DEFAULT 0,
+                last_leave bigint DEFAULT 0,
+                total bigint DEFAULT 0
                 );""")
 
 
@@ -117,6 +127,19 @@ def get_log_id(DATABASE_URL, GUILD_ID):
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute("""SELECT log_id
+            FROM reactedrole
+            WHERE guild_id = %s;""",
+                        (GUILD_ID,))
+            res = cur.fetchone()
+
+    return res[0]
+
+
+def get_if_level(DATABASE_URL, GUILD_ID) -> bool:
+    """Get if_level from database."""
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""SELECT if_level
             FROM reactedrole
             WHERE guild_id = %s;""",
                         (GUILD_ID,))
