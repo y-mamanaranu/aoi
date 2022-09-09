@@ -291,10 +291,11 @@ class Movers(commands.Cog):
                                                        move_members=True)
 
                         embed = discord.Embed(
-                            description=new_chan.mention)
+                            description=f"{new_chan.mention} [[Click Here]]({new_chan.jump_url})")
                         embed.set_author(name=f"{member.display_name} - create",
                                          icon_url=member.display_avatar)
-                        await text_chann.send(embed=embed)
+                        message = await text_chann.send(embed=embed)
+                        await message.pin()
 
                     for member in vocie_chann.members:
                         await member.move_to(new_chan)
