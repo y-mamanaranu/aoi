@@ -9,6 +9,7 @@ import re
 from . import (
     get_database_url,
     help_command,
+    SearchText
 )
 from .database import (
     get_if_adjust,
@@ -19,19 +20,6 @@ from .database import (
 
 
 DATABASE_URL = get_database_url()
-
-
-class SearchText(object):
-    def __init__(self, value, flags=0):
-        self.pattern = re.compile(value, flags=flags)
-
-    def __eq__(self, value: str):
-        if isinstance(value, str):
-            return bool(self.pattern.search(value))
-        if isinstance(value, self.__class__):
-            return self.pattern == value.pattern
-        else:
-            return False
 
 
 class Movers(commands.Cog):
@@ -254,7 +242,7 @@ class Movers(commands.Cog):
         await channel.edit(name=f"{name} / {owner}")
         if if_create_text:
             text_chann = get(interaction.guild.text_channels,
-                             topic=SearchText(f"^Aoi - {channel.id}&\\d+$"))
+                             topic=SearchText(f"^Aoi - {channel.mention}&<@\\d+>$"))
             await text_chann.edit(name=f"{name}-{owner}")
         await interaction.followup.send(f"{channel.mention} is renamed.")
 
@@ -276,8 +264,8 @@ class Movers(commands.Cog):
                 "Change create_text? `True` to use this command.")
 
         text_chann = get(vocie_chann.guild.text_channels,
-                         topic=SearchText(f"^Aoi - {vocie_chann.id}&\\d+$"))
-        owner_id = int(re.match(f"^Aoi - {vocie_chann.id}&(\\d+)$",
+                         topic=SearchText(f"^Aoi - {vocie_chann.mention}&<@\\d+>$"))
+        owner_id = int(re.match(f"^Aoi - {vocie_chann.mention}&<@(\\d+)>$",
                                 text_chann.topic).group(1))
         owner = get(vocie_chann.members, id=owner_id)
         if owner is not None:
@@ -297,7 +285,7 @@ class Movers(commands.Cog):
         await message.pin()
         await vocie_chann.set_permissions(new_owner,
                                           move_members=True)
-        await text_chann.edit(topic=f"Aoi - {vocie_chann.id}&{new_owner.id}")
+        await text_chann.edit(topic=f"Aoi - {vocie_chann.mention}&{new_owner.mention}")
 
     async def sub_create_voice(self,
                                member: discord.Member,
@@ -310,7 +298,7 @@ class Movers(commands.Cog):
             if vocie_chann.name.count("/"):
                 if if_create_text:
                     text_chann = get(vocie_chann.guild.text_channels,
-                                     topic=SearchText(f"^Aoi - {vocie_chann.id}&\\d+$"))
+                                     topic=SearchText(f"^Aoi - {vocie_chann.mention}&<@\\d+>$"))
                     if len(vocie_chann.members) > 1:
                         await text_chann.set_permissions(member,
                                                          overwrite=discord.PermissionOverwrite(read_messages=True))
@@ -338,7 +326,7 @@ class Movers(commands.Cog):
                                 read_messages=True),
                         }
                         text_chann = await vocie_chann.guild.create_text_channel(name=f"{name}-{owner}",
-                                                                                 topic=f"Aoi - {new_chan.id}&{member.id}",
+                                                                                 topic=f"Aoi - {new_chan.mention}&{member.mention}",
                                                                                  overwrites=overwrites,
                                                                                  category=new_chan.category)
                         await new_chan.send(f"Please use {text_chann.mention}")
@@ -351,6 +339,28 @@ class Movers(commands.Cog):
                                          icon_url=member.display_avatar)
                         message = await text_chann.send(embed=embed)
                         await message.pin()
+
+                    notify_chann = get(vocie_chann.guild.text_channels,
+                                       topic=SearchText(f"^Aoi = {vocie_chann.mention}: .*$", flags=re.MULTILINE))
+                    if notify_chann is not None:
+                        match = re.search(f"^Aoi = {vocie_chann.mention}: (.*)$",
+                                          notify_chann.topic,
+                                          flags=re.MULTILINE)
+                        if match:
+                            text = match.group(1).strip()
+
+                            embed = discord.Embed()
+                            embed.set_author(name=f"{member.display_name}",
+                                             icon_url=member.display_avatar)
+                            if vocie_chann.category is not None:
+                                embed.add_field(name="Category",
+                                                value=vocie_chann.category,
+                                                inline=True)
+                            embed.add_field(name="Channel",
+                                            value=f"{new_chan.mention} [[Click Here]]({new_chan.jump_url})",
+                                            inline=True)
+                            await notify_chann.send(text if len(text) else None,
+                                                    embed=embed)
 
                     for member in vocie_chann.members:
                         await member.move_to(new_chan)
@@ -367,7 +377,7 @@ class Movers(commands.Cog):
                 vocie_chann.name.count("/"):
             if if_create_text:
                 text_chann = get(vocie_chann.guild.text_channels,
-                                 topic=SearchText(f"^Aoi - {vocie_chann.id}&\\d+$"))
+                                 topic=SearchText(f"^Aoi - {vocie_chann.mention}&<@\\d+>$"))
                 await text_chann.set_permissions(member,
                                                  overwrite=None)
                 await vocie_chann.set_permissions(member,

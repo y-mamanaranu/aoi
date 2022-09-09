@@ -4,6 +4,7 @@ from discord.ext import commands
 from Aoi import (
     get_token,
     get_database_url,
+    get_delta
 )
 from Aoi.database import (
     init_db,
@@ -14,7 +15,6 @@ from Aoi.database import (
 from Aoi.translator import Translator
 from logging import getLogger, INFO, StreamHandler
 # from logging import DEBUG
-from Aoi.tenki_jp import get_delta
 
 # Setup logging
 logger_level = INFO

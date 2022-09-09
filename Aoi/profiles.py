@@ -7,7 +7,6 @@ import asyncio
 import discord
 import random
 import re
-import numpy as np
 
 from . import (
     convert_channel_to_mention,
@@ -15,6 +14,7 @@ from . import (
     get_database_url,
     help_command,
     has_permission,
+    create_embed,
 )
 from .database import (
     get_pre_pro_log_fre_sen_emo_ten_lim_adj_mov_icv_ict_tt,
@@ -24,27 +24,6 @@ from .database import (
 )
 
 DATABASE_URL = get_database_url()
-
-
-def create_embed(message: discord.Message) -> discord.Embed:
-    embed = discord.Embed(description=message.content)
-    embed.set_author(name=message.author.nick or message.author.name,
-                     icon_url=message.author.avatar)
-    return embed
-
-
-def calc_level(sec: int) -> int:
-    """Level `n` requires `2**(n-1)` hours."""
-    hour = np.clip(sec // 3600, 0.5, None)
-    return int(1 + np.log2(hour) // 1)
-
-
-def calc_hour(level: int) -> int:
-    """Level `n` requires `2**(n-1)` hours."""
-    if level <= 0:
-        return 0
-    else:
-        return 2**(level - 1)
 
 
 class Profiles(commands.Cog):
