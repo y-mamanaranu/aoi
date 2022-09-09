@@ -105,6 +105,11 @@ If you use automatic voice channel creation, please be careful of the name of vo
 
 Level `n` requires `2 ** (n-1)` hours.
 
+If you need notification on channel creation,
+* Set the topic of "Aoi = <#channel_id>: " to where you want to notify.
+* You can add a custom message with "Aoi = <#channel_id>: What you want to notify."
+* If you want to mention, you have to use id: "Aoi = <#channel_id>: <@&role_id> We start a conversation!"
+
 ## Generate `requirements.txt`
 If you add a new dependency to Aoi, please update `requirements.txt`.
 

@@ -4,6 +4,10 @@ import pydoc
 import inspect
 from functools import wraps
 import discord
+import numpy as np
+import datetime
+
+JST = datetime.timezone(datetime.timedelta(hours=9), name='JST')
 
 
 def help_command():
@@ -111,3 +115,52 @@ def get_twitter_consumer_key():
 def get_twitter_consumer_secret():
     """Get twitter_consumer_secret of Twitter."""
     return os.environ["TWITTER_CONSUMER_SECRET"]
+
+
+class SearchText(object):
+    def __init__(self, value, flags=0):
+        self.pattern = re.compile(value, flags=flags)
+
+    def __eq__(self, value: str):
+        if isinstance(value, str):
+            return bool(self.pattern.search(value))
+        if isinstance(value, self.__class__):
+            return self.pattern == value.pattern
+        else:
+            return False
+
+
+def create_embed(message: discord.Message) -> discord.Embed:
+    embed = discord.Embed(description=message.content)
+    embed.set_author(name=message.author.nick or message.author.name,
+                     icon_url=message.author.avatar)
+    return embed
+
+
+def calc_level(sec: int) -> int:
+    """Level `n` requires `2**(n-1)` hours."""
+    hour = np.clip(sec // 3600, 0.5, None)
+    return int(1 + np.log2(hour) // 1)
+
+
+def calc_hour(level: int) -> int:
+    """Level `n` requires `2**(n-1)` hours."""
+    if level <= 0:
+        return 0
+    else:
+        return 2**(level - 1)
+
+
+def get_delta(tzinfo: datetime.timezone = JST):
+    """"""
+    now = datetime.datetime.now(tzinfo)
+    target = datetime.datetime(now.year,
+                               now.month,
+                               now.day + int(now.hour >= 5),
+                               5,
+                               0,
+                               0,
+                               tzinfo=tzinfo)
+    print(f"Now: {now}.")
+    print(f"Target: {target}.")
+    return (target.timestamp() - now.timestamp())
