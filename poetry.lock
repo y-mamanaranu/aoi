@@ -491,7 +491,7 @@ python-versions = ">=3.5"
 name = "numpy"
 version = "1.23.2"
 description = "NumPy is the fundamental package for array computing with Python."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.8"
 
@@ -1014,7 +1014,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "d223219fe1356ed78a1817502a1795fe71e824c8dacd57efef420d4876d74726"
+content-hash = "3c4d05ce14e73b7a8dd2e859ebea8483f5f72132ab02675a5c847988118193b0"
 
 [metadata.files]
 aiohttp = [
