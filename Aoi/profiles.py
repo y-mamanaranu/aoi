@@ -153,6 +153,43 @@ twitter account is {AUTH}.""",
             await interaction.response.send_message("No profile is found.")
             return
 
+    async def sub_random(self,
+                         interaction: discord.Interaction,
+                         user: discord.User = None,
+                         channel: discord.TextChannel = None,
+                         num: int = 1,
+                         url_only: bool = True,
+                         help: bool = False):
+        await interaction.response.defer()
+
+        if channel is None:
+            channel = interaction.channel
+
+        messages = [message async for message in channel.history(limit=200)]
+
+        if user is not None:
+            def func(message: discord.Message) -> bool:
+                return message.author == user
+            messages = list(filter(func, messages))
+
+        if url_only:
+            def func(message: discord.Message) -> bool:
+                return bool(re.search("https?://[0-9a-zA-Z/:%#\\$&\\?\\(\\)~\\.=\\+\\-]+",
+                                      message.content))
+            messages = list(filter(func, messages))
+
+        NUM = len(messages)
+        if NUM == 0:
+            await interaction.response.send_message(
+                "No message is found.", ephemeral=True)
+            return
+        elif NUM > num:
+            messages = random.sample(messages, num)
+
+        message: discord.Message
+        for message in messages:
+            await interaction.followup.send(embed=create_embed(message), ephemeral=False)
+
     @app_commands.command()
     @app_commands.describe(user=_T('@User'), channel=_T('#TextChannel'))
     @help_command()
@@ -161,6 +198,7 @@ twitter account is {AUTH}.""",
                      user: discord.User = None,
                      channel: discord.TextChannel = None,
                      num: int = 1,
+                     url_only: bool = True,
                      help: bool = False):
         """Show message randomly.
 
@@ -176,36 +214,49 @@ twitter account is {AUTH}.""",
             If `None`, the channel where command used.
         num : int, optional
             Number of message to show, by default 1
+        url_only: bool, optional
+            Show only message contains URL.
         help : bool, optional
             _description_, by default False
         """
-        await interaction.response.defer()
+        await self.sub_random(interaction,
+                              user=user,
+                              channel=channel,
+                              num=num,
+                              url_only=url_only,
+                              help=help)
 
-        if channel is None:
-            channel = interaction.channel
+    @app_commands.command()
+    @app_commands.describe(channel=_T('#TextChannel'))
+    @help_command()
+    async def random_me(self,
+                        interaction: discord.Interaction,
+                        channel: discord.TextChannel = None,
+                        num: int = 1,
+                        url_only: bool = True,
+                        help: bool = False):
+        """Run `/radom user:@Me`.
 
-        messages = [message async for message in channel.history(limit=200)]
-
-        if user is not None:
-            def func(message): return message.author == user
-            messages = [val for val in filter(func, messages)]
-
-        NUM = len(messages)
-        if NUM == 0:
-            await interaction.response.send_message(
-                "No message is found.", ephemeral=True)
-            return
-        elif NUM > num:
-            messages = random.sample(messages, num)
-
-        def extract_url(message):
-            return "\n".join(re.findall(
-                "https?://[0-9a-zA-Z/:%#\\$&\\?\\(\\)~\\.=\\+\\-]+", message))
-
-        message: discord.Message
-        for message in messages:
-            await interaction.followup.send(extract_url(message.content),
-                                            embed=create_embed(message), ephemeral=False)
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            _description_
+        channel : discord.TextChannel, optional
+            Channel where message is taken from, by default None
+            If `None`, the channel where command used.
+        num : int, optional
+            Number of message to show, by default 1
+        url_only: bool, optional
+            Show only message contains URL.
+        help : bool, optional
+            _description_, by default False
+        """
+        await self.sub_random(interaction,
+                              user=interaction.user,
+                              channel=channel,
+                              num=num,
+                              url_only=url_only,
+                              help=help)
 
     @app_commands.command()
     @help_command()
