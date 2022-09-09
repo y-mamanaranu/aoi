@@ -180,15 +180,21 @@ twitter account is {AUTH}.""",
 
         NUM = len(messages)
         if NUM == 0:
-            await interaction.response.send_message(
+            await interaction.followup.send(
                 "No message is found.", ephemeral=True)
             return
         elif NUM > num:
             messages = random.sample(messages, num)
 
+        def extract_url(message: discord.Message) -> str:
+            return "\n".join(re.findall(
+                "https?://[0-9a-zA-Z/:%#\\$&\\?\\(\\)~\\.=\\+\\-]+", message.content))
+
         message: discord.Message
         for message in messages:
-            await interaction.followup.send(embed=create_embed(message), ephemeral=False)
+            await interaction.followup.send(extract_url(message),
+                                            embed=create_embed(message),
+                                            ephemeral=False)
 
     @app_commands.command()
     @app_commands.describe(user=_T('@User'), channel=_T('#TextChannel'))
