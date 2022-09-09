@@ -242,9 +242,28 @@ class Movers(commands.Cog):
                 owner: discord.Member = members[0]
 
         if owner is not None:
-            await interaction.response.send_message(
-                f"{owner.mention} is already owner.")
-            return
+            if vocie_chann.permissions_for(owner).manage_channels:
+                await interaction.response.send_message(
+                    f"{owner.mention} is already owner.")
+                return
+            else:
+                embed = discord.Embed()
+                embed.set_author(name=f"{owner.display_name} - rebecome owner",
+                                 icon_url=owner.display_avatar)
+                message = await text_chann.send(embed=embed)
+                if if_create_text:
+                    await message.pin()
+                await vocie_chann.set_permissions(owner,
+                                                  move_members=True,
+                                                  manage_channels=True)
+                if if_create_text and text_chann:
+                    await text_chann.set_permissions(owner,
+                                                     read_messages=True,
+                                                     manage_channels=True)
+
+                await interaction.response.send_message(
+                    f"{owner.mention} rebecome owner.")
+                return
 
         def func(member: discord.Member):
             return not member.bot
