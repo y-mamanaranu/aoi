@@ -1,3 +1,4 @@
+from distutils.dir_util import create_tree
 from discord import app_commands
 from discord.app_commands import locale_str as _T
 from discord.ext import commands
@@ -210,82 +211,61 @@ class Movers(commands.Cog):
             return
 
     @app_commands.command()
-    @app_commands.describe(name=_T("New name."))
-    @help_command()
-    async def rename(self, interaction: discord.Interaction, name: str, help: bool = False):
-        """Rename auto created channel.
-
-        Parameters
-        ----------
-        interaction : discord.Interaction
-            _description_
-        name : str
-            _description_
-        help : bool, optional
-            Wether to show help instead, by default False
-        """
-        channel = interaction.user.voice.channel
-        GUILD_ID = interaction.guild_id
-
-        if channel is None:
-            await interaction.response.send_message("You do not join voice channel.")
-            return
-
-        if_create_voice, if_create_text = get_icv_ict(DATABASE_URL, GUILD_ID)
-
-        if not if_create_voice or not channel.name.count("/"):
-            await interaction.response.send_message("`/rename` is only valid for automatically created channel.")
-            return
-
-        await interaction.response.defer()
-        _, owner = channel.name.split("/")
-        await channel.edit(name=f"{name} / {owner}")
-        if if_create_text:
-            text_chann = get(interaction.guild.text_channels,
-                             topic=SearchText(f"^Aoi - {channel.mention}&<@\\d+>$"))
-            await text_chann.edit(name=f"{name}-{owner}")
-        await interaction.followup.send(f"{channel.mention} is renamed.")
-
-    @app_commands.command()
     @app_commands.describe()
     @help_command()
     async def need_owner(self, interaction: discord.Interaction, help: bool = False):
         vocie_chann = interaction.user.voice.channel
         if vocie_chann is None or not vocie_chann.name.count("/"):
-            interaction.response.send_message(
+            await interaction.response.send_message(
                 "You doesn't join auto created channel.")
             return
 
         GUILD_ID = interaction.guild_id
         _, if_create_text = get_icv_ict(DATABASE_URL,
                                         GUILD_ID)
-        if not if_create_text:
-            interaction.response.send_message(
-                "Change create_text? `True` to use this command.")
+        if if_create_text:
+            text_chann = get(vocie_chann.guild.text_channels,
+                             topic=SearchText(f"^Aoi - {vocie_chann.mention}&<@\\d+>$"))
+            owner_id = int(re.match(f"^Aoi - {vocie_chann.mention}&<@(\\d+)>$",
+                                    text_chann.topic).group(1))
+            owner = get(vocie_chann.members, id=owner_id)
+        else:
+            text_chann = vocie_chann
+            owner = None
 
-        text_chann = get(vocie_chann.guild.text_channels,
-                         topic=SearchText(f"^Aoi - {vocie_chann.mention}&<@\\d+>$"))
-        owner_id = int(re.match(f"^Aoi - {vocie_chann.mention}&<@(\\d+)>$",
-                                text_chann.topic).group(1))
-        owner = get(vocie_chann.members, id=owner_id)
+        if owner is None:
+            def func(member: discord.Member):
+                return vocie_chann.permissions_for(member).manage_channels
+
+            members = list(filter(func, vocie_chann.members))
+            if len(members):
+                owner: discord.Member = members[0]
+
         if owner is not None:
-            interaction.response.send_message(
+            await interaction.response.send_message(
                 f"{owner.mention} is already owner.")
             return
 
         def func(member: discord.Member):
             return not member.bot
         members = list(filter(func, vocie_chann.members))
-
         new_owner: discord.Member = members[0]
+
         embed = discord.Embed()
         embed.set_author(name=f"{new_owner.display_name} - become owner",
                          icon_url=new_owner.display_avatar)
         message = await text_chann.send(embed=embed)
-        await message.pin()
+        if if_create_text:
+            await message.pin()
         await vocie_chann.set_permissions(new_owner,
-                                          move_members=True)
-        await text_chann.edit(topic=f"Aoi - {vocie_chann.mention}&{new_owner.mention}")
+                                          move_members=True,
+                                          manage_channels=True)
+        if if_create_text and text_chann:
+            await text_chann.set_permissions(new_owner,
+                                             read_messages=True,
+                                             manage_channels=True)
+        await interaction.response.send_message(
+            f"{new_owner.mention} become owner.")
 
     async def sub_create_voice(self,
                                member: discord.Member,
@@ -330,14 +310,23 @@ class Movers(commands.Cog):
                                                                                  overwrites=overwrites,
                                                                                  category=new_chan.category)
                         await new_chan.send(f"Please use {text_chann.mention}")
-                        await new_chan.set_permissions(member,
-                                                       move_members=True)
+                    else:
+                        text_chann = new_chan
 
-                        embed = discord.Embed(
-                            description=f"{new_chan.mention} [[Click Here]]({new_chan.jump_url})")
-                        embed.set_author(name=f"{member.display_name} - create",
-                                         icon_url=member.display_avatar)
-                        message = await text_chann.send(embed=embed)
+                    await new_chan.set_permissions(member,
+                                                   move_members=True,
+                                                   manage_channels=True)
+                    if if_create_text and text_chann:
+                        await text_chann.set_permissions(member,
+                                                         read_messages=True,
+                                                         manage_channels=True)
+
+                    embed = discord.Embed(
+                        description=f"{new_chan.mention} [[Click Here]]({new_chan.jump_url})")
+                    embed.set_author(name=f"{member.display_name} - create",
+                                     icon_url=member.display_avatar)
+                    message = await text_chann.send(embed=embed)
+                    if if_create_text:
                         await message.pin()
 
                     notify_chann = get(vocie_chann.guild.text_channels,
