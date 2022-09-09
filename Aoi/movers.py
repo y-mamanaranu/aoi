@@ -378,8 +378,9 @@ class Movers(commands.Cog):
             if if_create_text:
                 text_chann = get(vocie_chann.guild.text_channels,
                                  topic=SearchText(f"^Aoi - {vocie_chann.mention}&<@\\d+>$"))
-                await text_chann.set_permissions(member,
-                                                 overwrite=None)
+                if text_chann:
+                    await text_chann.set_permissions(member,
+                                                     overwrite=None)
                 await vocie_chann.set_permissions(member,
                                                   overwrite=None)
             else:
@@ -387,14 +388,15 @@ class Movers(commands.Cog):
                 await text_chann.set_permissions(member,
                                                  overwrite=None)
 
-            embed = discord.Embed()
-            embed.set_author(name=f"{member.display_name} - left",
-                             icon_url=member.display_avatar)
-            await text_chann.send(embed=embed)
+            if text_chann:
+                embed = discord.Embed()
+                embed.set_author(name=f"{member.display_name} - left",
+                                 icon_url=member.display_avatar)
+                await text_chann.send(embed=embed)
 
             if len(vocie_chann.members) == 0:
                 await vocie_chann.delete()
-                if if_create_text:
+                if if_create_text and text_chann:
                     await text_chann.delete()
 
     async def sub_adjust_voice(self,
