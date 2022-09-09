@@ -4,6 +4,7 @@ from discord.ext import commands
 import discord
 import random
 from discord.utils import get
+import re
 
 from . import (
     get_database_url,
@@ -18,6 +19,19 @@ from .database import (
 
 
 DATABASE_URL = get_database_url()
+
+
+class SearchText(object):
+    def __init__(self, value, flags=0):
+        self.pattern = re.compile(value, flags=flags)
+
+    def __eq__(self, value: str):
+        if isinstance(value, str):
+            return bool(self.pattern.search(value))
+        if isinstance(value, self.__class__):
+            return self.pattern == value.pattern
+        else:
+            return False
 
 
 class Movers(commands.Cog):
@@ -240,9 +254,50 @@ class Movers(commands.Cog):
         await channel.edit(name=f"{name} / {owner}")
         if if_create_text:
             text_chann = get(interaction.guild.text_channels,
-                             topic=f"Aoi - {channel.id}")
+                             topic=SearchText(f"^Aoi - {channel.id}&\\d+$"))
             await text_chann.edit(name=f"{name}-{owner}")
         await interaction.followup.send(f"{channel.mention} is renamed.")
+
+    @app_commands.command()
+    @app_commands.describe()
+    @help_command()
+    async def need_owner(self, interaction: discord.Interaction, help: bool = False):
+        vocie_chann = interaction.user.voice.channel
+        if vocie_chann is None or not vocie_chann.name.count("/"):
+            interaction.response.send_message(
+                "You doesn't join auto created channel.")
+            return
+
+        GUILD_ID = interaction.guild_id
+        _, if_create_text = get_icv_ict(DATABASE_URL,
+                                        GUILD_ID)
+        if not if_create_text:
+            interaction.response.send_message(
+                "Change create_text? `True` to use this command.")
+
+        text_chann = get(vocie_chann.guild.text_channels,
+                         topic=SearchText(f"^Aoi - {vocie_chann.id}&\\d+$"))
+        owner_id = int(re.match(f"^Aoi - {vocie_chann.id}&(\\d+)$",
+                                text_chann.topic).group(1))
+        owner = get(vocie_chann.members, id=owner_id)
+        if owner is not None:
+            interaction.response.send_message(
+                f"{owner.mention} is already owner.")
+            return
+
+        def func(member: discord.Member):
+            return not member.bot
+        members = list(filter(func, vocie_chann.members))
+
+        new_owner: discord.Member = members[0]
+        embed = discord.Embed()
+        embed.set_author(name=f"{new_owner.display_name} - become owner",
+                         icon_url=new_owner.display_avatar)
+        message = await text_chann.send(embed=embed)
+        await message.pin()
+        await vocie_chann.set_permissions(new_owner,
+                                          move_members=True)
+        await text_chann.edit(topic=f"Aoi - {vocie_chann.id}&{new_owner.id}")
 
     async def sub_create_voice(self,
                                member: discord.Member,
@@ -255,7 +310,7 @@ class Movers(commands.Cog):
             if vocie_chann.name.count("/"):
                 if if_create_text:
                     text_chann = get(vocie_chann.guild.text_channels,
-                                     topic=f"Aoi - {vocie_chann.id}")
+                                     topic=SearchText(f"^Aoi - {vocie_chann.id}&\\d+$"))
                     if len(vocie_chann.members) > 1:
                         await text_chann.set_permissions(member,
                                                          overwrite=discord.PermissionOverwrite(read_messages=True))
@@ -283,7 +338,7 @@ class Movers(commands.Cog):
                                 read_messages=True),
                         }
                         text_chann = await vocie_chann.guild.create_text_channel(name=f"{name}-{owner}",
-                                                                                 topic=f"Aoi - {new_chan.id}",
+                                                                                 topic=f"Aoi - {new_chan.id}&{member.id}",
                                                                                  overwrites=overwrites,
                                                                                  category=new_chan.category)
                         await new_chan.send(f"Please use {text_chann.mention}")
@@ -312,7 +367,7 @@ class Movers(commands.Cog):
                 vocie_chann.name.count("/"):
             if if_create_text:
                 text_chann = get(vocie_chann.guild.text_channels,
-                                 topic=f"Aoi - {vocie_chann.id}")
+                                 topic=SearchText(f"^Aoi - {vocie_chann.id}&\\d+$"))
                 await text_chann.set_permissions(member,
                                                  overwrite=None)
                 await vocie_chann.set_permissions(member,
