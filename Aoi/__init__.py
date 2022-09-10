@@ -1,3 +1,4 @@
+from __future__ import annotations
 import os
 import re
 import pydoc
@@ -130,13 +131,6 @@ class SearchText(object):
             return False
 
 
-def create_embed(message: discord.Message) -> discord.Embed:
-    embed = discord.Embed(description=message.content)
-    embed.set_author(name=message.author.nick or message.author.name,
-                     icon_url=message.author.avatar)
-    return embed
-
-
 def calc_level(sec: int) -> int:
     """Level `n` requires `2**(n-1)` hours."""
     hour = np.clip(sec // 3600, 0.5, None)
@@ -164,3 +158,93 @@ def get_delta(tzinfo: datetime.timezone = JST):
     print(f"Now: {now}.")
     print(f"Target: {target}.")
     return (target.timestamp() - now.timestamp())
+
+
+class Custum_Parser(object):
+    def __init__(self, prefix: str, suffix: str):
+        self.prefix = prefix
+        self.suffix = suffix
+
+    @classmethod
+    def from_string(cls, setting: str) -> Custum_Parser:
+        setting = setting.strip()
+        res = re.match("^(.*)__key__(.*)__value__$", setting)
+        if res is None:
+            return None
+        else:
+            return Custum_Parser(*res.groups())
+
+    def load(self, text: str) -> dict:
+        """Load `text` as `dict`.
+
+        Parameters
+        ----------
+        text : str
+            _description_
+
+        Returns
+        -------
+        dict
+            _description_
+
+        Sample
+        ------
+        setting="<prefix>__key__<suffix>__value__"
+
+        sample=```<prefix>key1<suffix>value1
+        <prefix>key2<suffix>value2
+        <prefix>key3<suffix>value3
+        <prefix>key_multiline1<suffix>value_multiline1-1
+        value_multiline1-2
+        value_multiline1-3
+        <prefix>key_multiline2<suffix>value_multiline2-1
+        value_multiline2-2
+        value_multiline2-3
+        ```
+
+        p = Custum_Parser.from_string(setting)
+        p.load(sample)
+        > {'key1': 'value1',
+        >  'key2': 'value2',
+        >  'key3': 'value3',
+        >  'key_multiline1': 'value_multiline1-1\nvalue_multiline1-2\nvalue_multiline1-3',
+        >  'key_multiline2': 'value_multiline2-1\nvalue_multiline2-2\nvalue_multiline2-3'}
+        ```
+        """
+        text.strip()
+        res = {}
+        # 0: reading key
+        # 1: reading value
+        mode = 0
+        buff = 0
+        key = None
+        # intial
+        if text.startswith(self.prefix):
+            mode = 0
+            buff = buff + len(self.prefix)
+        else:
+            return "E"
+
+        while buff < len(text):
+            if mode == 0:
+                m = re.search(f"(.*?){self.suffix}", text[buff:])
+                if m:
+                    mode = 1
+                    buff = buff + m.end()
+                    key = m.group(1)
+                else:
+                    print(res)
+                    return None
+            elif mode == 1:
+                m = re.search(f"(.*?){self.prefix}",
+                              text[buff:], flags=re.DOTALL)
+                mode = 0
+                if m:
+                    res[key] = m.group(1).strip()
+                    buff = buff + m.end()
+                else:
+                    res[key] = text[buff:].strip()
+                    buff = len(text)
+                key = None
+
+        return res

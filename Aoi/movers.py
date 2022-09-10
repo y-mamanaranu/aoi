@@ -91,8 +91,7 @@ class Movers(commands.Cog):
         if voice_channel is None:
             voice_channel = interaction.channel
 
-        members = [
-            member for member in origin.members if not member.bot]
+        members = [member for member in origin.members if not member.bot]
         members = random.sample(members, len(members))
         members1 = members[:len(members) // 2]
         members2 = members[len(members) // 2:]
@@ -235,7 +234,8 @@ class Movers(commands.Cog):
 
         if owner is None:
             def func(member: discord.Member):
-                return vocie_chann.permissions_for(member).manage_channels
+                return vocie_chann.permissions_for(
+                    member).manage_channels and not member.bots
 
             members = list(filter(func, vocie_chann.members))
             if len(members):

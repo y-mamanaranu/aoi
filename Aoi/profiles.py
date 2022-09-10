@@ -1,3 +1,4 @@
+from os import link
 from discord import app_commands
 from discord.app_commands import locale_str as _T
 from discord.ext import commands
@@ -7,6 +8,7 @@ import asyncio
 import discord
 import random
 import re
+import numpy as np
 
 from . import (
     convert_channel_to_mention,
@@ -14,7 +16,6 @@ from . import (
     get_database_url,
     help_command,
     has_permission,
-    create_embed,
 )
 from .database import (
     get_pre_pro_log_fre_sen_emo_ten_lim_adj_mov_icv_ict_tt,
@@ -97,7 +98,10 @@ twitter account is {AUTH}.""",
     @app_commands.command()
     @app_commands.describe(user=_T('@User'))
     @help_command()
-    async def profile(self, interaction: discord.Interaction, user: discord.User, help: bool = False):
+    async def profile(self,
+                      interaction: discord.Interaction,
+                      user: discord.User,
+                      help: bool = False):
         """Show profile of spesific member.
 
         Parameters
@@ -136,10 +140,14 @@ twitter account is {AUTH}.""",
                          interaction: discord.Interaction,
                          user: discord.User = None,
                          channel: discord.TextChannel = None,
+                         filter_: str = None,
                          num: int = 1,
                          url_only: bool = True,
                          help: bool = False):
         await interaction.response.defer()
+
+        if num == 0:
+            num = np.infty
 
         if channel is None:
             channel = interaction.channel
@@ -151,10 +159,26 @@ twitter account is {AUTH}.""",
                 return message.author == user
             messages = list(filter(func, messages))
 
+        def func(message: discord.Message) -> bool:
+            return len(message.content) > 0
+        messages = list(filter(func, messages))
+
         if url_only:
             def func(message: discord.Message) -> bool:
                 return bool(re.search("https?://[0-9a-zA-Z/:%#\\$&\\?\\(\\)~\\.=\\+\\-]+",
                                       message.content))
+            messages = list(filter(func, messages))
+
+        if filter_:
+            filter_ = filter_.strip()
+            if filter_.startswith("-"):
+                filter_ = filter_[1:].strip()
+
+                def func(message: discord.Message) -> bool:
+                    return filter_ not in message.content
+            else:
+                def func(message: discord.Message) -> bool:
+                    return filter_ in message.content
             messages = list(filter(func, messages))
 
         NUM = len(messages)
@@ -170,10 +194,32 @@ twitter account is {AUTH}.""",
                 "https?://[0-9a-zA-Z/:%#\\$&\\?\\(\\)~\\.=\\+\\-]+", message.content))
 
         message: discord.Message
-        for message in messages:
-            await interaction.followup.send(extract_url(message),
-                                            embed=create_embed(message),
-                                            ephemeral=False)
+        authors = list(set([message.author for message in messages]))
+        embed = discord.Embed()
+        if len(authors) == 1:
+            author: discord.Member = authors[0]
+            embed.set_author(name=author.display_name,
+                             icon_url=author.avatar)
+            for message in messages:
+                embed.add_field(name=f"{message.author.display_name}",
+                                value=message.content[:1024],
+                                inline=False)
+        else:
+            embed.set_author(name="Multiple Users",
+                             icon_url=interaction.guild.icon.url)
+            for message in messages:
+                embed.add_field(name=f"{message.author.display_name}",
+                                value=message.content[:1024],
+                                inline=False)
+
+        if len(embed) > 2000:
+            await interaction.followup.send("Too many entry.")
+            return
+
+        # urls = [extract_url(message) for message in messages]
+        # links = "\n\n".join([url for url in urls if len(url) > 0])
+        await interaction.followup.send(embed=embed,
+                                        ephemeral=False)
 
     @app_commands.command()
     @app_commands.describe(user=_T('@User'), channel=_T('#TextChannel'))
@@ -182,6 +228,7 @@ twitter account is {AUTH}.""",
                      interaction: discord.Interaction,
                      user: discord.User = None,
                      channel: discord.TextChannel = None,
+                     filter: str = None,
                      num: int = 1,
                      url_only: bool = True,
                      help: bool = False):
@@ -197,6 +244,8 @@ twitter account is {AUTH}.""",
         channel : discord.TextChannel, optional
             Channel where message is taken from, by default None
             If `None`, the channel where command used.
+        filter : str, optional
+            _description_, by default None
         num : int, optional
             Number of message to show, by default 1
         url_only: bool, optional
@@ -207,6 +256,7 @@ twitter account is {AUTH}.""",
         await self.sub_random(interaction,
                               user=user,
                               channel=channel,
+                              filter_=filter,
                               num=num,
                               url_only=url_only,
                               help=help)
@@ -217,6 +267,7 @@ twitter account is {AUTH}.""",
     async def random_me(self,
                         interaction: discord.Interaction,
                         channel: discord.TextChannel = None,
+                        filter: str = None,
                         num: int = 1,
                         url_only: bool = True,
                         help: bool = False):
@@ -229,6 +280,8 @@ twitter account is {AUTH}.""",
         channel : discord.TextChannel, optional
             Channel where message is taken from, by default None
             If `None`, the channel where command used.
+        filter : str, optional
+            _description_, by default None
         num : int, optional
             Number of message to show, by default 1
         url_only: bool, optional
@@ -239,6 +292,7 @@ twitter account is {AUTH}.""",
         await self.sub_random(interaction,
                               user=interaction.user,
                               channel=channel,
+                              filter_=filter,
                               num=num,
                               url_only=url_only,
                               help=help)
