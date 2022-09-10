@@ -235,7 +235,8 @@ class Movers(commands.Cog):
 
         if owner is None:
             def func(member: discord.Member):
-                return vocie_chann.permissions_for(member).manage_channels
+                return vocie_chann.permissions_for(
+                    member).manage_channels and not member.bots
 
             members = list(filter(func, vocie_chann.members))
             if len(members):
