@@ -91,8 +91,7 @@ class Movers(commands.Cog):
         if voice_channel is None:
             voice_channel = interaction.channel
 
-        members = [
-            member for member in origin.members if not member.bot]
+        members = [member for member in origin.members if not member.bot]
         members = random.sample(members, len(members))
         members1 = members[:len(members) // 2]
         members2 = members[len(members) // 2:]

@@ -8,6 +8,7 @@ import asyncio
 import discord
 import random
 import re
+import numpy as np
 
 from . import (
     convert_channel_to_mention,
@@ -97,7 +98,10 @@ twitter account is {AUTH}.""",
     @app_commands.command()
     @app_commands.describe(user=_T('@User'))
     @help_command()
-    async def profile(self, interaction: discord.Interaction, user: discord.User, help: bool = False):
+    async def profile(self,
+                      interaction: discord.Interaction,
+                      user: discord.User,
+                      help: bool = False):
         """Show profile of spesific member.
 
         Parameters
@@ -142,6 +146,9 @@ twitter account is {AUTH}.""",
                          help: bool = False):
         await interaction.response.defer()
 
+        if num == 0:
+            num = np.infty
+
         if channel is None:
             channel = interaction.channel
 
@@ -151,6 +158,10 @@ twitter account is {AUTH}.""",
             def func(message: discord.Message) -> bool:
                 return message.author == user
             messages = list(filter(func, messages))
+
+        def func(message: discord.Message) -> bool:
+            return len(message.content) > 0
+        messages = list(filter(func, messages))
 
         if url_only:
             def func(message: discord.Message) -> bool:
@@ -191,20 +202,23 @@ twitter account is {AUTH}.""",
                              icon_url=author.avatar)
             for message in messages:
                 embed.add_field(name=f"{message.author.display_name}",
-                                value=message.content,
+                                value=message.content[:1024],
                                 inline=False)
         else:
             embed.set_author(name="Multiple Users",
                              icon_url=interaction.guild.icon.url)
             for message in messages:
                 embed.add_field(name=f"{message.author.display_name}",
-                                value=message.content,
+                                value=message.content[:1024],
                                 inline=False)
 
-        urls = [extract_url(message) for message in messages]
-        links = "\n\n".join([url for url in urls if len(url) > 0])
-        await interaction.followup.send(links,
-                                        embed=embed,
+        if len(embed) > 2000:
+            await interaction.followup.send("Too many entry.")
+            return
+
+        # urls = [extract_url(message) for message in messages]
+        # links = "\n\n".join([url for url in urls if len(url) > 0])
+        await interaction.followup.send(embed=embed,
                                         ephemeral=False)
 
     @app_commands.command()
