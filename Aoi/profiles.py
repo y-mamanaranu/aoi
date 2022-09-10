@@ -136,6 +136,7 @@ twitter account is {AUTH}.""",
                          interaction: discord.Interaction,
                          user: discord.User = None,
                          channel: discord.TextChannel = None,
+                         filter_: str = None,
                          num: int = 1,
                          url_only: bool = True,
                          help: bool = False):
@@ -155,6 +156,18 @@ twitter account is {AUTH}.""",
             def func(message: discord.Message) -> bool:
                 return bool(re.search("https?://[0-9a-zA-Z/:%#\\$&\\?\\(\\)~\\.=\\+\\-]+",
                                       message.content))
+            messages = list(filter(func, messages))
+
+        if filter_:
+            filter_ = filter_.strip()
+            if filter_.startswith("-"):
+                filter_ = filter_[1:].strip()
+
+                def func(message: discord.Message) -> bool:
+                    return filter_ not in message.content
+            else:
+                def func(message: discord.Message) -> bool:
+                    return filter_ in message.content
             messages = list(filter(func, messages))
 
         NUM = len(messages)
@@ -201,6 +214,7 @@ twitter account is {AUTH}.""",
                      interaction: discord.Interaction,
                      user: discord.User = None,
                      channel: discord.TextChannel = None,
+                     filter: str = None,
                      num: int = 1,
                      url_only: bool = True,
                      help: bool = False):
@@ -216,6 +230,8 @@ twitter account is {AUTH}.""",
         channel : discord.TextChannel, optional
             Channel where message is taken from, by default None
             If `None`, the channel where command used.
+        filter : str, optional
+            _description_, by default None
         num : int, optional
             Number of message to show, by default 1
         url_only: bool, optional
@@ -226,6 +242,7 @@ twitter account is {AUTH}.""",
         await self.sub_random(interaction,
                               user=user,
                               channel=channel,
+                              filter_=filter,
                               num=num,
                               url_only=url_only,
                               help=help)
@@ -236,6 +253,7 @@ twitter account is {AUTH}.""",
     async def random_me(self,
                         interaction: discord.Interaction,
                         channel: discord.TextChannel = None,
+                        filter: str = None,
                         num: int = 1,
                         url_only: bool = True,
                         help: bool = False):
@@ -248,6 +266,8 @@ twitter account is {AUTH}.""",
         channel : discord.TextChannel, optional
             Channel where message is taken from, by default None
             If `None`, the channel where command used.
+        filter : str, optional
+            _description_, by default None
         num : int, optional
             Number of message to show, by default 1
         url_only: bool, optional
@@ -258,6 +278,7 @@ twitter account is {AUTH}.""",
         await self.sub_random(interaction,
                               user=interaction.user,
                               channel=channel,
+                              filter_=filter,
                               num=num,
                               url_only=url_only,
                               help=help)
