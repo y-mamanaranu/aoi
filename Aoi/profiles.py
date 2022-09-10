@@ -1,3 +1,4 @@
+from os import link
 from discord import app_commands
 from discord.app_commands import locale_str as _T
 from discord.ext import commands
@@ -14,7 +15,6 @@ from . import (
     get_database_url,
     help_command,
     has_permission,
-    create_embed,
 )
 from .database import (
     get_pre_pro_log_fre_sen_emo_ten_lim_adj_mov_icv_ict_tt,
@@ -170,10 +170,29 @@ twitter account is {AUTH}.""",
                 "https?://[0-9a-zA-Z/:%#\\$&\\?\\(\\)~\\.=\\+\\-]+", message.content))
 
         message: discord.Message
-        for message in messages:
-            await interaction.followup.send(extract_url(message),
-                                            embed=create_embed(message),
-                                            ephemeral=False)
+        authors = list(set([message.author for message in messages]))
+        embed = discord.Embed()
+        if len(authors) == 1:
+            author: discord.Member = authors[0]
+            embed.set_author(name=author.display_name,
+                             icon_url=author.avatar)
+            for message in messages:
+                embed.add_field(name=f"{message.author.display_name}",
+                                value=message.content,
+                                inline=False)
+        else:
+            embed.set_author(name="Multiple Users",
+                             icon_url=interaction.guild.icon.url)
+            for message in messages:
+                embed.add_field(name=f"{message.author.display_name}",
+                                value=message.content,
+                                inline=False)
+
+        urls = [extract_url(message) for message in messages]
+        links = "\n\n".join([url for url in urls if len(url) > 0])
+        await interaction.followup.send(links,
+                                        embed=embed,
+                                        ephemeral=False)
 
     @app_commands.command()
     @app_commands.describe(user=_T('@User'), channel=_T('#TextChannel'))

@@ -131,13 +131,6 @@ class SearchText(object):
             return False
 
 
-def create_embed(message: discord.Message) -> discord.Embed:
-    embed = discord.Embed(description=message.content)
-    embed.set_author(name=message.author.nick or message.author.name,
-                     icon_url=message.author.avatar)
-    return embed
-
-
 def calc_level(sec: int) -> int:
     """Level `n` requires `2**(n-1)` hours."""
     hour = np.clip(sec // 3600, 0.5, None)
