@@ -28,6 +28,7 @@ If you are a bot user, please skip this section.
 | @Freshman       | Role to assign to new member            | `None`  | freshman_id                 |                           |      |
 | @Senior         | Role who can assign to new member       | `None`  | senior_id                   |                           |      |
 | :emoji:         | Emoji to assign role                    | `None`  | emoji_id                    | `None` match to any emoji |      |
+| pending         | Pending length to allow role asginment  | `0`     | pending                     | digit in hours            |      |
 | level_to_assign | Level noeed to assign role              | `False` | level_to_assign             |                           |      |
 | #Tenki          | Weather forecast channel                | `None`  | tenki_id                    |                           |      |
 | limit?          | Whether activate `/limit`               | `False` | if_limit                    |                           |      |
