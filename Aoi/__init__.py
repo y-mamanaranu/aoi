@@ -7,8 +7,10 @@ from functools import wraps
 import discord
 import numpy as np
 import datetime
+import logging
 
 JST = datetime.timezone(datetime.timedelta(hours=9), name='JST')
+_log = logging.getLogger(__name__)
 
 
 def help_command():
@@ -155,8 +157,8 @@ def get_delta(tzinfo: datetime.timezone = JST):
                                0,
                                0,
                                tzinfo=tzinfo)
-    print(f"Now: {now}.")
-    print(f"Target: {target}.")
+    _log.info(f"now is {now}.")
+    _log.info(f"targe is {target}.")
     return (target.timestamp() - now.timestamp())
 
 
@@ -233,7 +235,7 @@ class Custum_Parser(object):
                     buff = buff + m.end()
                     key = m.group(1)
                 else:
-                    print(res)
+                    _log.debug("Interruption")
                     return None
             elif mode == 1:
                 m = re.search(f"(.*?){self.prefix}",

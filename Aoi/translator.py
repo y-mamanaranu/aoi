@@ -3,6 +3,9 @@ from pathlib import Path
 from typing import Optional
 import discord
 import gettext
+import logging
+
+_log = logging.getLogger(__name__)
 
 
 def get_LANG(locale: str):

@@ -1,4 +1,7 @@
 import psycopg2
+import logging
+
+_log = logging.getLogger(__name__)
 
 
 def init_db(DATABASE_URL):
@@ -21,6 +24,7 @@ def init_db(DATABASE_URL):
                 senior_id bigint,
                 emoji_id text,
                 tenki_id bigint,
+                pending bigint DEFAULT 0,
                 if_limit boolean DEFAULT false,
                 if_adjust boolean DEFAULT false,
                 if_move boolean DEFAULT false,
@@ -56,7 +60,7 @@ def insert_ids(DATABASE_URL: str,
 
 
 def remove_ids(DATABASE_URL: str,
-               GUILD_ID: str):
+               GUILD_ID: int):
     """Remove ids from database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -67,7 +71,8 @@ def remove_ids(DATABASE_URL: str,
             conn.commit()
 
 
-def get_twitter_status(DATABASE_URL, GUILD_ID):
+def get_twitter_status(DATABASE_URL: str,
+                       GUILD_ID: int):
     """Get twitter authorize status."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -83,7 +88,8 @@ def get_twitter_status(DATABASE_URL, GUILD_ID):
         return "Authorized"
 
 
-def get_pro_log_fre_sen_emo(DATABASE_URL, GUILD_ID):
+def get_pro_log_fre_sen_emo(DATABASE_URL: str,
+                            GUILD_ID: int):
     """Get ids from database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -96,7 +102,8 @@ def get_pro_log_fre_sen_emo(DATABASE_URL, GUILD_ID):
     return res
 
 
-def get_prefix(DATABASE_URL, GUILD_ID):
+def get_prefix(DATABASE_URL: str,
+               GUILD_ID: int) -> str:
     """Get prefix from database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -109,7 +116,8 @@ def get_prefix(DATABASE_URL, GUILD_ID):
     return res[0]
 
 
-def get_profile_id(DATABASE_URL, GUILD_ID):
+def get_profile_id(DATABASE_URL: str,
+                   GUILD_ID: int):
     """Get ID of #Profile from database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -122,7 +130,8 @@ def get_profile_id(DATABASE_URL, GUILD_ID):
     return res[0]
 
 
-def get_log_id(DATABASE_URL, GUILD_ID):
+def get_log_id(DATABASE_URL: str,
+               GUILD_ID: int):
     """Get ID of #Log from database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -135,7 +144,8 @@ def get_log_id(DATABASE_URL, GUILD_ID):
     return res[0]
 
 
-def get_if_level(DATABASE_URL, GUILD_ID) -> bool:
+def get_if_level(DATABASE_URL: str,
+                 GUILD_ID: int) -> bool:
     """Get if_level from database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -148,7 +158,8 @@ def get_if_level(DATABASE_URL, GUILD_ID) -> bool:
     return res[0]
 
 
-def get_if_limit(DATABASE_URL, GUILD_ID) -> bool:
+def get_if_limit(DATABASE_URL: str,
+                 GUILD_ID) -> bool:
     """Get if_limit from database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -161,7 +172,8 @@ def get_if_limit(DATABASE_URL, GUILD_ID) -> bool:
     return res[0]
 
 
-def get_if_adjust(DATABASE_URL, GUILD_ID) -> bool:
+def get_if_adjust(DATABASE_URL: str,
+                  GUILD_ID) -> bool:
     """Get if_adjust from database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -174,7 +186,8 @@ def get_if_adjust(DATABASE_URL, GUILD_ID) -> bool:
     return res[0]
 
 
-def get_if_move(DATABASE_URL, GUILD_ID) -> bool:
+def get_if_move(DATABASE_URL: str,
+                GUILD_ID) -> bool:
     """Get if_move from database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -187,7 +200,22 @@ def get_if_move(DATABASE_URL, GUILD_ID) -> bool:
     return res[0]
 
 
-def get_icv_ict(DATABASE_URL, GUILD_ID):
+def get_pending(DATABASE_URL: str,
+                GUILD_ID) -> int:
+    """Get pending from database."""
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""SELECT pending
+            FROM reactedrole
+            WHERE guild_id = %s;""",
+                        (GUILD_ID,))
+            res = cur.fetchone()
+
+    return res[0]
+
+
+def get_icv_ict(DATABASE_URL: str,
+                GUILD_ID: int):
     """Get ID of if_create_voice and if_create_text from database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -200,7 +228,8 @@ def get_icv_ict(DATABASE_URL, GUILD_ID):
     return res
 
 
-def get_tt_tat_tats(DATABASE_URL, GUILD_ID):
+def get_tt_tat_tats(DATABASE_URL: str,
+                    GUILD_ID: int):
     """Get twitter_template, twitter_access_token and twitter_access_token_secret from database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -213,8 +242,9 @@ def get_tt_tat_tats(DATABASE_URL, GUILD_ID):
     return res
 
 
-def get_pre_pro_log_fre_sen_emo_ten_lim_adj_mov_icv_ict_tt(DATABASE_URL,
-                                                           GUILD_ID):
+def get_pre_pro_log_fre_sen_emo_ten_lim_adj_mov_icv_ict_tt(DATABASE_URL: str,
+
+                                                           GUILD_ID: int):
     """Get status from database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -251,7 +281,8 @@ def get_all_tenki_id(DATABASE_URL):
     return res
 
 
-def update_profile_id(DATABASE_URL, GUILD_ID, PROFILE_ID):
+def update_profile_id(DATABASE_URL: str,
+                      GUILD_ID, PROFILE_ID):
     """Update channle_id in database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -262,7 +293,8 @@ def update_profile_id(DATABASE_URL, GUILD_ID, PROFILE_ID):
                 (PROFILE_ID, GUILD_ID))
 
 
-def update_log_id(DATABASE_URL, GUILD_ID, LOG_ID):
+def update_log_id(DATABASE_URL: str,
+                  GUILD_ID, LOG_ID):
     """Update log_id in database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -273,7 +305,8 @@ def update_log_id(DATABASE_URL, GUILD_ID, LOG_ID):
                 (LOG_ID, GUILD_ID))
 
 
-def update_freshman_id(DATABASE_URL, GUILD_ID, FRESHMAN_ID):
+def update_freshman_id(DATABASE_URL: str,
+                       GUILD_ID, FRESHMAN_ID):
     """Update freshman_id in database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -284,7 +317,8 @@ def update_freshman_id(DATABASE_URL, GUILD_ID, FRESHMAN_ID):
                 (FRESHMAN_ID, GUILD_ID))
 
 
-def update_senior_id(DATABASE_URL, GUILD_ID, SENIOR_ID):
+def update_senior_id(DATABASE_URL: str,
+                     GUILD_ID, SENIOR_ID):
     """Update senior_id in database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -295,7 +329,8 @@ def update_senior_id(DATABASE_URL, GUILD_ID, SENIOR_ID):
                 (SENIOR_ID, GUILD_ID))
 
 
-def update_emoji_id(DATABASE_URL, GUILD_ID, EMOJI_ID):
+def update_emoji_id(DATABASE_URL: str,
+                    GUILD_ID, EMOJI_ID):
     """Update emoji_id in database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -306,7 +341,8 @@ def update_emoji_id(DATABASE_URL, GUILD_ID, EMOJI_ID):
                 (EMOJI_ID, GUILD_ID))
 
 
-def update_if_move(DATABASE_URL, GUILD_ID, IF_MOVE):
+def update_if_move(DATABASE_URL: str,
+                   GUILD_ID, IF_MOVE):
     """Update if_move in database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -317,7 +353,8 @@ def update_if_move(DATABASE_URL, GUILD_ID, IF_MOVE):
                 (IF_MOVE, GUILD_ID))
 
 
-def update_if_limit(DATABASE_URL, GUILD_ID, IF_LIMIT):
+def update_if_limit(DATABASE_URL: str,
+                    GUILD_ID, IF_LIMIT):
     """Update if_limit in database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -328,7 +365,8 @@ def update_if_limit(DATABASE_URL, GUILD_ID, IF_LIMIT):
                 (IF_LIMIT, GUILD_ID))
 
 
-def update_if_create_text(DATABASE_URL, GUILD_ID, IF_CREATE_TEXT):
+def update_if_create_text(DATABASE_URL: str,
+                          GUILD_ID, IF_CREATE_TEXT):
     """Update if_create_text in database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -339,7 +377,8 @@ def update_if_create_text(DATABASE_URL, GUILD_ID, IF_CREATE_TEXT):
                 (IF_CREATE_TEXT, GUILD_ID))
 
 
-def update_if_create_voice(DATABASE_URL, GUILD_ID, IF_CREATE_VOICE):
+def update_if_create_voice(DATABASE_URL: str,
+                           GUILD_ID, IF_CREATE_VOICE):
     """Update if_create_voice in database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -350,7 +389,8 @@ def update_if_create_voice(DATABASE_URL, GUILD_ID, IF_CREATE_VOICE):
                 (IF_CREATE_VOICE, GUILD_ID))
 
 
-def update_if_adjust(DATABASE_URL, GUILD_ID, IF_ADJUST):
+def update_if_adjust(DATABASE_URL: str,
+                     GUILD_ID, IF_ADJUST):
     """Update if_adjust in database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -361,7 +401,8 @@ def update_if_adjust(DATABASE_URL, GUILD_ID, IF_ADJUST):
                 (IF_ADJUST, GUILD_ID))
 
 
-def update_prefix(DATABASE_URL, GUILD_ID, PREFIX):
+def update_prefix(DATABASE_URL: str,
+                  GUILD_ID, PREFIX):
     """Update prefix in database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -372,7 +413,8 @@ def update_prefix(DATABASE_URL, GUILD_ID, PREFIX):
                 (PREFIX, GUILD_ID))
 
 
-def update_tenki_id(DATABASE_URL, GUILD_ID, TENKI_ID):
+def update_tenki_id(DATABASE_URL: str,
+                    GUILD_ID, TENKI_ID):
     """Update tenki_id in database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -383,7 +425,19 @@ def update_tenki_id(DATABASE_URL, GUILD_ID, TENKI_ID):
                 (TENKI_ID, GUILD_ID))
 
 
-def update_twitter_template(DATABASE_URL, GUILD_ID, TWITTER_TEMPLATE):
+def update_pending(DATABASE_URL: str, GUILD_ID: str, PENDING: int):
+    """Update pending in database."""
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """UPDATE reactedrole
+                SET pending = %s
+                WHERE guild_id = %s;""",
+                (PENDING, GUILD_ID))
+
+
+def update_twitter_template(DATABASE_URL: str,
+                            GUILD_ID, TWITTER_TEMPLATE):
     """Update twitter_template in database."""
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -394,7 +448,8 @@ def update_twitter_template(DATABASE_URL, GUILD_ID, TWITTER_TEMPLATE):
                 (TWITTER_TEMPLATE, GUILD_ID))
 
 
-def update_tat_tats(DATABASE_URL,
+def update_tat_tats(DATABASE_URL: str,
+
                     GUILD_ID,
                     TWITTER_ACCESS_TOKEN,
                     TWITTER_ACCESS_TOKEN_SECRET):

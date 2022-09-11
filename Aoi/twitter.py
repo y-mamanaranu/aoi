@@ -8,6 +8,7 @@ import os
 import tweepy
 import unicodedata
 import time
+import logging
 
 from . import (
     get_database_url,
@@ -24,6 +25,7 @@ from .database import (
 DATABASE_URL = get_database_url()
 CONSUMER_KEY = get_twitter_consumer_key()
 CONSUMER_SECRET = get_twitter_consumer_secret()
+_log = logging.getLogger(__name__)
 
 
 class MyWSGIRefServer(ServerAdapter):
@@ -168,7 +170,7 @@ class Twitter(commands.Cog):
         redirect_url = auth.get_authorization_url()
         await interaction.response.send_message(redirect_url)
 
-        print("Authorize server start.")
+        _log.debug("Authorize server start.")
         oauth_token = auth.request_token["oauth_token"]
         app = AuthorizeApp(oauth_token)
         thread = threading.Thread(target=app.get_authorize)
@@ -178,7 +180,7 @@ class Twitter(commands.Cog):
             pass
         app.server.stop()
         thread.join()
-        print("Authorize server stop.")
+        _log.debug("Authorize server stop.")
 
         oauth_verifier = app.oauth_verifier
 
