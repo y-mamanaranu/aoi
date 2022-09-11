@@ -1,4 +1,5 @@
-from os import link
+import datetime
+from ntpath import join
 from discord import app_commands
 from discord.app_commands import locale_str as _T
 from discord.ext import commands
@@ -9,6 +10,7 @@ import discord
 import random
 import re
 import numpy as np
+import logging
 
 from . import (
     convert_channel_to_mention,
@@ -16,15 +18,18 @@ from . import (
     get_database_url,
     help_command,
     has_permission,
+    JST,
 )
 from .database import (
     get_pre_pro_log_fre_sen_emo_ten_lim_adj_mov_icv_ict_tt,
     get_pro_log_fre_sen_emo,
     get_profile_id,
     get_twitter_status,
+    get_pending,
 )
 
 DATABASE_URL = get_database_url()
+_log = logging.getLogger(__name__)
 
 
 class Profiles(commands.Cog):
@@ -458,7 +463,16 @@ twitter account is {AUTH}.""",
             return
 
         SENIOR = get(payload.member.roles, id=SENIOR_ID)
-        if SENIOR is None:
+        days = get_pending(DATABASE_URL, GUILD_ID)
+        pending = datetime.datetime.now(
+            tz=JST) + datetime.timedelta(days=-days)
+        payload.member: discord.Member
+        joined_at = payload.member.joined_at.replace(tzinfo=JST)
+        _log.debug(
+            f"{payload.member.display_name} joined at {joined_at}.")
+        _log.debug(
+            f"pending is {days} equivalent to {pending}.")
+        if SENIOR is None or joined_at > pending:
             await message.remove_reaction(payload.emoji, payload.member)
             return
 

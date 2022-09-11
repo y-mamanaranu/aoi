@@ -1,9 +1,9 @@
-from unicodedata import name
 from discord import app_commands
 from discord.app_commands import locale_str as _T
 from discord.ext import commands
 import discord
 from emoji import demojize
+import logging
 
 from . import (
     get_database_url,
@@ -24,9 +24,11 @@ from .database import (
     update_tenki_id,
     update_twitter_template,
     update_if_move,
+    update_pending,
 )
 
 DATABASE_URL = get_database_url()
+_log = logging.getLogger(__name__)
 
 
 class Setter(commands.GroupCog, name="set"):
@@ -55,6 +57,29 @@ class Setter(commands.GroupCog, name="set"):
 
         update_if_move(DATABASE_URL, GUILD_ID, enable)
         await interaction.response.send_message(f"move? is changed to `{enable}`.")
+        return
+
+    @app_commands.command()
+    @help_command()
+    @has_permission(manage_roles=True)
+    async def pending(self, interaction: discord.Integration, days: int, help: bool = False):
+        """Change pending.
+
+        Previlage to move members is required.
+
+        Parameters
+        ----------
+        interaction : discord.Integration
+            _description_
+        days : int
+            Pending length to allow role asginment
+        help : bool, optional
+            Wether to show help instead, by default False
+        """
+        GUILD_ID = interaction.guild_id
+
+        update_pending(DATABASE_URL, GUILD_ID, days)
+        await interaction.response.send_message(f"pending is changed to `{days}`.")
         return
 
     @app_commands.command()

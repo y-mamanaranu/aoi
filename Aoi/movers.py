@@ -1,4 +1,3 @@
-from distutils.dir_util import create_tree
 from discord import app_commands
 from discord.app_commands import locale_str as _T
 from discord.ext import commands
@@ -6,6 +5,7 @@ import discord
 import random
 from discord.utils import get
 import re
+import logging
 
 from . import (
     get_database_url,
@@ -19,8 +19,8 @@ from .database import (
     get_if_move,
 )
 
-
 DATABASE_URL = get_database_url()
+_log = logging.getLogger(__name__)
 
 
 class Movers(commands.Cog):
@@ -299,8 +299,11 @@ class Movers(commands.Cog):
                     text_chann = get(vocie_chann.guild.text_channels,
                                      topic=SearchText(f"^Aoi - {vocie_chann.mention}&<@\\d+>$"))
                     if len(vocie_chann.members) > 1:
-                        await text_chann.set_permissions(member,
-                                                         overwrite=discord.PermissionOverwrite(read_messages=True))
+                        await text_chann.set_permissions(
+                            member,
+                            overwrite=discord.PermissionOverwrite(
+                                read_messages=True)
+                        )
                 else:
                     text_chann = vocie_chann
 
@@ -324,10 +327,12 @@ class Movers(commands.Cog):
                             member: discord.PermissionOverwrite(
                                 read_messages=True),
                         }
-                        text_chann = await vocie_chann.guild.create_text_channel(name=f"{name}-{owner}",
-                                                                                 topic=f"Aoi - {new_chan.mention}&{member.mention}",
-                                                                                 overwrites=overwrites,
-                                                                                 category=new_chan.category)
+                        text_chann = await vocie_chann.guild.create_text_channel(
+                            name=f"{name}-{owner}",
+                            topic=f"Aoi - {new_chan.mention}&{member.mention}",
+                            overwrites=overwrites,
+                            category=new_chan.category
+                        )
                         await new_chan.send(f"Please use {text_chann.mention}")
                     else:
                         text_chann = new_chan

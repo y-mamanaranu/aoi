@@ -53,39 +53,40 @@ If `level?` change from `True` to `False`, all level information will be deleted
 
 ## Commands
 
-|            command             |                            content                             | required previlage |     to disable     | default |       TODO        |
-| ------------------------------ | -------------------------------------------------------------- | ------------------ | ------------------ | ------- | ----------------- |
-| `/authtwitter`                 |                                                                | administrator      |                    |         |                   |
-| `/clean`                       | Delete profile of leaved member.                               | manage_messages    | #Profile is `None` | disable |                   |
-| `/detail`                      |                                                                |                    |                    |         | update            |
-| `/duplicate`                   | Delete second or subsequent profile of same user.              | manage_messages    | #Profile is `None` | disable |                   |
-| `/limit [<limit>]`             | Change upper limit of voice channel which you join to `limit`. |                    | limit? is `False`  | disable |                   |
-| `/move [<vocie_channel>]`      | Move all member to `vocie_channel`.                            |                    | move? is `False`   | disable |                   |
-| `/profile <user>`              | Show profile of `user`.                                        |                    | #Profile is `None` | disable |                   |
-| `/random`                      |                                                                |                    |                    |         |                   |
-| `/rename <name>`               |                                                                |                    |                    |         |                   |
-| `/set adjust <enable>`         | Change adjust? to `<enable>`                                   | manage_channels    |                    |         |                   |
-| `/set create_text <enable> `   |                                                                | manage_channels    |                    |         |                   |
-| `/set create_voice <enable>`   |                                                                | manage_channels    |                    |         |                   |
-| `/set emoji [<emoji>]`         | Change :emoji: to `emoji`.                                     | manage_roles       |                    |         |                   |
-| `/set freshman [<freshman>]`   | Change @Freshman to `freshman`.                                | manage_roles       |                    |         |                   |
-| `/set level <enable>`          |                                                                | administrator      |                    |         | implement, prompt |
-| `/set level_to_assign <level>` |                                                                | manage_roles       |                    |         | implement         |
-| `/set limit <enable>`          | Change limit? to `<enable>`                                    | manage_channels    |                    |         |                   |
-| `/set log [<log>]`             | Change #Log to `log`.                                          | administrator      |                    |         |                   |
-| `/set move <enable>`           |                                                                | move_members       |                    |         |                   |
-| `/set prefix <prefix>`         | Change prefix to `prefix`.                                     | administrator      |                    |         |                   |
-| `/set profile [<profile>]`     | Change #Profile to `profile`.                                  | administrator      |                    |         |                   |
-| `/set senior [<senior>]`       | Change @Senior to `senior`.                                    | manage_roles       |                    |         |                   |
-| `/set tenki [<tenki>]`         | Change #Tenki to `tenki`.                                      | administrator      |                    |         |                   |
-| `/set twitter`                 |                                                                | administrator      |                    |         |                   |
-| `/shuffle [<vocie_channel>]`   | Shuffle members with `vocie_channel`.                          |                    | move? is `False`   | disable |                   |
-| `/split [<vocie_channel>]`     | Split voice channel member and move half to `vocie_channel`.   |                    | move? is `False`   | disable |                   |
-| `/status`                      | Show current config.                                           |                    |                    |         | update            |
-| `/tenki`                       | Post weather forecast of tenki.jp.                             |                    |                    |         |                   |
-| `/tweet`                       |                                                                |                    |                    |         |                   |
-| `/level [<user>]`              | Show level of `user` or top 10 members                         |                    | level? is `False`  | disable | implement         |
-| `/last [<user>]`               | Show last leaved time  of `user` or last 10 members            |                    | level? is `False`  | disable | implement         |
+|            command             |                             content                              | required previlage |     to disable     | default |       TODO        |
+| ------------------------------ | ---------------------------------------------------------------- | ------------------ | ------------------ | ------- | ----------------- |
+| `/authtwitter`                 |                                                                  | administrator      |                    |         |                   |
+| `/clean`                       | Delete profile of leaved member.                                 | manage_messages    | #Profile is `None` | disable |                   |
+| `/detail`                      |                                                                  |                    |                    |         | update            |
+| `/duplicate`                   | Delete second or subsequent profile of same user.                | manage_messages    | #Profile is `None` | disable |                   |
+| `/limit [<limit>]`             | Change upper limit of voice channel which you join to `<limit>`. |                    | limit? is `False`  | disable |                   |
+| `/move [<vocie_channel>]`      | Move all member to `<vocie_channel>`.                            |                    | move? is `False`   | disable |                   |
+| `/profile <user>`              | Show profile of `<user>`.                                        |                    | #Profile is `None` | disable |                   |
+| `/random`                      |                                                                  |                    |                    |         |                   |
+| `/rename <name>`               |                                                                  |                    |                    |         |                   |
+| `/set adjust <enable>`         | Change adjust? to `<enable>`                                     | manage_channels    |                    |         |                   |
+| `/set create_text <enable> `   |                                                                  | manage_channels    |                    |         |                   |
+| `/set create_voice <enable>`   |                                                                  | manage_channels    |                    |         |                   |
+| `/set emoji [<emoji>]`         | Change :emoji: to `<emoji>`.                                     | manage_roles       |                    |         |                   |
+| `/set freshman [<freshman>]`   | Change @Freshman to `<freshman>`.                                | manage_roles       |                    |         |                   |
+| `/set level <enable>`          |                                                                  | administrator      |                    |         | implement, prompt |
+| `/set level_to_assign <level>` |                                                                  | manage_roles       |                    |         | implement         |
+| `/set limit <enable>`          | Change limit? to `<enable>`                                      | manage_channels    |                    |         |                   |
+| `/set log [<log>]`             | Change #Log to `<log>`.                                          | administrator      |                    |         |                   |
+| `/set move <enable>`           |                                                                  | move_members       |                    |         |                   |
+| `/set pending <days>`          | Change pending to `<days>`.                                      | manage_roles       |                    |         |                   |
+| `/set prefix <prefix>`         | Change prefix to `<prefix>`.                                     | administrator      |                    |         |                   |
+| `/set profile [<profile>]`     | Change #Profile to `<profile>`.                                  | administrator      |                    |         |                   |
+| `/set senior [<senior>]`       | Change @Senior to `<senior>`.                                    | manage_roles       |                    |         |                   |
+| `/set tenki [<tenki>]`         | Change #Tenki to `<tenki>`.                                      | administrator      |                    |         |                   |
+| `/set twitter`                 |                                                                  | administrator      |                    |         |                   |
+| `/shuffle [<vocie_channel>]`   | Shuffle members with `<vocie_channel>`.                          |                    | move? is `False`   | disable |                   |
+| `/split [<vocie_channel>]`     | Split voice channel member and move half to `<vocie_channel>`.   |                    | move? is `False`   | disable |                   |
+| `/status`                      | Show current config.                                             |                    |                    |         | update            |
+| `/tenki`                       | Post weather forecast of tenki.jp.                               |                    |                    |         |                   |
+| `/tweet`                       |                                                                  |                    |                    |         |                   |
+| `/level [<user>]`              | Show level of `<user?` or top 10 members                         |                    | level? is `False`  | disable | implement         |
+| `/last [<user>]`               | Show last leaved time  of `<user>` or last 10 members            |                    | level? is `False`  | disable | implement         |
 
 
 Commands whose name starts with "/set" change parameters.

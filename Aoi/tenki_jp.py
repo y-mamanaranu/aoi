@@ -7,6 +7,7 @@ from selenium.webdriver.common.by import By
 import discord
 import io
 from PIL import Image
+import logging
 
 from . import (
     get_database_url,
@@ -17,6 +18,7 @@ from .database import (
 )
 
 DATABASE_URL = get_database_url()
+_log = logging.getLogger(__name__)
 
 
 class Tenki_JP(commands.Cog):

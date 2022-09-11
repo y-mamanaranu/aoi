@@ -1,4 +1,7 @@
 import psycopg2
+import logging
+
+_log = logging.getLogger(__name__)
 
 
 def init_db(DATABASE_URL):

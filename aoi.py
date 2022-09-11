@@ -13,18 +13,14 @@ from Aoi.database import (
     insert_ids,
 )
 from Aoi.translator import Translator
-from logging import getLogger, INFO, StreamHandler
-# from logging import DEBUG
+from logging import getLogger, DEBUG
+from discord.utils import setup_logging
 
 # Setup logging
-logger_level = INFO
-# logger_level = DEBUG
-logger = getLogger(__name__)
-logger.setLevel(logger_level)
-
-ch = StreamHandler()
-ch.setLevel(logger_level)
-logger.addHandler(ch)
+_log = getLogger(__name__)
+setup_logging(
+    # level=DEBUG
+)
 
 # Get envriomental variables.
 TOKEN = get_token()
