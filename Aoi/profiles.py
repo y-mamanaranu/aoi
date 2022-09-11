@@ -21,6 +21,7 @@ from . import (
     JST,
 )
 from .database import (
+    get_github,
     get_pre_pro_log_fre_sen_emo_ten_lim_adj_mov_icv_ict_tt,
     get_pro_log_fre_sen_emo,
     get_profile_id,
@@ -63,6 +64,7 @@ twitter template""")
     async def status(self, interaction: discord.Interaction, help: bool = False):
         """Show current config."""
         GUILD_ID = interaction.guild_id
+        await interaction.response.defer()
 
         PREFIX, \
             PROFILE_ID, \
@@ -79,7 +81,10 @@ twitter template""")
             TEMPLATE = \
             get_pre_pro_log_fre_sen_emo_ten_lim_adj_mov_icv_ict_tt(DATABASE_URL,
                                                                    GUILD_ID)
-        await interaction.response.defer()
+        GITHUB = get_github(DATABASE_URL,
+                            GUILD_ID)
+        PENDING = get_pending(DATABASE_URL,
+                              GUILD_ID)
         AUTH = get_twitter_status(DATABASE_URL, GUILD_ID)
         embed = discord.Embed(description=TEMPLATE)
         await interaction.followup.send(f"""Prefix is `{PREFIX}`.
@@ -87,17 +92,20 @@ twitter template""")
 #Log is {convert_channel_to_mention(LOG_ID)}.
 @Freshman is {convert_role_to_mention(FRESHMAN_ID)}.
 @Senior is {convert_role_to_mention(SENIOR_ID)}.
-:emoji: is {EMOJI_ID}.
+:emoji: is `{EMOJI_ID}`.
+pending is `{PENDING}`.
 
 #Tenki is {convert_channel_to_mention(TENKI_ID)}.
 
-limit? is {IF_LIMIT}.
-adjust? is {IF_ADJUST}.
-move? is {IF_MOVE}.
-create_voice? is {IF_CREATE_VOICE}.
-create_text? is {IF_CREATE_TEXT}.
+limit? is `{IF_LIMIT}`.
+adjust? is `{IF_ADJUST}`.
+move? is `{IF_MOVE}`.
+create_voice? is `{IF_CREATE_VOICE}`.
+create_text? is `{IF_CREATE_TEXT}`.
 
-twitter account is {AUTH}.""",
+twitter account is {AUTH}.
+
+github is `{GITHUB}`.""",
                                         embed=embed)
 
     @app_commands.command()
