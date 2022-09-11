@@ -40,6 +40,7 @@ If you are a bot user, please skip this section.
 | -               |                                         | `None`  | twitter_access_token        | Not accsesible            |      |
 | -               |                                         | `None`  | twitter_access_token_secret | Not accsesible            |      |
 | level?          | Wheter calculate level by toking time   | `False` | if_level                    |                           |      |
+| github          | Github name for wiki e.g. `y-muen/aoi`  | `None`  | github                      |                           |      |
 
 If `level?` change from `True` to `False`, all level information will be deleted.
 

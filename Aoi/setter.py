@@ -25,6 +25,7 @@ from .database import (
     update_twitter_template,
     update_if_move,
     update_pending,
+    update_github,
 )
 
 DATABASE_URL = get_database_url()
@@ -192,6 +193,21 @@ class Setter(commands.GroupCog, name="set"):
         prefix = str(prefix)
         update_prefix(DATABASE_URL, GUILD_ID, prefix)
         await interaction.response.send_message(f"Prefix is changed to `{prefix}`.")
+        return
+
+    @app_commands.command()
+    @help_command()
+    @has_permission(administrator=True)
+    async def github(self, interaction: discord.Integration, github: str, help: bool = False):
+        """Change github.
+
+        Previlage of administrator is required.
+        """
+        GUILD_ID = interaction.guild_id
+
+        github = str(github)
+        update_github(DATABASE_URL, GUILD_ID, github)
+        await interaction.response.send_message(f"github is changed to `{github}`.")
         return
 
     @app_commands.command()

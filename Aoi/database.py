@@ -34,6 +34,7 @@ def init_db(DATABASE_URL):
                 twitter_access_token text,
                 twitter_access_token_secret text,
                 if_level boolean DEFAULT false,
+                github text,
                 );""")
 
             if ('user_table',) not in res:
@@ -206,6 +207,20 @@ def get_pending(DATABASE_URL: str,
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute("""SELECT pending
+            FROM reactedrole
+            WHERE guild_id = %s;""",
+                        (GUILD_ID,))
+            res = cur.fetchone()
+
+    return res[0]
+
+
+def get_github(DATABASE_URL: str,
+               GUILD_ID) -> int:
+    """Get github from database."""
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""SELECT github
             FROM reactedrole
             WHERE guild_id = %s;""",
                         (GUILD_ID,))
@@ -434,6 +449,17 @@ def update_pending(DATABASE_URL: str, GUILD_ID: str, PENDING: int):
                 SET pending = %s
                 WHERE guild_id = %s;""",
                 (PENDING, GUILD_ID))
+
+
+def update_github(DATABASE_URL: str, GUILD_ID: str, GITHUB: int):
+    """Update github in database."""
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """UPDATE reactedrole
+                SET github = %s
+                WHERE guild_id = %s;""",
+                (GITHUB, GUILD_ID))
 
 
 def update_twitter_template(DATABASE_URL: str,
