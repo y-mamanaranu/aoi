@@ -141,13 +141,14 @@ twitter account is {AUTH}.""",
             await interaction.response.send_message("No profile is found.")
             return
 
-    async def sub_random(self,
+    async def sub_search(self,
                          interaction: discord.Interaction,
                          user: discord.User = None,
                          channel: discord.TextChannel = None,
                          filter_: str = None,
                          num: int = 1,
                          url_only: bool = True,
+                         if_random: bool = False,
                          help: bool = False):
         await interaction.response.defer()
 
@@ -191,12 +192,14 @@ twitter account is {AUTH}.""",
             await interaction.followup.send(
                 "No message is found.", ephemeral=True)
             return
-        elif NUM > num:
+        elif NUM > num and if_random:
             messages = random.sample(messages, num)
+        else:
+            messages = messages[:num][::-1]
 
-        def extract_url(message: discord.Message) -> str:
-            return "\n".join(re.findall(
-                "https?://[0-9a-zA-Z/:%#\\$&\\?\\(\\)~\\.=\\+\\-]+", message.content))
+        # def extract_url(message: discord.Message) -> str:
+        #     return "\n".join(re.findall(
+        #         "https?://[0-9a-zA-Z/:%#\\$&\\?\\(\\)~\\.=\\+\\-]+", message.content))
 
         message: discord.Message
         authors = list(set([message.author for message in messages]))
@@ -258,12 +261,13 @@ twitter account is {AUTH}.""",
         help : bool, optional
             _description_, by default False
         """
-        await self.sub_random(interaction,
+        await self.sub_search(interaction,
                               user=user,
                               channel=channel,
                               filter_=filter,
                               num=num,
                               url_only=url_only,
+                              if_random=True,
                               help=help)
 
     @app_commands.command()
@@ -294,12 +298,91 @@ twitter account is {AUTH}.""",
         help : bool, optional
             _description_, by default False
         """
-        await self.sub_random(interaction,
+        await self.sub_search(interaction,
                               user=interaction.user,
                               channel=channel,
                               filter_=filter,
                               num=num,
                               url_only=url_only,
+                              if_random=True,
+                              help=help)
+
+    @app_commands.command()
+    @app_commands.describe(user=_T('@User'), channel=_T('#TextChannel'))
+    @help_command()
+    async def last(self,
+                   interaction: discord.Interaction,
+                   user: discord.User = None,
+                   channel: discord.TextChannel = None,
+                   filter: str = None,
+                   num: int = 1,
+                   url_only: bool = True,
+                   help: bool = False):
+        """Show last message.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            _description_
+        user : discord.User, optional
+            User to show., by default None
+            IF `None`, matching to all user.
+        channel : discord.TextChannel, optional
+            Channel where message is taken from, by default None
+            If `None`, the channel where command used.
+        filter : str, optional
+            _description_, by default None
+        num : int, optional
+            Number of message to show, by default 1
+        url_only: bool, optional
+            Show only message contains URL.
+        help : bool, optional
+            _description_, by default False
+        """
+        await self.sub_search(interaction,
+                              user=user,
+                              channel=channel,
+                              filter_=filter,
+                              num=num,
+                              url_only=url_only,
+                              if_random=False,
+                              help=help)
+
+    @app_commands.command()
+    @app_commands.describe(channel=_T('#TextChannel'))
+    @help_command()
+    async def last_me(self,
+                      interaction: discord.Interaction,
+                      channel: discord.TextChannel = None,
+                      filter: str = None,
+                      num: int = 1,
+                      url_only: bool = True,
+                      help: bool = False):
+        """Run `/last user:@Me`.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            _description_
+        channel : discord.TextChannel, optional
+            Channel where message is taken from, by default None
+            If `None`, the channel where command used.
+        filter : str, optional
+            _description_, by default None
+        num : int, optional
+            Number of message to show, by default 1
+        url_only: bool, optional
+            Show only message contains URL.
+        help : bool, optional
+            _description_, by default False
+        """
+        await self.sub_search(interaction,
+                              user=interaction.user,
+                              channel=channel,
+                              filter_=filter,
+                              num=num,
+                              url_only=url_only,
+                              if_random=False,
                               help=help)
 
     @app_commands.command()
