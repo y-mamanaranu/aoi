@@ -59,10 +59,14 @@ If `level?` change from `True` to `False`, all level information will be deleted
 | `/clean`                       | Delete profile of leaved member.                                 | manage_messages    | #Profile is `None` | disable |                   |
 | `/detail`                      |                                                                  |                    |                    |         | update            |
 | `/duplicate`                   | Delete second or subsequent profile of same user.                | manage_messages    | #Profile is `None` | disable |                   |
+| `/last [<user>]`               | Show last leaved time  of `<user>` or last 10 members            |                    | level? is `False`  | disable | implement         |
+| `/last <name>`                 |                                                                  |                    |                    |         |                   |
+| `/last_me`                     |                                                                  |                    |                    |         |                   |
+| `/level [<user>]`              | Show level of `<user?` or top 10 members                         |                    | level? is `False`  | disable | implement         |
 | `/limit [<limit>]`             | Change upper limit of voice channel which you join to `<limit>`. |                    | limit? is `False`  | disable |                   |
 | `/move [<vocie_channel>]`      | Move all member to `<vocie_channel>`.                            |                    | move? is `False`   | disable |                   |
 | `/profile <user>`              | Show profile of `<user>`.                                        |                    | #Profile is `None` | disable |                   |
-| `/random`                      |                                                                  |                    |                    |         |                   |
+| `/random_me`                   |                                                                  |                    |                    |         |                   |
 | `/rename <name>`               |                                                                  |                    |                    |         |                   |
 | `/set adjust <enable>`         | Change adjust? to `<enable>`                                     | manage_channels    |                    |         |                   |
 | `/set create_text <enable> `   |                                                                  | manage_channels    |                    |         |                   |
@@ -85,8 +89,6 @@ If `level?` change from `True` to `False`, all level information will be deleted
 | `/status`                      | Show current config.                                             |                    |                    |         | update            |
 | `/tenki`                       | Post weather forecast of tenki.jp.                               |                    |                    |         |                   |
 | `/tweet`                       |                                                                  |                    |                    |         |                   |
-| `/level [<user>]`              | Show level of `<user?` or top 10 members                         |                    | level? is `False`  | disable | implement         |
-| `/last [<user>]`               | Show last leaved time  of `<user>` or last 10 members            |                    | level? is `False`  | disable | implement         |
 
 
 Commands whose name starts with "/set" change parameters.
