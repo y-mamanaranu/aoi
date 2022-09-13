@@ -149,7 +149,7 @@ class Wiki(commands.Cog):
             await interaction.followup.send("github need to set.")
             return
 
-        wiki = GitHub_Wiki()
+        wiki = GitHub_Wiki(github)
         url = wiki.url(keyword=keyword)
         content = wiki.content(keyword=keyword)
         embed = discord.Embed(description=content)
