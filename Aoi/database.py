@@ -53,8 +53,8 @@ def insert_ids(DATABASE_URL: str,
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute("""INSERT INTO reactedrole (
-                guild_id,
-                ) VALUES(%s,);""",
+                guild_id
+                ) VALUES(%s);""",
                         (GUILD_ID,)
                         )
             conn.commit()
