@@ -14,6 +14,7 @@ _log = logging.getLogger(__name__)
 
 
 def help_command():
+    """Return help if keyward argument `help` is `True`."""
     def _help_command(func):
         params = inspect.signature(func).parameters
         i = list(params.keys()).index("interaction")
@@ -31,6 +32,7 @@ def help_command():
 
 
 def has_permission(**kwargs):
+    """Check if user has permission."""
     def _has_permission(func):
         params = inspect.signature(func).parameters
         i = list(params.keys()).index("interaction")
@@ -189,29 +191,29 @@ class Custum_Parser(object):
         dict
             _description_
 
-        Sample
-        ------
-        setting="<prefix>__key__<suffix>__value__"
-
-        sample=```<prefix>key1<suffix>value1
-        <prefix>key2<suffix>value2
-        <prefix>key3<suffix>value3
-        <prefix>key_multiline1<suffix>value_multiline1-1
-        value_multiline1-2
-        value_multiline1-3
-        <prefix>key_multiline2<suffix>value_multiline2-1
-        value_multiline2-2
-        value_multiline2-3
-        ```
-
-        p = Custum_Parser.from_string(setting)
-        p.load(sample)
-        > {'key1': 'value1',
-        >  'key2': 'value2',
-        >  'key3': 'value3',
-        >  'key_multiline1': 'value_multiline1-1\nvalue_multiline1-2\nvalue_multiline1-3',
-        >  'key_multiline2': 'value_multiline2-1\nvalue_multiline2-2\nvalue_multiline2-3'}
-        ```
+        Example
+        -------
+        >>> # format
+        >>> setting="<prefix>__key__<suffix>__value__"
+        >>> # input
+        >>> sample=\"\"\"<prefix>key1<suffix>value1
+        >>> <prefix>key2<suffix>value2
+        >>> <prefix>key3<suffix>value3
+        >>> <prefix>key_multiline1<suffix>value_multiline1-1
+        >>> value_multiline1-2
+        >>> value_multiline1-3
+        >>> <prefix>key_multiline2<suffix>value_multiline2-1
+        >>> value_multiline2-2
+        >>> value_multiline2-3
+        >>> \"\"\"
+        >>> # parese
+        >>> p = Custum_Parser.from_string(setting)
+        >>> p.load(sample)
+        {'key1': 'value1',
+         'key2': 'value2',
+         'key3': 'value3',
+         'key_multiline1': 'value_multiline1-1\\nvalue_multiline1-2\\nvalue_multiline1-3',
+         'key_multiline2': 'value_multiline2-1\\nvalue_multiline2-2\\nvalue_multiline2-3'}
         """
         text.strip()
         res = {}

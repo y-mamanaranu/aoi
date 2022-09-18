@@ -1,5 +1,4 @@
 import datetime
-from ntpath import join
 from discord import app_commands
 from discord.app_commands import locale_str as _T
 from discord.ext import commands
@@ -86,7 +85,7 @@ twitter template""")
         PENDING = get_pending(DATABASE_URL,
                               GUILD_ID)
         AUTH = get_twitter_status(DATABASE_URL, GUILD_ID)
-        embed = discord.Embed(description=TEMPLATE)
+        # embed = discord.Embed(description=TEMPLATE)
         await interaction.followup.send(f"""Prefix is `{PREFIX}`.
 #Profile is {convert_channel_to_mention(PROFILE_ID)}.
 #Log is {convert_channel_to_mention(LOG_ID)}.
@@ -105,8 +104,7 @@ create_text? is `{IF_CREATE_TEXT}`.
 
 twitter account is {AUTH}.
 
-github is `{GITHUB}`.""",
-                                        embed=embed)
+github is `{GITHUB}`.""")
 
     @app_commands.command()
     @app_commands.describe(user=_T('@User'))
@@ -114,6 +112,7 @@ github is `{GITHUB}`.""",
     async def profile(self,
                       interaction: discord.Interaction,
                       user: discord.User,
+                      private: bool = True,
                       help: bool = False):
         """Show profile of spesific member.
 
@@ -123,6 +122,8 @@ github is `{GITHUB}`.""",
             _description_
         user : str
             User to show.
+        private : bool
+            Show wheter to show results to all members.
         """
         GUILD_ID = interaction.guild_id
 
@@ -143,10 +144,10 @@ github is `{GITHUB}`.""",
             embed.set_author(name=user.nick or user.name,
                              icon_url=user.avatar)
 
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=private)
             return
         else:
-            await interaction.response.send_message("No profile is found.")
+            await interaction.response.send_message("No profile is found.", ephemeral=True)
             return
 
     async def sub_search(self,
@@ -520,6 +521,48 @@ github is `{GITHUB}`.""",
         else:
             await interaction.response.send_message("@Profile is not set.")
             return
+
+    @app_commands.command()
+    @help_command()
+    async def dm_number(self, interaction: discord.Interaction,
+                        start: int = 1,
+                        end: int = 100,
+                        help: bool = False):
+        """Send random number as DM.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            _description_
+        start : int, optional
+            Number to start, by default 1
+        end : int, optional
+            Number to end, by default 100
+        help : bool, optional
+            _description_, by default False
+        """
+        vocie = interaction.user.voice.channel
+        await interaction.response.defer()
+        if vocie:
+            pop = np.arange(start, end + 1)
+            members = [v for v in vocie.members if not v.bot]
+            if len(pop) < len(members):
+                await interaction.followup.send(
+                    "Number of member is too large.")
+            else:
+                numbers = np.random.choice(pop, size=100, replace=False)
+                m: discord.Member
+                for m, n in zip(members, numbers):
+                    _log.debug(f"Send {n} to {m.mention} as DM.")
+                    try:
+                        await m.send(f"{interaction.user.mention} send you {n}.")
+                    except discord.errors.Forbidden:
+                        await interaction.followup.send(
+                            f"Fail to send to {m.mention}.")
+                await interaction.followup.send("Send numbers to User.")
+
+        else:
+            await interaction.followup.send("You don't join vocie channel.")
 
     @ commands.Cog.listener()
     async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):

@@ -68,7 +68,6 @@ If `level?` change from `True` to `False`, all level information will be deleted
 | `/move [<vocie_channel>]`      | Move all member to `<vocie_channel>`.                            |                    | move? is `False`   | disable |                   |
 | `/profile <user>`              | Show profile of `<user>`.                                        |                    | #Profile is `None` | disable |                   |
 | `/random_me`                   |                                                                  |                    |                    |         |                   |
-| `/rename <name>`               |                                                                  |                    |                    |         |                   |
 | `/set adjust <enable>`         | Change adjust? to `<enable>`                                     | manage_channels    |                    |         |                   |
 | `/set create_text <enable> `   |                                                                  | manage_channels    |                    |         |                   |
 | `/set create_voice <enable>`   |                                                                  | manage_channels    |                    |         |                   |
