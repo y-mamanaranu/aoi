@@ -54,6 +54,7 @@ intents = discord.Intents.all()
 intents.reactions = True
 intents.members = True
 intents.messages = True
+intents.dm_messages = True
 bot = Bot(command_prefix=(get_prefix_ctx),
           intents=intents)
 

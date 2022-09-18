@@ -449,6 +449,30 @@ class Movers(commands.Cog):
             if if_create_voice:
                 await self.sub_delete_vocie(member, before.channel, if_create_text)
 
+    @commands.Cog.listener()
+    async def on_thread_create(self, thread: discord.Thread):
+        """Notify on thread create in forum.
+
+        Add `Aoi notify to text <#text_channel_id>.`.
+        Or add `Aoi notify to <#thread_id>.`.
+        """
+        if thread.parent.topic:
+            res = re.search(r"^Aoi notify to (text )?<#(\d+)>.$",
+                            thread.parent.topic,
+                            flags=re.MULTILINE)
+            if res:
+                channel_id = int(res.group(2))
+                if res.group(1) == "text ":
+                    channel = get(thread.guild.text_channels,
+                                  id=channel_id)
+                else:
+                    channel = get(thread.parent.threads,
+                                  id=channel_id)
+
+                if channel:
+                    await channel.send(
+                        f"{thread.owner.mention} creates {thread.mention}.")
+
 
 async def setup(bot):
     await bot.add_cog(Movers(bot))
