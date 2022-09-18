@@ -85,7 +85,7 @@ twitter template""")
         PENDING = get_pending(DATABASE_URL,
                               GUILD_ID)
         AUTH = get_twitter_status(DATABASE_URL, GUILD_ID)
-        embed = discord.Embed(description=TEMPLATE)
+        # embed = discord.Embed(description=TEMPLATE)
         await interaction.followup.send(f"""Prefix is `{PREFIX}`.
 #Profile is {convert_channel_to_mention(PROFILE_ID)}.
 #Log is {convert_channel_to_mention(LOG_ID)}.
@@ -104,8 +104,7 @@ create_text? is `{IF_CREATE_TEXT}`.
 
 twitter account is {AUTH}.
 
-github is `{GITHUB}`.""",
-                                        embed=embed)
+github is `{GITHUB}`.""")
 
     @app_commands.command()
     @app_commands.describe(user=_T('@User'))
@@ -113,6 +112,7 @@ github is `{GITHUB}`.""",
     async def profile(self,
                       interaction: discord.Interaction,
                       user: discord.User,
+                      private: bool = True,
                       help: bool = False):
         """Show profile of spesific member.
 
@@ -122,6 +122,8 @@ github is `{GITHUB}`.""",
             _description_
         user : str
             User to show.
+        private : bool
+            Show wheter to show results to all members.
         """
         GUILD_ID = interaction.guild_id
 
@@ -142,10 +144,10 @@ github is `{GITHUB}`.""",
             embed.set_author(name=user.nick or user.name,
                              icon_url=user.avatar)
 
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=private)
             return
         else:
-            await interaction.response.send_message("No profile is found.")
+            await interaction.response.send_message("No profile is found.", ephemeral=True)
             return
 
     async def sub_search(self,
