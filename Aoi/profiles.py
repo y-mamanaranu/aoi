@@ -527,6 +527,7 @@ github is `{GITHUB}`.""")
     async def dm_number(self, interaction: discord.Interaction,
                         start: int = 1,
                         end: int = 100,
+                        alphabet: bool = False,
                         help: bool = False):
         """Send random number as DM.
 
@@ -538,6 +539,8 @@ github is `{GITHUB}`.""")
             Number to start, by default 1
         end : int, optional
             Number to end, by default 100
+        alphabet: bool, optional
+            Send alphabet instead of number
         help : bool, optional
             _description_, by default False
         """
@@ -550,12 +553,17 @@ github is `{GITHUB}`.""")
                 await interaction.followup.send(
                     "Number of member is too large.")
             else:
-                numbers = np.random.choice(pop, size=100, replace=False)
+                numbers = np.random.choice(pop,
+                                           size=len(members),
+                                           replace=False)
                 m: discord.Member
                 for m, n in zip(members, numbers):
                     _log.debug(f"Send {n} to {m.mention} as DM.")
                     try:
-                        await m.send(f"{interaction.user.mention} send you {n}.")
+                        if alphabet:
+                            await m.send(f"{interaction.user.mention} send you {chr(64+n)}.")
+                        else:
+                            await m.send(f"{interaction.user.mention} send you {n}.")
                     except discord.errors.Forbidden:
                         await interaction.followup.send(
                             f"Fail to send to {m.mention}.")
