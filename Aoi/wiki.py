@@ -115,9 +115,11 @@ Or [Search {keyword} in GitHub?]({self.url_search(keyword=keyword)})"""
 
 Search {keyword} in GitHub?]({self.url_search(keyword=keyword)})"""
 
-        return re.sub("\\[\\[(.+?)\\]\\]",
-                      f"[\\1](https://github.com/{self.repo}/wiki/\\1)",
-                      content)
+        for keyword in re.findall("\\[\\[(.+?)\\]\\]", content):
+            content = content.replace(
+                f"[[{keyword}]]",
+                f"[{keyword}](https://github.com/{self.repo}/wiki/{keyword.replace(' ', '-')})")
+        return re.sub("\n{3,}", "\n\n", content)
 
 
 class Wiki(commands.Cog):
